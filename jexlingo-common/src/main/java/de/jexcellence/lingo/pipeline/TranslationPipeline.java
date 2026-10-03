@@ -6,11 +6,13 @@ import de.jexcellence.lingo.api.TranslationRequest;
 import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.provider.ProviderGateway;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * Turns one text into one target language. The layers run in a fixed order and the first hit wins:
@@ -38,6 +40,7 @@ public final class TranslationPipeline {
     private final AtomicReference<SkipRules> skipRules;
     private final InFlightRegistry<String> inFlight = new InFlightRegistry<>();
     private final PipelineStats stats = new PipelineStats();
+    private final AtomicReference<Consumer<TranslationResult>> resultSink = new AtomicReference<>();
 
     /**
      * Creates the pipeline.
@@ -89,6 +92,15 @@ public final class TranslationPipeline {
             return done(TranslationResult.unchanged(text, source, request.target(), TranslationOrigin.FALLBACK));
         }
         return fromProvider(text, pair, key, masked, started);
+    }
+
+    /**
+     * Sets a receiver for every result, for example the daily statistics.
+     *
+     * @param sink the receiver, or {@code null} to remove it
+     */
+    public void setResultSink(@Nullable Consumer<TranslationResult> sink) {
+        resultSink.set(sink);
     }
 
     /**
@@ -189,6 +201,10 @@ public final class TranslationPipeline {
 
     private @NotNull TranslationResult count(@NotNull TranslationResult result) {
         stats.record(result.origin());
+        Consumer<TranslationResult> sink = resultSink.get();
+        if (sink != null) {
+            sink.accept(result);
+        }
         return result;
     }
 

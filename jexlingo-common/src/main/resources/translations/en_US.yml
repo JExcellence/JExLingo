@@ -86,6 +86,7 @@ lingo:
     unknown_language: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is no language code, for example de or en.</#F1F5F9>'
     language_not_enabled: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not translated on this server. Use auto or one of the suggested codes.</#F1F5F9>'
     unknown_incoming: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>auto</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>click</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>off</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    unknown_period: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>today</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>week</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>month</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_toggle: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>enable</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>disable</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_mode: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>keep</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>force</#5EEAD4><#F1F5F9>.</#F1F5F9>'
   settings:
@@ -116,11 +117,48 @@ lingo:
     how: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Click a translated chat line, then type your better translation.</#F1F5F9>'
     missing_text: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Type your translation after the message id.</#F1F5F9>'
     nothing_recent: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>You saw no translated message in the last five minutes.</#F1F5F9>'
+  phrases:
+    header: '<#C4B5FD>Pinned phrases</#C4B5FD> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>in total, newest first</#94A3B8>'
+    entry: '<dark_gray>-</dark_gray> <#5EEAD4>#{id}</#5EEAD4> <#94A3B8>{pair}</#94A3B8> <#F1F5F9>{text}</#F1F5F9> <dark_gray>></dark_gray> <#F1F5F9>{translation}</#F1F5F9>'
+    removed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Phrase</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>unpinned.</#F1F5F9>'
+    not_found: '<#F87171>[X]</#F87171> <#F1F5F9>No pinned phrase with id</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+  origin:
+    glossary: 'Glossary'
+    memory: 'Approved corrections'
+    phrase: 'Pinned phrases'
+    cache: 'Cache'
+    provider: 'Translator'
+    fallback: 'Shown untranslated'
+  ops:
+    history_premium: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Statistics of past days are part of JExLingo Premium. Showing today.</#F1F5F9>'
+    inspect:
+      header: '<#C4B5FD>Translation settings of</#C4B5FD> <#F1F5F9>{name}</#F1F5F9>'
+      reading_choice: 'Reading language (chosen)'
+      writing_choice: 'Writing language (chosen)'
+      client: 'Game language'
+      reads: 'Reads in'
+      writes: 'Writes in'
+      incoming: 'Other languages'
+      outgoing: 'Translate own messages'
+      original: 'Show original'
+      suggestions: 'May suggest'
+    set:
+      done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Translation settings of</#F1F5F9> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>changed.</#F1F5F9>'
+    paused: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Chat translation is paused until</#F1F5F9> <#5EEAD4>/lingo resume</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    paused_for: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Chat translation is paused for</#F1F5F9> <#5EEAD4>{minutes} min</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    resumed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Chat translation is running again.</#F1F5F9>'
+    ping:
+      done: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{provider}</#5EEAD4> <#F1F5F9>answered in</#F1F5F9> <#5EEAD4>{millis} ms</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+      failed: '<#F87171>[X]</#F87171> <#F1F5F9>The provider did not answer:</#F1F5F9> <#94A3B8>{value}</#94A3B8>'
+      one_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>A ping needs at least two enabled languages.</#F1F5F9>'
+    cache_cleared: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Removed</#F1F5F9> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>cached translations.</#F1F5F9>'
   learning:
     unavailable: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Corrections and the translation memory are part of JExLingo Premium.</#F1F5F9>'
   review:
     approved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Suggestion</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>approved. It is used from now on.</#F1F5F9>'
     rejected: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Suggestion</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>rejected.</#F1F5F9>'
+    revoked: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Correction</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>taken back. The line is translated by the provider again.</#F1F5F9>'
+    not_approved: '<#F87171>[X]</#F87171> <#F1F5F9>No approved correction with id</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     not_pending: '<#F87171>[X]</#F87171> <#F1F5F9>No open suggestion with id</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     blocked: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>can no longer suggest translations.</#F1F5F9>'
     unblocked: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>can suggest translations again.</#F1F5F9>'
@@ -189,6 +227,8 @@ gui:
         name: '<#F1F5F9>Next page »</#F1F5F9>'
         lore: '<#94A3B8>Page {page} of {pages}</#94A3B8>'
     filter:
+      name: '<#F1F5F9>Filter</#F1F5F9>'
+      title: '<#C4B5FD>Show</#C4B5FD>'
       option: '<#94A3B8>○</#94A3B8> <#94A3B8>{name}</#94A3B8>'
       option-active: '<#5EEAD4>●</#5EEAD4> <#F1F5F9>{name}</#F1F5F9>'
       action: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Left-click next, right-click back</#F1F5F9>'
@@ -239,17 +279,94 @@ lingo_review:
     name: '<gradient:#5EEAD4:#38BDF8>Suggested translations</gradient>'
     description: 'Players suggested these translations. Approved ones answer every identical line from now on.'
     section: 'Queue'
+  filter:
+    pending: 'Waiting for review'
+    approved: 'Approved corrections'
   label:
     pending: 'Waiting'
+    approved: 'Approved'
   empty:
     name: '<#F1F5F9>Nothing to review</#F1F5F9>'
     description: 'There are no open suggestions right now.'
+  empty-approved:
+    name: '<#F1F5F9>No approved corrections</#F1F5F9>'
+    description: 'Approved corrections appear here. Right-click one to take it back.'
   card:
     name: '<#F1F5F9>#{id}</#F1F5F9> <dark_gray>|</dark_gray> <#5EEAD4>{from} » {to}</#5EEAD4>'
     original: '<#C4B5FD>Original</#C4B5FD>'
     suggestion: '<#C4B5FD>Suggestion</#C4B5FD>'
     approve: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Left-click to approve</#F1F5F9>'
     reject: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Right-click to reject</#F1F5F9>'
+    revoke: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Right-click to take back</#F1F5F9>'
+
+lingo_stats:
+  title: '<gradient:#5EEAD4:#38BDF8>Statistics</gradient>'
+  loading:
+    name: '<#F1F5F9>Loading</#F1F5F9>'
+    description: 'Counting the translations of this period.'
+  header:
+    name: '<gradient:#5EEAD4:#38BDF8>Translator</gradient>'
+    description: 'Live state of the translation provider.'
+    section: 'Right now'
+  period:
+    today: 'Today'
+    week: 'Last 7 days'
+    month: 'Last 30 days'
+  value:
+    online: 'online'
+    offline: 'offline'
+    paused: 'paused by staff'
+  label:
+    provider: 'Provider'
+    state: 'State'
+    breaker: 'Circuit breaker'
+    latency: 'Latency p50 / p95'
+    inflight: 'Running'
+    paused: 'Chat translation'
+    translations: 'Translations'
+    characters: 'Characters'
+    saved: 'Without provider call'
+    fallback: 'Shown untranslated'
+    calls: 'Provider calls'
+    average: 'Average time'
+    failed-since-start: 'Failed since start'
+    refused-since-start: 'Refused since start'
+    cache: 'Cache entries / hit rate'
+    approved: 'Approved corrections'
+    pinned: 'Pinned phrases'
+    sources: 'Sources'
+    pairs: 'Language pairs'
+  overview:
+    name: '<#F1F5F9>Overview</#F1F5F9> <dark_gray>|</dark_gray> <#5EEAD4>{period}</#5EEAD4>'
+    description: 'All translated lines of the period.'
+    section: 'Totals'
+  origins:
+    name: '<#F1F5F9>Sources</#F1F5F9>'
+    description: 'Where each translation came from. Everything except the translator saves a provider call.'
+    section: 'Results'
+  pairs:
+    name: '<#F1F5F9>Language pairs</#F1F5F9>'
+    description: 'The busiest translation directions.'
+    section: 'Busiest'
+  pair:
+    row: '<#94A3B8>{pair}</#94A3B8> <dark_gray>|</dark_gray> {value}'
+    none: '<#94A3B8>No translations yet</#94A3B8>'
+  provider:
+    name: '<#F1F5F9>Translator</#F1F5F9>'
+    description: 'Provider calls of the period and errors since the last start.'
+    section: 'Provider'
+  learning:
+    name: '<#F1F5F9>Learning</#F1F5F9>'
+    description: 'Server vocabulary the translator learned from players and frequent lines.'
+    section: 'Stored'
+  learning-locked:
+    name: '<#F1F5F9>Learning</#F1F5F9>'
+    description: 'Corrections and pinned phrases are part of JExLingo Premium.'
+  history-locked:
+    name: '<#F1F5F9>History</#F1F5F9>'
+    description: 'Statistics of the last 7 and 30 days are part of JExLingo Premium.'
+  chat:
+    header: '<#C4B5FD>JExLingo statistics</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{period}</#94A3B8>'
 
 lingo_glossary:
   title: '<gradient:#5EEAD4:#38BDF8>Glossary</gradient>'

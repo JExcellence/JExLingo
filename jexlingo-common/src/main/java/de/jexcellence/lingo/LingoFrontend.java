@@ -36,6 +36,7 @@ public final class LingoFrontend {
 
     private final JavaPlugin plugin;
     private final LingoCore core;
+    private final LingoOperations operations;
     private final AtomicReference<LingoConfig> config;
     private final PlatformScheduler scheduler;
     private final RecentMessageBuffer recent = new RecentMessageBuffer();
@@ -49,14 +50,16 @@ public final class LingoFrontend {
      * Creates the front end.
      *
      * @param plugin    the plugin
-     * @param core      the services
-     * @param config    the live config
+     * @param core       the services
+     * @param operations statistics and pause switch
+     * @param config     the live config
      * @param scheduler the platform scheduler
      */
-    public LingoFrontend(@NotNull JavaPlugin plugin, @NotNull LingoCore core,
+    public LingoFrontend(@NotNull JavaPlugin plugin, @NotNull LingoCore core, @NotNull LingoOperations operations,
                          @NotNull AtomicReference<LingoConfig> config, @NotNull PlatformScheduler scheduler) {
         this.plugin = plugin;
         this.core = core;
+        this.operations = operations;
         this.config = config;
         this.scheduler = scheduler;
     }
@@ -74,7 +77,7 @@ public final class LingoFrontend {
         learner = new WritingLanguageLearner(core.gateway(), scheduler, config.get().detection());
         ChatTranslationCoordinator chat = new ChatTranslationCoordinator(new ChatContext(core.pipeline(),
                 core.settings(), core.resolver(), core.detector(), recent, scheduler, worker), decorator,
-                config.get().chat(), learner);
+                config.get().chat(), learner, operations.toggle());
         OnDemandTranslator onDemand = new OnDemandTranslator(recent, core.pipeline(), core.resolver(), decorator,
                 scheduler);
         coordinator = chat;
@@ -93,7 +96,8 @@ public final class LingoFrontend {
             forms = new LingoBedrockForms(bedrock, new LingoBedrockForms.FormServices(core.settings(),
                     core.resolver(), recent, suggestions, core.memory(), core.glossary(), scheduler));
         }
-        new LingoCommands(plugin, core, scheduler).register(worker, reload, suggestions, forms, onDemand);
+        new LingoCommands(plugin, core, operations, scheduler)
+                .register(worker, reload, suggestions, forms, onDemand, bedrock);
         registerPlaceholders();
         registerApi();
     }
@@ -129,7 +133,7 @@ public final class LingoFrontend {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
             return;
         }
-        placeholders = new LingoPlaceholderExpansion(core.settings(), core.resolver(), core.health(),
+        placeholders = new LingoPlaceholderExpansion(core.settings(), core.resolver(), operations.sources(),
                 plugin.getPluginMeta().getVersion());
         placeholders.register();
     }

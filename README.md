@@ -1,6 +1,6 @@
 # JExLingo
 
-> **Status:** 0.2.0 built, not yet deployed or tested in game. **Last verified:** 2026-10-03.
+> **Status:** 0.3.0 built, not yet deployed or tested in game. **Last verified:** 2026-10-03.
 > **License:** proprietary, all rights reserved. See [LICENSE](LICENSE).
 > **Related:** [docs/PLAN.md](docs/PLAN.md), [docs/CONFIG.md](docs/CONFIG.md), [docs/PRIVACY.md](docs/PRIVACY.md),
 > [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md), [deploy/libretranslate](deploy/libretranslate/README.md).
@@ -39,6 +39,11 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
   answers that line from then on. When several different players suggest the same correction, it is approved
   without staff (`learning.auto-approve-votes`). Frequent short phrases get their translation pinned. Approved pairs export as TSV
   for offline model training.
+- **Statistics**: daily totals per language pair and source (no texts, no players) in a menu with provider
+  health, sources, busiest pairs and learning numbers; `/lingo stats` in chat for the console. Today in Free, the
+  last 7 and 30 days in Premium.
+- **Staff tools**: inspect and change any player's settings, pause chat translation during provider maintenance,
+  ping the provider, clear the cache, take back approved corrections and unpin wrong phrases.
 - **API** for other plugins: `JExLingoApi.translate(...)`, `languageOf(uuid)`, `ChatTranslatedEvent`, and a
   `TranslationProvider` SPI for other backends.
 
@@ -51,11 +56,12 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 | Glossary terms | 50 | unlimited |
 | Corrections, translation memory, pinned phrases, TSV export | - | yes |
 | Providers registered by other plugins | - | yes |
+| Statistics | today | today, 7 and 30 days |
 
 ## Quick start
 
 1. Run LibreTranslate on the same machine: [deploy/libretranslate](deploy/libretranslate/README.md).
-2. Put `JExLingo-0.2.0-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
+2. Put `JExLingo-0.3.0-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
 3. Optional: `export JEXLINGO_API_KEY=<key>` for the server process.
 4. Start the server, then `/lingo status` shows whether the provider is reachable.
 
@@ -69,6 +75,10 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 | `/lingo suggest [id] [text]` | `jexlingo.suggest` | everyone (Premium) |
 | `/lingo review [approve\|reject\|block\|unblock]` | `jexlingo.review` | op (Premium) |
 | `/lingo glossary [add\|remove\|list]` | `jexlingo.admin.glossary` | op |
+| `/lingo stats [today\|week\|month]` | `jexlingo.admin.stats` | op |
+| `/lingo inspect <player>`, `set <lang\|write\|incoming\|outgoing\|original> <player> <value>` | `jexlingo.admin` | op |
+| `/lingo pause [minutes]`, `resume`, `ping`, `cache clear` | `jexlingo.admin` | op |
+| `/lingo review revoke <id>`, `phrases [list\|remove <id>]` | `jexlingo.review` | op (Premium) |
 | `/lingo test <from> <to> <text>`, `status`, `export`, `reload`, `erase <player>` | `jexlingo.admin` | op |
 
 The tree lives in `plugins/JExLingo/commands/lingo.yml`; rename the command or change permissions there.
@@ -76,7 +86,8 @@ The tree lives in `plugins/JExLingo/commands/lingo.yml`; rename the command or c
 ## Placeholders
 
 `%jexlingo_language%`, `%jexlingo_language_upper%`, `%jexlingo_preference%`, `%jexlingo_writes%`, `%jexlingo_incoming%`,
-`%jexlingo_outgoing%`, `%jexlingo_original%`, `%jexlingo_provider%`.
+`%jexlingo_outgoing%`, `%jexlingo_original%`, `%jexlingo_provider%`, `%jexlingo_paused%`, `%jexlingo_stats_today%`,
+`%jexlingo_latency%`.
 
 ## Building
 

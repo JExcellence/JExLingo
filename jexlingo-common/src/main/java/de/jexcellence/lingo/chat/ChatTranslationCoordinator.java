@@ -44,6 +44,7 @@ public final class ChatTranslationCoordinator {
     private final TranslatedLineDecorator decorator;
     private final AtomicReference<ChatSettings> chat;
     private final WritingLanguageLearner learner;
+    private final TranslationSwitch toggle;
     private final Map<UUID, Long> lastProviderUse = new ConcurrentHashMap<>();
 
     /**
@@ -53,13 +54,16 @@ public final class ChatTranslationCoordinator {
      * @param decorator line decorator
      * @param chat      chat settings
      * @param learner   writing-language learner
+     * @param toggle    staff pause switch
      */
     public ChatTranslationCoordinator(@NotNull ChatContext context, @NotNull TranslatedLineDecorator decorator,
-                                      @NotNull ChatSettings chat, @NotNull WritingLanguageLearner learner) {
+                                      @NotNull ChatSettings chat, @NotNull WritingLanguageLearner learner,
+                                      @NotNull TranslationSwitch toggle) {
         this.context = context;
         this.decorator = decorator;
         this.chat = new AtomicReference<>(chat);
         this.learner = learner;
+        this.toggle = toggle;
     }
 
     /**
@@ -88,7 +92,7 @@ public final class ChatTranslationCoordinator {
                                                 @NotNull Collection<? extends Audience> viewers,
                                                 boolean mayWaitInline) {
         ChatSettings settings = chat.get();
-        if (!context.settings().get(sender.getUniqueId()).translateOutgoing()
+        if (toggle.isPaused() || !context.settings().get(sender.getUniqueId()).translateOutgoing()
                 || SkipRules.from(settings).skips(text, TranslationContext.CHAT)) {
             return Optional.empty();
         }

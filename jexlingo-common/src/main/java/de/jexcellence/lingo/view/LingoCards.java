@@ -1,6 +1,7 @@
 package de.jexcellence.lingo.view;
 
 import de.jexcellence.jexplatform.gui.component.CardLore;
+import de.jexcellence.jexplatform.gui.component.FilterHopperButton;
 import de.jexcellence.jexplatform.utility.item.ItemBuilder;
 import de.jexcellence.jextranslate.MessageBuilder;
 import de.jexcellence.jextranslate.R18nManager;
@@ -209,6 +210,23 @@ public final class LingoCards {
     public static @NotNull ItemStack notice(@Nullable Player viewer, @NotNull Material icon, @NotNull String keyBase) {
         return card(new ItemStack(icon), ic(viewer, keyBase + ".name"),
                 CardLore.create().block(paragraphOf(viewer, keyBase + ".description")).build());
+    }
+
+    /**
+     * The shared filter button: a hopper minecart named "Filter" with a "Show" block that marks the active option
+     * with a filled dot and the others with an empty one, and the left/right-click hint. The caller tags it.
+     *
+     * @param viewer the viewer
+     * @param labels translated option labels in cycle order
+     * @param active index of the active option
+     * @return the filter item
+     */
+    public static @NotNull ItemStack filter(@Nullable Player viewer, @NotNull List<String> labels, int active) {
+        return card(FilterHopperButton.ICON, ic(viewer, COMMON + "filter.name"),
+                CardLore.create()
+                        .section(ic(viewer, COMMON + "filter.title"), options(viewer, labels, active))
+                        .block(List.of(ic(viewer, COMMON + "filter.action")))
+                        .build());
     }
 
     /**

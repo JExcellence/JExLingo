@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * @param languages enabled languages and fallback
  * @param detection optional language detection
  * @param chat      chat behaviour and limits
- * @param cache     in-memory result cache
+ * @param storage   result cache and statistics
  * @param learning  suggestion and phrase promotion limits
  * @param bedrock   Bedrock viewer options
  * @author JExcellence
@@ -21,7 +21,7 @@ public record LingoConfig(
         @NotNull LanguageSettings languages,
         @NotNull DetectionSettings detection,
         @NotNull ChatSettings chat,
-        @NotNull CacheSettings cache,
+        @NotNull StorageSettings storage,
         @NotNull LearningSettings learning,
         @NotNull BedrockSettings bedrock
 ) {

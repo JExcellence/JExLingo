@@ -8,6 +8,8 @@ import de.jexcellence.lingo.api.TranslationRequest;
 import de.jexcellence.lingo.bedrock.LingoBedrockForms;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.glossary.GlossaryTerm;
+import de.jexcellence.lingo.learning.PhraseService;
+import de.jexcellence.lingo.learning.PinnedPhrase;
 import de.jexcellence.lingo.learning.TrainingExportService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
@@ -42,6 +44,7 @@ public final class LingoAdminHandler {
     private static final String COUNT = "count";
     private static final String NAME = "name";
     private static final String UNAVAILABLE = "lingo.learning.unavailable";
+    private static final int PHRASE_LIST_LIMIT = 20;
 
     private final AdminServices services;
     private final StatusReport status;
@@ -49,6 +52,7 @@ public final class LingoAdminHandler {
     private final Replies replies;
     private @Nullable SuggestionReviewView reviewView;
     private @Nullable LingoBedrockForms forms;
+    private @Nullable PhraseService phrases;
 
     /**
      * Creates the handler.
@@ -76,6 +80,15 @@ public final class LingoAdminHandler {
     }
 
     /**
+     * Wires the pinned phrases (Premium).
+     *
+     * @param value the phrase service
+     */
+    public void setPhrases(@Nullable PhraseService value) {
+        this.phrases = value;
+    }
+
+    /**
      * Wires the Bedrock forms when Floodgate is present.
      *
      * @param value the forms
@@ -94,6 +107,10 @@ public final class LingoAdminHandler {
         handlers.put(ROOT + "review", this::onReview);
         handlers.put(ROOT + "review.approve", this::onApprove);
         handlers.put(ROOT + "review.reject", this::onReject);
+        handlers.put(ROOT + "review.revoke", this::onRevoke);
+        handlers.put(ROOT + "phrases", this::onPhrases);
+        handlers.put(ROOT + "phrases.list", this::onPhrases);
+        handlers.put(ROOT + "phrases.remove", this::onPhraseRemove);
         handlers.put(ROOT + "review.block", ctx -> onBlock(ctx, true));
         handlers.put(ROOT + "review.unblock", ctx -> onBlock(ctx, false));
         handlers.put(ROOT + "glossary", this::onGlossary);
@@ -141,6 +158,47 @@ public final class LingoAdminHandler {
         long id = ctx.require(ID, Long.class);
         memory.reject(id).thenAccept(done -> replies.send(ctx.sender(),
                 SafeText.msg(Boolean.TRUE.equals(done) ? KEY + "review.rejected" : KEY + "review.not_pending")
+                        .with(ID, id)));
+    }
+
+    private void onRevoke(@NotNull CommandContext ctx) {
+        TranslationMemoryService memory = services.memory();
+        if (memory == null) {
+            replies.send(ctx.sender(), UNAVAILABLE);
+            return;
+        }
+        long id = ctx.require(ID, Long.class);
+        memory.revoke(id).thenAccept(done -> replies.send(ctx.sender(),
+                SafeText.msg(Boolean.TRUE.equals(done) ? KEY + "review.revoked" : KEY + "review.not_approved")
+                        .with(ID, id)));
+    }
+
+    private void onPhrases(@NotNull CommandContext ctx) {
+        PhraseService service = phrases;
+        if (service == null) {
+            replies.send(ctx.sender(), UNAVAILABLE);
+            return;
+        }
+        CommandSender sender = ctx.sender();
+        List<PinnedPhrase> pinned = service.list();
+        SafeText.msg(KEY + "phrases.header").with(COUNT, pinned.size()).prefix().send(sender);
+        Player viewer = sender instanceof Player player ? player : null;
+        pinned.stream().limit(PHRASE_LIST_LIMIT).forEach(phrase -> sender.sendMessage(SafeText.component(
+                SafeText.msg(KEY + "phrases.entry")
+                        .with(ID, phrase.id())
+                        .with("pair", phrase.pair().source().upper() + " » " + phrase.pair().target().upper()),
+                viewer, Map.of(TEXT, phrase.sourceKey(), "translation", phrase.targetText()))));
+    }
+
+    private void onPhraseRemove(@NotNull CommandContext ctx) {
+        PhraseService service = phrases;
+        if (service == null) {
+            replies.send(ctx.sender(), UNAVAILABLE);
+            return;
+        }
+        long id = ctx.require(ID, Long.class);
+        service.remove(id).thenAccept(done -> replies.send(ctx.sender(),
+                SafeText.msg(Boolean.TRUE.equals(done) ? KEY + "phrases.removed" : KEY + "phrases.not_found")
                         .with(ID, id)));
     }
 

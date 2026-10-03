@@ -2,9 +2,7 @@ package de.jexcellence.lingo.view;
 
 import de.jexcellence.jexplatform.gui.component.CardLore;
 import de.jexcellence.jexplatform.utility.item.ItemBuilder;
-import de.jexcellence.jextranslate.MessageBuilder;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -58,7 +56,6 @@ public abstract class LingoBaseView implements Listener {
     protected static final int SLOT_PAGE_PREV = 48;
     protected static final int SLOT_PAGE_NEXT = 50;
 
-
     protected abstract @NotNull String title();
 
     protected abstract int rows();
@@ -82,7 +79,7 @@ public abstract class LingoBaseView implements Listener {
      * @param viewer the player to open the view for
      */
     public void open(@NotNull Player viewer) {
-        Inventory inv = Bukkit.createInventory(holder(), rows() * 9, msg(title()).itemComponent(viewer));
+        Inventory inv = Bukkit.createInventory(holder(), rows() * 9, LingoCards.msg(title()).itemComponent(viewer));
         render(inv, viewer);
         fillGaps(inv);
         viewer.openInventory(inv);
@@ -187,29 +184,8 @@ public abstract class LingoBaseView implements Listener {
         }
     }
 
-    protected @NotNull MessageBuilder msg(@NotNull String key) {
-        return LingoCards.msg(key);
-    }
-
     protected @NotNull Component ic(@NotNull String key, @Nullable Player viewer) {
         return LingoCards.ic(viewer, key);
-    }
-
-    /**
-     * Operator hook: the optional {@code <baseKey>.lore_extra} list is shown as its own block at the end of
-     * a card. Missing or empty keys add nothing.
-     *
-     * @param lore    the card being built
-     * @param baseKey the card's base key
-     * @param viewer  the viewer
-     */
-    protected void appendLoreExtra(@NotNull CardLore lore, @NotNull String baseKey, @Nullable Player viewer) {
-        MessageBuilder extra = msg(baseKey + ".lore_extra");
-        if (extra.exists(viewer)) {
-            lore.block(extra.toComponents(viewer).stream()
-                    .map(line -> line.decoration(TextDecoration.ITALIC, false))
-                    .toList());
-        }
     }
 
     private static boolean isDecoration(@NotNull Material material) {
@@ -222,9 +198,14 @@ public abstract class LingoBaseView implements Listener {
         int row = slot / 9;
         int column = slot % 9;
         int lastRow = size / 9 - 1;
-        Material material = row == 0 || row == lastRow
-                ? Material.PURPLE_STAINED_GLASS_PANE
-                : column == 0 || column == 8 ? Material.CYAN_STAINED_GLASS_PANE : Material.BLACK_STAINED_GLASS_PANE;
+        Material material;
+        if (row == 0 || row == lastRow) {
+            material = Material.PURPLE_STAINED_GLASS_PANE;
+        } else if (column == 0 || column == 8) {
+            material = Material.CYAN_STAINED_GLASS_PANE;
+        } else {
+            material = Material.BLACK_STAINED_GLASS_PANE;
+        }
         return ItemBuilder.of(material)
                 .name(Component.empty())
                 .build();
@@ -287,7 +268,7 @@ public abstract class LingoBaseView implements Listener {
                                           int targetPage, int pages) {
         String base = LingoCards.COMMON + "page." + direction;
         ItemStack button = LingoCards.card(Material.ARROW, ic(base + ".name", viewer),
-                CardLore.create().block(List.of(LingoCards.ic(msg(base + ".lore")
+                CardLore.create().block(List.of(LingoCards.ic(LingoCards.msg(base + ".lore")
                         .with("page", targetPage).with("pages", pages), viewer))).build());
         tag(button, navTag);
         return button;

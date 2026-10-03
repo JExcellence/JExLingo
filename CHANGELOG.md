@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0 - 2026-10-03
+
+- Daily statistics: totals per day, language pair and source in `jexlingo_daily_stats`, no texts and no players,
+  written every five minutes and on shutdown, kept `statistics.retention-days` (default 90).
+- `/lingo stats` menu: provider health, overview (translations, characters, share without provider call, share
+  shown untranslated), sources, busiest language pairs, provider, learning. Filter today / 7 / 30 days (Premium),
+  Bedrock form, chat version for the console.
+- Staff tools: `/lingo inspect <player>`, `/lingo set lang|write|incoming|outgoing|original <player> <value>`
+  (also for offline players), `/lingo pause [minutes]` and `/lingo resume`, `/lingo ping`, `/lingo cache clear`.
+- Learning management (Premium): review menu filter for approved corrections with right-click to take one back,
+  `/lingo review revoke <id>`, `/lingo phrases [list|remove <id>]`.
+- Placeholders `%jexlingo_paused%`, `%jexlingo_stats_today%`, `%jexlingo_latency%`.
+- Internal: core split into learning layer, operations, file handling and staff command builder (class coupling
+  under 20); `config-version` 3.
+- 6 new unit tests (90 total).
+
 ## 0.2.0 - 2026-10-03
 
 - Proprietary license: all rights reserved (LICENSE, README).

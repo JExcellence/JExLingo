@@ -168,6 +168,24 @@ public final class TranslationMemoryService implements TranslationLookup {
     }
 
     /**
+     * Takes back an approved correction; the line goes back to the provider.
+     *
+     * @param id the entry id
+     * @return whether an approved entry was revoked
+     */
+    public @NotNull CompletableFuture<Boolean> revoke(long id) {
+        return CompletableFuture.supplyAsync(() -> repository.findById(id)
+                .filter(row -> row.toEntry().status() == MemoryStatus.APPROVED)
+                .map(row -> {
+                    row.review(MemoryStatus.REJECTED, row.toEntry().targetText());
+                    repository.update(row);
+                    approved.values().removeIf(entry -> entry.id() == id);
+                    return true;
+                })
+                .orElse(false), worker);
+    }
+
+    /**
      * Rejects a suggestion.
      *
      * @param id the entry id

@@ -51,6 +51,13 @@ public sealed interface LingoEdition permits LingoEdition.FreeEdition, LingoEdit
     boolean customProvidersEnabled();
 
     /**
+     * Returns whether statistics of the last 7 and 30 days are available; Free shows today only.
+     *
+     * @return whether the statistics history is available
+     */
+    boolean statisticsHistory();
+
+    /**
      * Keeps the first {@link #maxLanguages()} languages in config order.
      *
      * @param languages the configured languages
@@ -84,6 +91,7 @@ public sealed interface LingoEdition permits LingoEdition.FreeEdition, LingoEdit
         @Override public int maxGlossaryTerms() { return GLOSSARY_LIMIT; }
         @Override public boolean learningEnabled() { return false; }
         @Override public boolean customProvidersEnabled() { return false; }
+        @Override public boolean statisticsHistory() { return false; }
     }
 
     /** The premium edition: everything, no limits. */
@@ -94,5 +102,6 @@ public sealed interface LingoEdition permits LingoEdition.FreeEdition, LingoEdit
         @Override public int maxGlossaryTerms() { return 0; }
         @Override public boolean learningEnabled() { return true; }
         @Override public boolean customProvidersEnabled() { return true; }
+        @Override public boolean statisticsHistory() { return true; }
     }
 }

@@ -1,6 +1,6 @@
 # JExLingo configuration
 
-> **Status:** matches 0.2.0. **Last verified:** 2026-10-03. **Related:** [../README.md](../README.md),
+> **Status:** matches 0.3.0. **Last verified:** 2026-10-03. **Related:** [../README.md](../README.md),
 > [PLAN.md](PLAN.md).
 
 `plugins/JExLingo/config.yml` is written once and never overwritten. Defaults live in the plugin
@@ -47,6 +47,8 @@ with their comment (backup `config.yml.bak-<time>`); your values are never chang
 | `bedrock.show-original-line` | `true` | | Bedrock viewers get the original as second line |
 | `cache.max-entries` | 5000 | 0-1000000 | cached provider results (memory only) |
 | `cache.ttl-minutes` | 60 | 1-10080 | lifetime of a cache entry |
+| `statistics.enabled` | `true` | | record daily totals for `/lingo stats` |
+| `statistics.retention-days` | 90 | 1-3650 | days of statistics to keep |
 | `learning.suggestions-per-hour` | 5 | 0-1000 | Premium: suggestions per player per hour |
 | `learning.min-playtime-minutes` | 30 | 0-100000 | Premium: playtime needed to suggest |
 | `learning.promote-after` | 10 | 2-10000 | Premium: uses within the window that pin a phrase |

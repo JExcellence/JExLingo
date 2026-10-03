@@ -26,6 +26,20 @@ German game language, one with English, one Bedrock client through Geyser if ava
 - [ ] `chat.mode: FOLLOW_UP` + reload: original first, translated line right after.
 - [ ] A chat line containing `<red>hi</red>` or `<click:run_command:/op me>` shows as literal text in the translation.
 
+## 0.3.0 features
+
+- [ ] `/lingo stats`: header shows provider online and latency; overview counts grow while players chat.
+- [ ] Premium: the filter switches today / 7 days / 30 days; Free shows the locked history card.
+- [ ] Restart: today's count in `%jexlingo_stats_today%` continues from the stored value.
+- [ ] `/lingo stats week` in the console prints the chat version.
+- [ ] `/lingo inspect <player>` shows chosen and effective languages, also for an offline player.
+- [ ] `/lingo set incoming <player> click` changes their mode; they see `[T]` buttons.
+- [ ] `/lingo pause 1`: lines stay untranslated for one minute, then translation resumes by itself.
+- [ ] `/lingo ping` reports the provider time; with LibreTranslate stopped it reports the error.
+- [ ] Premium: review menu filter shows approved corrections; right-click takes one back; the line is translated by
+  the provider again.
+- [ ] Premium: `/lingo phrases` lists pinned phrases; `/lingo phrases remove <id>` unpins one.
+
 ## 0.2.0 features
 
 - [ ] `idk tbh` from an English player and `vllt morgen` from a German player translate as full words.

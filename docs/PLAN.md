@@ -1,6 +1,6 @@
 # JExLingo - Implementation Plan
 
-> **Status:** 0.2.0 built (phases 1-8 plus section 20), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
+> **Status:** 0.3.0 built (phases 1-8 plus sections 20-21), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
 > **Last verified:** 2026-10-03. **Owner:** JExcellence.
 > **Related:** [../../CLAUDE.md](../../CLAUDE.md), [../../docs/AGENT_BRIEF.md](../../docs/AGENT_BRIEF.md),
 > [../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md](../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md),
@@ -567,3 +567,15 @@ Owner decisions: proprietary license, all rights reserved (LICENSE); repo stays 
 | Normalized lookup keys (trailing `.`/`!`, letter spam) | `TextNormalizer.key` |
 
 Still open: bench on the Debian host, in-game checklist, Free/Premium numbers, JExEssentials/JExDiscord hooks.
+
+---
+
+## 21. 0.3.0 (2026-10-03)
+
+| Feature | Where |
+|---|---|
+| Daily statistics, aggregate only, batched writes, retention | `StatsRecorder`, `StatsService`, `DailyStatEntity` |
+| Statistics menu with period filter (history Premium), Bedrock form, console report | `StatsView`, `StatsForm`, `StatsLines` |
+| Staff tools: inspect, set, pause/resume, ping, cache clear | `LingoOpsHandler`, `TranslationSwitch` |
+| Learning management: approved filter + revoke, phrases list/remove | `SuggestionReviewView`, `TranslationMemoryService.revoke`, `PhraseService.remove` |
+| Class coupling under 20 | `LingoLearning`, `LingoOperations`, `LingoFiles`, `LingoStaffCommands` |

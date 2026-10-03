@@ -66,9 +66,13 @@ public final class LingoConfigLoader {
                 languages(reader),
                 detection(reader, root),
                 chat(reader, root),
-                new CacheSettings(
-                        reader.intIn(CACHE + "max-entries", 5000, 0, 1_000_000),
-                        Duration.ofMinutes(reader.intIn(CACHE + "ttl-minutes", 60, 1, 10_080))),
+                new StorageSettings(
+                        new CacheSettings(
+                                reader.intIn(CACHE + "max-entries", 5000, 0, 1_000_000),
+                                Duration.ofMinutes(reader.intIn(CACHE + "ttl-minutes", 60, 1, 10_080))),
+                        new StatisticsSettings(
+                                root.getBoolean("statistics.enabled", true),
+                                reader.intIn("statistics.retention-days", 90, 1, 3650))),
                 learning(reader),
                 new BedrockSettings(root.getBoolean("bedrock.show-original-line", true)));
         return new LoadResult(config, List.copyOf(reader.warnings));

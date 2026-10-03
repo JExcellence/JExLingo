@@ -1,6 +1,6 @@
 # JExLingo and data protection
 
-> **Status:** matches 0.2.0. **Last verified:** 2026-10-03. Not legal advice; adapt it to your server.
+> **Status:** matches 0.3.0. **Last verified:** 2026-10-03. Not legal advice; adapt it to your server.
 
 ## What is processed
 
@@ -12,6 +12,7 @@
 | Pinned phrases (Premium) | database `jexlingo_phrase`, no player reference | kept |
 | Phrase counters (Premium) | memory, SHA-256 hashes only | `learning.promote-window-hours` |
 | Writing-language samples | memory, detected language codes only | until the player leaves |
+| Daily statistics | database `jexlingo_daily_stats`: counts per day, language pair and source, no text, no player | `statistics.retention-days` |
 
 No chat history is stored. Logs never contain chat text or the API key.
 

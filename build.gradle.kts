@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "de.jexcellence.lingo"
-version = "0.2.0"
+version = "0.3.0"
 description = "JExLingo - live chat translation on a self-hosted LibreTranslate instance"
 
 ext["vendor"] = "JExcellence"

@@ -4,20 +4,15 @@ import de.jexcellence.jehibernate.core.JEHibernate;
 import de.jexcellence.lingo.config.LingoConfig;
 import de.jexcellence.lingo.database.repository.GlossaryTermRepository;
 import de.jexcellence.lingo.database.repository.LingoPlayerSettingsRepository;
-import de.jexcellence.lingo.database.repository.PinnedPhraseRepository;
-import de.jexcellence.lingo.database.repository.TranslationMemoryRepository;
 import de.jexcellence.lingo.glossary.GlossaryService;
 import de.jexcellence.lingo.language.LanguageDetector;
 import de.jexcellence.lingo.language.LanguageResolver;
 import de.jexcellence.lingo.learning.PhraseService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.ChatTextPreparer;
-import de.jexcellence.lingo.pipeline.PipelineLayers;
-import de.jexcellence.lingo.pipeline.ProviderResultListener;
 import de.jexcellence.lingo.pipeline.SkipRules;
 import de.jexcellence.lingo.pipeline.SlangDictionary;
 import de.jexcellence.lingo.pipeline.TranslationCache;
-import de.jexcellence.lingo.pipeline.TranslationLookup;
 import de.jexcellence.lingo.pipeline.TranslationPipeline;
 import de.jexcellence.lingo.provider.CircuitBreaker;
 import de.jexcellence.lingo.provider.ProviderGateway;
@@ -32,7 +27,8 @@ import java.util.logging.Logger;
 
 /**
  * The translation services without any Bukkit front end: provider, pipeline, settings, languages, glossary and the
- * learning layer. Built once per enable; {@link #apply(LingoConfig, SlangDictionary)} pushes a reloaded config into every service.
+ * learning layer. Built once per enable; {@link #apply(LingoConfig, SlangDictionary)} pushes a reloaded config
+ * into every service.
  *
  * @author JExcellence
  * @since 0.1.0
@@ -49,8 +45,7 @@ public final class LingoCore {
     private final LanguageDetector detector;
     private final GlossaryService glossary;
     private final ChatTextPreparer preparer;
-    private final @Nullable TranslationMemoryService memory;
-    private final @Nullable PhraseService phrases;
+    private final LingoLearning learning;
 
     /**
      * Builds every service.
@@ -79,16 +74,9 @@ public final class LingoCore {
         this.resolver = new LanguageResolver(settings, config.languages());
         this.detector = new LanguageDetector(gateway, config.detection());
         this.glossary = new GlossaryService(repositories.get(GlossaryTermRepository.class), edition, worker, logger);
-        if (edition.learningEnabled()) {
-            this.memory = new TranslationMemoryService(repositories.get(TranslationMemoryRepository.class), worker,
-                    logger);
-            this.phrases = new PhraseService(repositories.get(PinnedPhraseRepository.class), config.learning(), logger);
-        } else {
-            this.memory = null;
-            this.phrases = null;
-        }
-        this.pipeline = new TranslationPipeline(gateway, new TranslationCache(config.cache()), layers(),
-                SkipRules.from(config.chat()));
+        this.learning = LingoLearning.create(edition, hibernate, config.learning(), worker, logger);
+        this.pipeline = new TranslationPipeline(gateway, new TranslationCache(config.storage().cache()),
+                learning.layers(glossary, preparer), SkipRules.from(config.chat()));
         glossary.onChange(pipeline.cache()::clear);
     }
 
@@ -113,14 +101,6 @@ public final class LingoCore {
     /** Closes the provider connection. */
     public void close() {
         gateway.close();
-    }
-
-    private @NotNull PipelineLayers layers() {
-        if (memory == null || phrases == null) {
-            return new PipelineLayers(TranslationLookup.NONE, TranslationLookup.NONE, glossary::rulesFor,
-                    ProviderResultListener.NONE, preparer);
-        }
-        return new PipelineLayers(memory, phrases, glossary::rulesFor, phrases, preparer);
     }
 
     /**
@@ -187,16 +167,23 @@ public final class LingoCore {
     public @NotNull GlossaryService glossary() { return glossary; }
 
     /**
+     * Returns the learning layer.
+     *
+     * @return the learning layer
+     */
+    public @NotNull LingoLearning learning() { return learning; }
+
+    /**
      * Returns the translation memory, or {@code null} in the free edition.
      *
      * @return the translation memory, or {@code null} in the free edition
      */
-    public @Nullable TranslationMemoryService memory() { return memory; }
+    public @Nullable TranslationMemoryService memory() { return learning.memory(); }
 
     /**
      * Returns the pinned phrases, or {@code null} in the free edition.
      *
      * @return the pinned phrases, or {@code null} in the free edition
      */
-    public @Nullable PhraseService phrases() { return phrases; }
+    public @Nullable PhraseService phrases() { return learning.phrases(); }
 }

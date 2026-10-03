@@ -83,6 +83,11 @@ subcommands:
         senders: [player, console]
         argumentSchema:
           - { name: player, type: offline_player, required: true, description: "Player" }
+      - name: revoke
+        description: "Take back an approved correction"
+        senders: [player, console]
+        argumentSchema:
+          - { name: id, type: positive_long, required: true, description: "Correction id" }
       - name: unblock
         description: "Allow a player to suggest translations again"
         senders: [player, console]
@@ -109,6 +114,104 @@ subcommands:
           - { name: term, type: greedy_string, required: true, description: "The term" }
       - name: list
         description: "List every term in chat"
+        senders: [player, console]
+
+  - name: phrases
+    description: "List or remove pinned phrases"
+    permission: "jexlingo.review"
+    default: op
+    senders: [player, console]
+    subcommands:
+      - name: list
+        description: "List the newest pinned phrases"
+        senders: [player, console]
+      - name: remove
+        description: "Unpin a phrase so it is translated again"
+        senders: [player, console]
+        argumentSchema:
+          - { name: id, type: positive_long, required: true, description: "Phrase id" }
+
+  - name: stats
+    description: "Translation statistics"
+    permission: "jexlingo.admin.stats"
+    default: op
+    senders: [player, console]
+    argumentSchema:
+      - { name: period, type: lingo_period, required: false, description: "today, week or month" }
+
+  - name: inspect
+    description: "Show a player's translation settings"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+    argumentSchema:
+      - { name: player, type: offline_player, required: true, description: "Player" }
+
+  - name: set
+    description: "Change a player's translation settings"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+    subcommands:
+      - name: lang
+        description: "Set a player's reading language"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+          - { name: language, type: lingo_language, required: true, description: "auto or a language code" }
+      - name: write
+        description: "Set a player's writing language"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+          - { name: language, type: lingo_language, required: true, description: "auto or a language code" }
+      - name: incoming
+        description: "Set how a player receives other languages"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+          - { name: mode, type: lingo_incoming, required: true, description: "auto, click or off" }
+      - name: outgoing
+        description: "Allow or stop translating a player's messages"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+          - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+      - name: original
+        description: "Show or hide the original line for a player"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+          - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+
+  - name: pause
+    description: "Pause chat translation, for example during a provider update"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+    argumentSchema:
+      - { name: minutes, type: positive_long, required: false, description: "Minutes, empty until /lingo resume" }
+
+  - name: resume
+    description: "Resume chat translation"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+
+  - name: ping
+    description: "Send one test translation and show the time"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+
+  - name: cache
+    description: "Manage the translation cache"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+    subcommands:
+      - name: clear
+        description: "Empty the translation cache"
         senders: [player, console]
 
   - name: test

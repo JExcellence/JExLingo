@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -36,7 +38,7 @@ public final class PhraseService implements TranslationLookup, ProviderResultLis
     private final LearningSettings settings;
     private final Logger logger;
     private final Cache<String, AtomicInteger> counts;
-    private final Map<String, String> pinned = new ConcurrentHashMap<>();
+    private final Map<String, PinnedPhrase> pinned = new ConcurrentHashMap<>();
 
     /**
      * Creates the service.
@@ -64,8 +66,7 @@ public final class PhraseService implements TranslationLookup, ProviderResultLis
     public @NotNull CompletableFuture<Void> load() {
         return repository.findAllAsync()
                 .thenAccept(rows -> rows.stream().map(PinnedPhraseEntity::toPhrase)
-                        .forEach(phrase -> pinned.put(phraseKey(phrase.pair(), phrase.sourceKey()),
-                                phrase.targetText())))
+                        .forEach(phrase -> pinned.put(phraseKey(phrase.pair(), phrase.sourceKey()), phrase)))
                 .exceptionally(error -> {
                     logger.log(Level.WARNING, error, () -> "Could not load pinned phrases");
                     return null;
@@ -74,7 +75,7 @@ public final class PhraseService implements TranslationLookup, ProviderResultLis
 
     @Override
     public @NotNull Optional<String> find(@NotNull LanguagePair pair, @NotNull String key) {
-        return Optional.ofNullable(pinned.get(phraseKey(pair, key)));
+        return Optional.ofNullable(pinned.get(phraseKey(pair, key))).map(PinnedPhrase::targetText);
     }
 
     @Override
@@ -101,12 +102,42 @@ public final class PhraseService implements TranslationLookup, ProviderResultLis
         return pinned.size();
     }
 
+    /**
+     * Returns every pinned phrase, newest first.
+     *
+     * @return the phrases
+     */
+    public @NotNull List<PinnedPhrase> list() {
+        return pinned.values().stream().sorted(Comparator.comparingLong(PinnedPhrase::id).reversed()).toList();
+    }
+
+    /**
+     * Unpins a phrase, for example when its translation is wrong. The phrase goes back to the provider and can be
+     * pinned again later.
+     *
+     * @param id the phrase id
+     * @return whether a phrase was removed
+     */
+    public @NotNull CompletableFuture<Boolean> remove(long id) {
+        Optional<Map.Entry<String, PinnedPhrase>> match = pinned.entrySet().stream()
+                .filter(entry -> entry.getValue().id() == id)
+                .findFirst();
+        if (match.isEmpty() || id <= 0L) {
+            return CompletableFuture.completedFuture(false);
+        }
+        pinned.remove(match.get().getKey());
+        counts.invalidate(hash(match.get().getKey()));
+        return repository.deleteAsync(id).thenApply(ignored -> true);
+    }
+
     private void pin(@NotNull LanguagePair pair, @NotNull String key, @NotNull String translation,
                      @NotNull String phraseKey) {
-        if (pinned.putIfAbsent(phraseKey, translation) != null) {
+        PinnedPhrase phrase = new PinnedPhrase(0L, pair, key, translation);
+        if (pinned.putIfAbsent(phraseKey, phrase) != null) {
             return;
         }
-        repository.createAsync(new PinnedPhraseEntity(new PinnedPhrase(0L, pair, key, translation)))
+        repository.createAsync(new PinnedPhraseEntity(phrase))
+                .thenAccept(stored -> pinned.replace(phraseKey, phrase, stored.toPhrase()))
                 .exceptionally(error -> {
                     pinned.remove(phraseKey);
                     logger.log(Level.WARNING, error, () -> "Could not pin a phrase");

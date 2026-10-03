@@ -86,6 +86,7 @@ lingo:
     unknown_language: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>ist kein Sprachcode, zum Beispiel de oder en.</#F1F5F9>'
     language_not_enabled: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>wird auf diesem Server nicht übersetzt. Nutze auto oder einen der vorgeschlagenen Codes.</#F1F5F9>'
     unknown_incoming: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>auto</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>click</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>off</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    unknown_period: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>today</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>week</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>month</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_toggle: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>enable</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>disable</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_mode: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>keep</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>force</#5EEAD4><#F1F5F9>.</#F1F5F9>'
   settings:
@@ -116,11 +117,48 @@ lingo:
     how: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Klicke eine übersetzte Chatzeile an und tippe dann deine bessere Übersetzung.</#F1F5F9>'
     missing_text: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Tippe deine Übersetzung hinter die Nachrichten-ID.</#F1F5F9>'
     nothing_recent: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Du hast in den letzten fünf Minuten keine übersetzte Nachricht gesehen.</#F1F5F9>'
+  phrases:
+    header: '<#C4B5FD>Feste Phrasen</#C4B5FD> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>insgesamt, neueste zuerst</#94A3B8>'
+    entry: '<dark_gray>-</dark_gray> <#5EEAD4>#{id}</#5EEAD4> <#94A3B8>{pair}</#94A3B8> <#F1F5F9>{text}</#F1F5F9> <dark_gray>></dark_gray> <#F1F5F9>{translation}</#F1F5F9>'
+    removed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Phrase</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>gelöst.</#F1F5F9>'
+    not_found: '<#F87171>[X]</#F87171> <#F1F5F9>Keine feste Phrase mit der ID</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+  origin:
+    glossary: 'Glossar'
+    memory: 'Angenommene Korrekturen'
+    phrase: 'Feste Phrasen'
+    cache: 'Cache'
+    provider: 'Übersetzer'
+    fallback: 'Unübersetzt gezeigt'
+  ops:
+    history_premium: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Statistiken vergangener Tage gehören zu JExLingo Premium. Gezeigt wird heute.</#F1F5F9>'
+    inspect:
+      header: '<#C4B5FD>Übersetzungseinstellungen von</#C4B5FD> <#F1F5F9>{name}</#F1F5F9>'
+      reading_choice: 'Lesesprache (gewählt)'
+      writing_choice: 'Schreibsprache (gewählt)'
+      client: 'Spielsprache'
+      reads: 'Liest auf'
+      writes: 'Schreibt auf'
+      incoming: 'Andere Sprachen'
+      outgoing: 'Eigene Nachrichten übersetzen'
+      original: 'Original zeigen'
+      suggestions: 'Darf vorschlagen'
+    set:
+      done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Übersetzungseinstellungen von</#F1F5F9> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>geändert.</#F1F5F9>'
+    paused: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Die Chat-Übersetzung ist pausiert bis</#F1F5F9> <#5EEAD4>/lingo resume</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    paused_for: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Die Chat-Übersetzung ist pausiert für</#F1F5F9> <#5EEAD4>{minutes} min</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    resumed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Die Chat-Übersetzung läuft wieder.</#F1F5F9>'
+    ping:
+      done: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{provider}</#5EEAD4> <#F1F5F9>hat in</#F1F5F9> <#5EEAD4>{millis} ms</#5EEAD4> <#F1F5F9>geantwortet.</#F1F5F9>'
+      failed: '<#F87171>[X]</#F87171> <#F1F5F9>Der Anbieter hat nicht geantwortet:</#F1F5F9> <#94A3B8>{value}</#94A3B8>'
+      one_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Ein Ping braucht mindestens zwei aktive Sprachen.</#F1F5F9>'
+    cache_cleared: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>gespeicherte Übersetzungen entfernt.</#F1F5F9>'
   learning:
     unavailable: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Korrekturen und das Übersetzungsgedächtnis gehören zu JExLingo Premium.</#F1F5F9>'
   review:
     approved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Vorschlag</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>angenommen. Er wird ab jetzt genutzt.</#F1F5F9>'
     rejected: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Vorschlag</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>abgelehnt.</#F1F5F9>'
+    revoked: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Korrektur</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>zurückgenommen. Die Zeile wird wieder vom Übersetzer übersetzt.</#F1F5F9>'
+    not_approved: '<#F87171>[X]</#F87171> <#F1F5F9>Keine angenommene Korrektur mit der ID</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     not_pending: '<#F87171>[X]</#F87171> <#F1F5F9>Kein offener Vorschlag mit der ID</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     blocked: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>kann keine Übersetzungen mehr vorschlagen.</#F1F5F9>'
     unblocked: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>kann wieder Übersetzungen vorschlagen.</#F1F5F9>'
@@ -189,6 +227,8 @@ gui:
         name: '<#F1F5F9>Nächste Seite »</#F1F5F9>'
         lore: '<#94A3B8>Seite {page} von {pages}</#94A3B8>'
     filter:
+      name: '<#F1F5F9>Filter</#F1F5F9>'
+      title: '<#C4B5FD>Zeigen</#C4B5FD>'
       option: '<#94A3B8>○</#94A3B8> <#94A3B8>{name}</#94A3B8>'
       option-active: '<#5EEAD4>●</#5EEAD4> <#F1F5F9>{name}</#F1F5F9>'
       action: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Linksklick weiter, Rechtsklick zurück</#F1F5F9>'
@@ -239,17 +279,94 @@ lingo_review:
     name: '<gradient:#5EEAD4:#38BDF8>Vorgeschlagene Übersetzungen</gradient>'
     description: 'Spieler haben diese Übersetzungen vorgeschlagen. Angenommene gelten ab jetzt für jede gleiche Zeile.'
     section: 'Warteschlange'
+  filter:
+    pending: 'Warten auf Prüfung'
+    approved: 'Angenommene Korrekturen'
   label:
     pending: 'Offen'
+    approved: 'Angenommen'
   empty:
     name: '<#F1F5F9>Nichts zu prüfen</#F1F5F9>'
     description: 'Gerade gibt es keine offenen Vorschläge.'
+  empty-approved:
+    name: '<#F1F5F9>Keine angenommenen Korrekturen</#F1F5F9>'
+    description: 'Angenommene Korrekturen stehen hier. Rechtsklick nimmt eine zurück.'
   card:
     name: '<#F1F5F9>#{id}</#F1F5F9> <dark_gray>|</dark_gray> <#5EEAD4>{from} » {to}</#5EEAD4>'
     original: '<#C4B5FD>Original</#C4B5FD>'
     suggestion: '<#C4B5FD>Vorschlag</#C4B5FD>'
     approve: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Linksklick zum Annehmen</#F1F5F9>'
     reject: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Rechtsklick zum Ablehnen</#F1F5F9>'
+    revoke: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Rechtsklick zum Zurücknehmen</#F1F5F9>'
+
+lingo_stats:
+  title: '<gradient:#5EEAD4:#38BDF8>Statistik</gradient>'
+  loading:
+    name: '<#F1F5F9>Lädt</#F1F5F9>'
+    description: 'Die Übersetzungen des Zeitraums werden gezählt.'
+  header:
+    name: '<gradient:#5EEAD4:#38BDF8>Übersetzer</gradient>'
+    description: 'Aktueller Zustand des Übersetzungsanbieters.'
+    section: 'Gerade'
+  period:
+    today: 'Heute'
+    week: 'Letzte 7 Tage'
+    month: 'Letzte 30 Tage'
+  value:
+    online: 'online'
+    offline: 'offline'
+    paused: 'vom Team pausiert'
+  label:
+    provider: 'Anbieter'
+    state: 'Zustand'
+    breaker: 'Sicherung'
+    latency: 'Antwortzeit p50 / p95'
+    inflight: 'Laufend'
+    paused: 'Chat-Übersetzung'
+    translations: 'Übersetzungen'
+    characters: 'Zeichen'
+    saved: 'Ohne Anbieter-Aufruf'
+    fallback: 'Unübersetzt gezeigt'
+    calls: 'Anbieter-Aufrufe'
+    average: 'Durchschnittliche Zeit'
+    failed-since-start: 'Fehler seit Start'
+    refused-since-start: 'Abgewiesen seit Start'
+    cache: 'Cache-Einträge / Trefferquote'
+    approved: 'Angenommene Korrekturen'
+    pinned: 'Feste Phrasen'
+    sources: 'Quellen'
+    pairs: 'Sprachpaare'
+  overview:
+    name: '<#F1F5F9>Überblick</#F1F5F9> <dark_gray>|</dark_gray> <#5EEAD4>{period}</#5EEAD4>'
+    description: 'Alle übersetzten Zeilen des Zeitraums.'
+    section: 'Summen'
+  origins:
+    name: '<#F1F5F9>Quellen</#F1F5F9>'
+    description: 'Woher jede Übersetzung kam. Alles außer dem Übersetzer spart einen Anbieter-Aufruf.'
+    section: 'Ergebnisse'
+  pairs:
+    name: '<#F1F5F9>Sprachpaare</#F1F5F9>'
+    description: 'Die häufigsten Übersetzungsrichtungen.'
+    section: 'Häufigste'
+  pair:
+    row: '<#94A3B8>{pair}</#94A3B8> <dark_gray>|</dark_gray> {value}'
+    none: '<#94A3B8>Noch keine Übersetzungen</#94A3B8>'
+  provider:
+    name: '<#F1F5F9>Übersetzer</#F1F5F9>'
+    description: 'Anbieter-Aufrufe des Zeitraums und Fehler seit dem letzten Start.'
+    section: 'Anbieter'
+  learning:
+    name: '<#F1F5F9>Lernen</#F1F5F9>'
+    description: 'Serverwortschatz, den der Übersetzer von Spielern und häufigen Zeilen gelernt hat.'
+    section: 'Gespeichert'
+  learning-locked:
+    name: '<#F1F5F9>Lernen</#F1F5F9>'
+    description: 'Korrekturen und feste Phrasen gehören zu JExLingo Premium.'
+  history-locked:
+    name: '<#F1F5F9>Verlauf</#F1F5F9>'
+    description: 'Statistiken der letzten 7 und 30 Tage gehören zu JExLingo Premium.'
+  chat:
+    header: '<#C4B5FD>JExLingo-Statistik</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{period}</#94A3B8>'
 
 lingo_glossary:
   title: '<gradient:#5EEAD4:#38BDF8>Glossar</gradient>'

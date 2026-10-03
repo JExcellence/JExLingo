@@ -6,6 +6,7 @@ import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.language.LanguageResolver;
 import de.jexcellence.lingo.settings.IncomingMode;
+import de.jexcellence.lingo.stats.StatsPeriod;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,6 +64,13 @@ public final class LingoArgumentTypes {
                         .orElseGet(() -> ArgumentType.ParseResult.err("lingo.error.unknown_incoming",
                                 Map.of(VALUE, raw))),
                 (sender, partial) -> filter(Stream.of(IncomingMode.values()).map(IncomingMode::id).toList(),
+                        partial)));
+        registry.register(ArgumentType.custom("lingo_period", String.class,
+                (sender, raw) -> StatsPeriod.parse(raw)
+                        .map(period -> ArgumentType.ParseResult.ok(period.id()))
+                        .orElseGet(() -> ArgumentType.ParseResult.err("lingo.error.unknown_period",
+                                Map.of(VALUE, raw))),
+                (sender, partial) -> filter(Stream.of(StatsPeriod.values()).map(StatsPeriod::id).toList(),
                         partial)));
         registry.register(ArgumentType.custom("lingo_toggle", Boolean.class,
                 LingoArgumentTypes::parseToggle,

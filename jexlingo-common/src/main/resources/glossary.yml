@@ -1,0 +1,22 @@
+# JExLingo default glossary
+# Read once, when the glossary is still empty. After that, manage it in game:
+#   /lingo glossary add keep <term>
+#   /lingo glossary add force <term> <translation>
+#   /lingo glossary remove <term>
+
+# Terms that are never translated: server names, game modes, ranks, chat slang.
+keep:
+  - OneBlock
+  - Ironman
+  - gg
+  - afk
+  - brb
+  - lol
+  - xp
+  - pvp
+  - pve
+
+# Terms that always get the same translation. source/target are optional (empty = every language).
+force:
+  - { term: Insel, replacement: Island, source: de, target: en }
+  - { term: Island, replacement: Insel, source: en, target: de }

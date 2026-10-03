@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Keeps commits single-author: removes Co-Authored-By trailers and generated-by lines from the message.
+# Enable once per clone: git config core.hooksPath .githooks
+message_file="$1"
+tmp_file="$message_file.tmp"
+grep -viE '^(co-authored-by:|.*generated with \[?claude)' "$message_file" > "$tmp_file" || true
+mv "$tmp_file" "$message_file"

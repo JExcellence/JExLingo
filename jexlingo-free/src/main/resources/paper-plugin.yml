@@ -1,0 +1,23 @@
+name: JExLingo
+version: '0.1.0'
+main: de.jexcellence.lingo.JExLingoFree
+description: Live chat translation on a self-hosted LibreTranslate instance (Free Edition)
+api-version: '1.21'
+author: JExcellence
+website: https://jexcellence.de
+loader: de.jexcellence.dependency.loader.PaperPluginLoader
+folia-supported: true
+dependencies:
+  server:
+    JExEssentials:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    floodgate:
+      load: BEFORE
+      required: false
+      join-classpath: true

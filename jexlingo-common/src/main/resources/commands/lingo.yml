@@ -1,0 +1,131 @@
+# JExCommand 2.0 tree for /lingo (JExLingo)
+# Copied to the data folder once. Rename the command, change aliases, permissions or defaults here; new
+# subcommands from updates are added automatically, existing entries are never changed.
+name: lingo
+description: "Open your chat translation settings"
+aliases:
+  - jexlingo
+  - translation
+permission: "jexlingo.use"
+senders: [player, console]
+
+subcommands:
+  - name: help
+    description: "Show the translation commands"
+    senders: [player, console]
+
+  - name: lang
+    description: "Choose the language you read chat in"
+    aliases:
+      - language
+    senders: [player]
+    argumentSchema:
+      - { name: language, type: lingo_language, required: true, description: "auto or a language code" }
+
+  - name: incoming
+    description: "Translate messages you read"
+    senders: [player]
+    argumentSchema:
+      - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+
+  - name: outgoing
+    description: "Allow your messages to be translated"
+    senders: [player]
+    argumentSchema:
+      - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+
+  - name: original
+    description: "Show the original under every translation"
+    senders: [player]
+    argumentSchema:
+      - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+
+  - name: suggest
+    description: "Suggest a better translation for a recent chat line"
+    permission: "jexlingo.suggest"
+    default: true
+    senders: [player]
+    argumentSchema:
+      - { name: message, type: string, required: false, description: "Message id from the translated line" }
+      - { name: text, type: greedy_string, required: false, description: "Your translation" }
+
+  - name: review
+    description: "Review suggested translations"
+    permission: "jexlingo.review"
+    default: op
+    senders: [player, console]
+    subcommands:
+      - name: approve
+        description: "Approve a suggestion, optionally with your own wording"
+        senders: [player, console]
+        argumentSchema:
+          - { name: id, type: positive_long, required: true, description: "Suggestion id" }
+          - { name: text, type: greedy_string, required: false, description: "Corrected translation" }
+      - name: reject
+        description: "Reject a suggestion"
+        senders: [player, console]
+        argumentSchema:
+          - { name: id, type: positive_long, required: true, description: "Suggestion id" }
+      - name: block
+        description: "Stop a player from suggesting translations"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+      - name: unblock
+        description: "Allow a player to suggest translations again"
+        senders: [player, console]
+        argumentSchema:
+          - { name: player, type: offline_player, required: true, description: "Player" }
+
+  - name: glossary
+    description: "Show and edit the glossary"
+    permission: "jexlingo.admin.glossary"
+    default: op
+    senders: [player, console]
+    subcommands:
+      - name: add
+        description: "Add a term: keep it as written or force a translation"
+        senders: [player, console]
+        argumentSchema:
+          - { name: mode, type: lingo_glossary_mode, required: true, description: "keep or force" }
+          - { name: term, type: quoted_string, required: true, description: "The term, quote it when it has spaces" }
+          - { name: replacement, type: greedy_string, required: false, description: "Fixed translation for force" }
+      - name: remove
+        description: "Remove a term"
+        senders: [player, console]
+        argumentSchema:
+          - { name: term, type: greedy_string, required: true, description: "The term" }
+      - name: list
+        description: "List every term in chat"
+        senders: [player, console]
+
+  - name: test
+    description: "Translate a text and show where the result came from"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+    argumentSchema:
+      - { name: from, type: lingo_any_language, required: true, description: "Source language" }
+      - { name: to, type: lingo_any_language, required: true, description: "Target language" }
+      - { name: text, type: greedy_string, required: true, description: "Text" }
+
+  - name: status
+    description: "Provider health, latency, cache and result sources"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+
+  - name: export
+    description: "Export approved translations as TSV"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+
+  - name: reload
+    description: "Reload config, glossary rules and translations"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+
+# Player-safe: every player holds jexlingo.use by default.
+default: true

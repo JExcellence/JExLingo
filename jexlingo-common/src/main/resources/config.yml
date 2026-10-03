@@ -1,0 +1,65 @@
+# JExLingo configuration
+# Defaults live in the plugin. A missing key uses its default, an out-of-range number is clamped and a warning
+# is logged. This file is never overwritten by an update; new options are documented in docs/CONFIG.md.
+config-version: 1
+
+provider:
+  # Translation backend. Built in: libretranslate. Premium can select providers other plugins register.
+  type: libretranslate
+  # Base URL of your LibreTranslate instance. The environment variable JEXLINGO_PROVIDER_URL wins over this.
+  url: "http://127.0.0.1:5000"
+  # LibreTranslate API key: set the environment variable JEXLINGO_API_KEY (preferred), or uncomment this line.
+  # api-key: "your-key"
+  connect-timeout-ms: 2000
+  request-timeout-ms: 3000
+  # Translations in flight at the same time. More are shown untranslated instead of queueing.
+  max-concurrent-requests: 8
+  # How often the provider's language list is checked.
+  health-check-seconds: 60
+  circuit-breaker:
+    # Failures in a row that pause the provider; chat shows originals while it is paused.
+    failure-threshold: 5
+    open-duration-seconds: 30
+
+languages:
+  # Languages this server translates between (ISO codes). LibreTranslate must have a model for each one.
+  enabled: [de, en]
+  # Language for players whose game language is not in the list above.
+  fallback: en
+
+detection:
+  # Checks which language a message is really written in (for example German typed with an English client).
+  # Costs a second provider call per message; enable it after checking the latency with /lingo status.
+  enabled: false
+  min-length: 12
+  min-confidence: 70
+
+chat:
+  # INLINE: wait up to inline-wait-ms and show one translated line. FOLLOW_UP: original first, translation after.
+  mode: INLINE
+  inline-wait-ms: 400
+  min-length: 2
+  max-length: 256
+  # Messages starting with this text are never translated. Set to "" to turn it off.
+  skip-prefix: "!"
+  # Minimum time between two provider calls for the same player (spam protection).
+  player-cooldown-ms: 500
+  # One-time hint for players on their first join.
+  onboarding: true
+
+bedrock:
+  # Bedrock players have no hover text; show them the original as a second line.
+  show-original-line: true
+
+cache:
+  max-entries: 5000
+  ttl-minutes: 60
+
+# Premium only: corrections, translation memory and pinned phrases.
+learning:
+  suggestions-per-hour: 5
+  min-playtime-minutes: 30
+  # A short phrase used this often within the window gets its translation pinned.
+  promote-after: 10
+  promote-window-hours: 24
+  promote-max-length: 40

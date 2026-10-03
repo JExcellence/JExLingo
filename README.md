@@ -1,6 +1,6 @@
 # JExLingo
 
-> **Status:** 0.3.0 built, not yet deployed or tested in game. **Last verified:** 2026-10-03.
+> **Status:** 0.4.0 built, not yet deployed or tested in game. **Last verified:** 2026-10-03.
 > **License:** proprietary, all rights reserved. See [LICENSE](LICENSE).
 > **Related:** [docs/PLAN.md](docs/PLAN.md), [docs/CONFIG.md](docs/CONFIG.md), [docs/PRIVACY.md](docs/PRIVACY.md),
 > [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md), [deploy/libretranslate](deploy/libretranslate/README.md).
@@ -44,7 +44,11 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
   last 7 and 30 days in Premium.
 - **Staff tools**: inspect and change any player's settings, pause chat translation during provider maintenance,
   ping the provider, clear the cache, take back approved corrections and unpin wrong phrases.
-- **API** for other plugins: `JExLingoApi.translate(...)`, `languageOf(uuid)`, `ChatTranslatedEvent`, and a
+- **Suite integrations**: with JExEssentials, `/msg` and `/r` reach the receiver in their language (original on
+  hover); with JExDiscord, the chat relay posts game lines in the channel language (original below) and shows
+  Discord lines to every player in their language. Both respect each player's settings and the staff pause.
+- **API** for other plugins: `JExLingoApi.translate(...)`, `translateFor(writer, reader, ...)`, `translateFrom(writer, ...)`,
+  `translateTo(reader, ...)`, `languageOf(uuid)`, `writingLanguageOf(uuid)`, `ChatTranslatedEvent`, and a
   `TranslationProvider` SPI for other backends.
 
 ## Editions
@@ -61,7 +65,7 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 ## Quick start
 
 1. Run LibreTranslate on the same machine: [deploy/libretranslate](deploy/libretranslate/README.md).
-2. Put `JExLingo-0.3.0-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
+2. Put `JExLingo-0.4.0-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
 3. Optional: `export JEXLINGO_API_KEY=<key>` for the server process.
 4. Start the server, then `/lingo status` shows whether the provider is reachable.
 

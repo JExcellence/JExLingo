@@ -140,7 +140,7 @@ public final class LingoFrontend {
 
     private void registerApi() {
         JExLingoApi registered = new JExLingoApiImpl(core.pipeline(), core.gateway(), core.providers(),
-                core.resolver(), core.settings());
+                core.resolver(), core.settings(), operations.toggle());
         api = registered;
         Bukkit.getServicesManager().register(JExLingoApi.class, registered, plugin, ServicePriority.Normal);
     }

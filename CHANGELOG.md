@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 - 2026-10-03
+
+- API: `translateFor(writer, reader, text, context)` for player-to-player text, `translateFrom(writer, text,
+  target, context)` for relays out of the game, `translateTo(reader, text, source, context)` for text coming into
+  the game, `writingLanguageOf(uuid)`. All respect the players' settings and the staff pause.
+- Used by JExEssentials (`/msg`, `/r`) and JExDiscord (chat relay both ways); both stay fully working without
+  JExLingo.
+
 ## 0.3.0 - 2026-10-03
 
 - Daily statistics: totals per day, language pair and source in `jexlingo_daily_stats`, no texts and no players,

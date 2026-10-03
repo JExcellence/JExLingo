@@ -26,6 +26,19 @@ German game language, one with English, one Bedrock client through Geyser if ava
 - [ ] `chat.mode: FOLLOW_UP` + reload: original first, translated line right after.
 - [ ] A chat line containing `<red>hi</red>` or `<click:run_command:/op me>` shows as literal text in the translation.
 
+## 0.4.0 integrations
+
+- [ ] JExEssentials: German player `/msg <english player> Hast du Eisen?`: receiver sees `[DE » EN]` and English,
+  hover shows the original; sender and social spy see the original.
+- [ ] Receiver with `/lingo incoming off` or sender with `/lingo outgoing disable`: message arrives as written.
+- [ ] `/lingo pause`: private messages arrive as written.
+- [ ] A private message with `<click:run_command:/op me>` arrives as plain text (also without JExLingo).
+- [ ] Without JExLingo installed: `/msg` and `/r` work exactly as before.
+- [ ] JExDiscord with `chat-relay.language: en`: a German game line appears in Discord in English with the original
+  as small text below.
+- [ ] JExDiscord with `message-content-intent: true`: a Discord line appears in game in each player's language with
+  `[EN » DE]` and the original on hover; console shows the original.
+
 ## 0.3.0 features
 
 - [ ] `/lingo stats`: header shows provider online and latency; overview counts grow while players chat.

@@ -1,6 +1,6 @@
 # JExLingo - Implementation Plan
 
-> **Status:** 0.3.0 built (phases 1-8 plus sections 20-21), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
+> **Status:** 0.4.0 built (phases 1-8 plus sections 20-22), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
 > **Last verified:** 2026-10-03. **Owner:** JExcellence.
 > **Related:** [../../CLAUDE.md](../../CLAUDE.md), [../../docs/AGENT_BRIEF.md](../../docs/AGENT_BRIEF.md),
 > [../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md](../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md),
@@ -579,3 +579,20 @@ Still open: bench on the Debian host, in-game checklist, Free/Premium numbers, J
 | Staff tools: inspect, set, pause/resume, ping, cache clear | `LingoOpsHandler`, `TranslationSwitch` |
 | Learning management: approved filter + revoke, phrases list/remove | `SuggestionReviewView`, `TranslationMemoryService.revoke`, `PhraseService.remove` |
 | Class coupling under 20 | `LingoLearning`, `LingoOperations`, `LingoFiles`, `LingoStaffCommands` |
+
+---
+
+## 22. 0.4.0 - suite integrations (2026-10-03)
+
+Phase 7 of the plan, done through the API so both plugins keep working without JExLingo.
+
+| Plugin | What | Where |
+|---|---|---|
+| JExLingo | `translateFor`, `translateFrom`, `translateTo`, `writingLanguageOf` | `JExLingoApi`, `JExLingoApiImpl` |
+| JExEssentials | `/msg` and `/r` translated for the receiver, original on hover | `ChatHandler`, `PrivateMessageTranslator` |
+| JExDiscord | relay game -> Discord in `chat-relay.language`, Discord -> game per player | `ChatRelayListener`, `DiscordChatRelayListener`, `RelayTranslator` |
+
+Each plugin checks for JExLingo on every call and only then loads its JExLingo bridge class
+(`LingoPrivateMessageTranslator`, `LingoRelayTranslator`); both declare JExLingo as an optional dependency with
+`join-classpath`. Fixed on the way: player and Discord text was inserted through `MessageBuilder.with(...)`, which
+JExTranslate parses as MiniMessage, so `/msg`, `/me` and relayed Discord lines could carry click or hover markup.

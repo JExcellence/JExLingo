@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.jexcellence.lingo"
-version = "0.3.0"
+version = "0.4.0"
 description = "JExLingo Common - translation pipeline, chat, learning, persistence, commands and views"
 
 dependenciesYml {

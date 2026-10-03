@@ -2,20 +2,26 @@ package de.jexcellence.lingo;
 
 import de.jexcellence.lingo.api.JExLingoApi;
 import de.jexcellence.lingo.api.LanguageCode;
+import de.jexcellence.lingo.api.TranslationContext;
 import de.jexcellence.lingo.api.TranslationOrigin;
 import de.jexcellence.lingo.api.TranslationRequest;
 import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.api.provider.DetectedLanguage;
 import de.jexcellence.lingo.api.provider.TranslationProvider;
+import de.jexcellence.lingo.chat.TranslationSwitch;
 import de.jexcellence.lingo.language.LanguageResolver;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
 import de.jexcellence.lingo.pipeline.TranslationPipeline;
 import de.jexcellence.lingo.provider.ProviderGateway;
 import de.jexcellence.lingo.provider.ProviderRegistry;
+import de.jexcellence.lingo.settings.IncomingMode;
 import de.jexcellence.lingo.settings.PlayerSettingsService;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +39,7 @@ public final class JExLingoApiImpl implements JExLingoApi {
     private final ProviderRegistry providers;
     private final LanguageResolver resolver;
     private final PlayerSettingsService settings;
+    private final TranslationSwitch toggle;
 
     /**
      * Creates the API.
@@ -42,15 +49,71 @@ public final class JExLingoApiImpl implements JExLingoApi {
      * @param providers the provider registry
      * @param resolver  the language resolver
      * @param settings  player settings
+     * @param toggle    staff pause switch
      */
     public JExLingoApiImpl(@NotNull TranslationPipeline pipeline, @NotNull ProviderGateway gateway,
                            @NotNull ProviderRegistry providers, @NotNull LanguageResolver resolver,
-                           @NotNull PlayerSettingsService settings) {
+                           @NotNull PlayerSettingsService settings, @NotNull TranslationSwitch toggle) {
         this.pipeline = pipeline;
         this.gateway = gateway;
         this.providers = providers;
         this.resolver = resolver;
         this.settings = settings;
+        this.toggle = toggle;
+    }
+
+    @Override
+    public @NotNull CompletableFuture<TranslationResult> translateFor(@NotNull UUID writer, @NotNull UUID reader,
+                                                                      @NotNull String text,
+                                                                      @NotNull TranslationContext context) {
+        LanguageCode source = writingLanguageOf(writer);
+        LanguageCode target = languageOf(reader);
+        boolean blocked = toggle.isPaused()
+                || !settings.get(writer).translateOutgoing()
+                || settings.get(reader).incoming() == IncomingMode.OFF;
+        if (blocked) {
+            return CompletableFuture.completedFuture(
+                    TranslationResult.unchanged(text, source, target, TranslationOrigin.SKIPPED));
+        }
+        List<String> names = Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        return pipeline.translate(new TranslationRequest(text, source, target, context), source,
+                        new TranslateOptions(true, names))
+                .exceptionally(error -> TranslationResult.unchanged(text, source, target, TranslationOrigin.FALLBACK));
+    }
+
+    @Override
+    public @NotNull CompletableFuture<TranslationResult> translateFrom(@NotNull UUID writer, @NotNull String text,
+                                                                       @NotNull LanguageCode target,
+                                                                       @NotNull TranslationContext context) {
+        LanguageCode source = writingLanguageOf(writer);
+        if (toggle.isPaused() || !settings.get(writer).translateOutgoing()) {
+            return CompletableFuture.completedFuture(
+                    TranslationResult.unchanged(text, source, target, TranslationOrigin.SKIPPED));
+        }
+        return translate(new TranslationRequest(text, source, target, context));
+    }
+
+    @Override
+    public @NotNull CompletableFuture<TranslationResult> translateTo(@NotNull UUID reader, @NotNull String text,
+                                                                     @Nullable LanguageCode source,
+                                                                     @NotNull TranslationContext context) {
+        LanguageCode target = languageOf(reader);
+        if (toggle.isPaused() || settings.get(reader).incoming() == IncomingMode.OFF) {
+            LanguageCode known = source == null ? target : source;
+            return CompletableFuture.completedFuture(
+                    TranslationResult.unchanged(text, known, target, TranslationOrigin.SKIPPED));
+        }
+        return translate(new TranslationRequest(text, source, target, context));
+    }
+
+    @Override
+    public @NotNull LanguageCode writingLanguageOf(@NotNull UUID player) {
+        Player online = Bukkit.getPlayer(player);
+        if (online != null) {
+            return resolver.resolveWriting(online);
+        }
+        return LanguageResolver.resolveWriting(settings.get(player).writeLanguage(), resolver.resolve(player),
+                resolver.languages());
     }
 
     @Override

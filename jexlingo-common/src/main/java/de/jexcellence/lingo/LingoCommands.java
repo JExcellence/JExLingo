@@ -5,6 +5,7 @@ import com.raindropcentral.commands.v2.CommandHandler;
 import com.raindropcentral.commands.v2.argument.ArgumentTypeRegistry;
 import de.jexcellence.jexplatform.scheduler.PlatformScheduler;
 import de.jexcellence.lingo.bedrock.LingoBedrockForms;
+import de.jexcellence.lingo.chat.OnDemandTranslator;
 import de.jexcellence.lingo.command.AdminServices;
 import de.jexcellence.lingo.command.LingoAdminHandler;
 import de.jexcellence.lingo.command.LingoArgumentTypes;
@@ -66,9 +67,10 @@ public final class LingoCommands {
      * @param reload      reloads the plugin
      * @param suggestions suggestion service, or {@code null} in the free edition
      * @param forms       Bedrock forms, or {@code null} without Floodgate
+     * @param onDemand    the translator behind the translate button
      */
     public void register(@NotNull Executor worker, @NotNull Runnable reload, @Nullable SuggestionService suggestions,
-                         @Nullable LingoBedrockForms forms) {
+                         @Nullable LingoBedrockForms forms, @NotNull OnDemandTranslator onDemand) {
         LingoSettingsView settingsView = new LingoSettingsView(core.settings(), core.resolver(), scheduler);
         GlossaryView glossaryView = new GlossaryView(core.glossary(), core.edition(), scheduler);
         SuggestionReviewView reviewView = core.memory() == null ? null
@@ -79,6 +81,7 @@ public final class LingoCommands {
         LingoCommandHandler player = new LingoCommandHandler(core.settings(), core.resolver(), settingsView, replies);
         player.setForms(forms);
         player.setSuggestions(suggestions);
+        player.setOnDemand(onDemand);
 
         TrainingExportService export = core.memory() == null ? null
                 : new TrainingExportService(core.memory(), plugin.getDataFolder().toPath().resolve("exports"), worker);

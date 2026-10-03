@@ -11,6 +11,7 @@ import de.jexcellence.lingo.learning.RecentMessage;
 import de.jexcellence.lingo.learning.RecentMessageBuffer;
 import de.jexcellence.lingo.learning.SuggestionService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
+import de.jexcellence.lingo.settings.IncomingMode;
 import de.jexcellence.lingo.settings.PlayerLanguageSettings;
 import de.jexcellence.lingo.settings.PlayerSettingsService;
 import de.jexcellence.lingo.text.SafeText;
@@ -26,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -101,12 +103,16 @@ public final class LingoBedrockForms {
         List<String> choices = new ArrayList<>();
         choices.add(text(player, "lingo_settings.value.auto"));
         enabled.forEach(language -> choices.add(LingoSettingsView.languageName(player, language)));
-        int selected = current.language() == null ? 0 : enabled.indexOf(current.language()) + 1;
+        List<String> modes = Arrays.stream(IncomingMode.values())
+                .map(mode -> LingoSettingsView.incomingName(player, mode)).toList();
         CustomForm form = CustomForm.builder()
                 .title(text(player, KEY + "settings.title"))
                 .label(text(player, KEY + "settings.intro"))
-                .dropdown(text(player, "lingo_settings.option.language.label"), choices, Math.max(0, selected))
-                .toggle(text(player, "lingo_settings.option.incoming.label"), current.translateIncoming())
+                .dropdown(text(player, "lingo_settings.option.language.label"), choices,
+                        index(enabled, current.language()))
+                .dropdown(text(player, "lingo_settings.option.write.label"), choices,
+                        index(enabled, current.writeLanguage()))
+                .dropdown(text(player, "lingo_settings.option.incoming.label"), modes, current.incoming().ordinal())
                 .toggle(text(player, "lingo_settings.option.outgoing.label"), current.translateOutgoing())
                 .toggle(text(player, "lingo_settings.option.original.label"), current.showOriginal())
                 .validResultHandler(response -> applySettings(player, enabled, response))
@@ -183,14 +189,15 @@ public final class LingoBedrockForms {
 
     private void applySettings(@NotNull Player player, @NotNull List<LanguageCode> enabled,
                                @NotNull CustomFormResponse response) {
-        int languageIndex = response.asDropdown(1);
-        LanguageCode language = languageIndex <= 0 || languageIndex > enabled.size()
-                ? null : enabled.get(languageIndex - 1);
-        boolean incoming = response.asToggle(2);
-        boolean outgoing = response.asToggle(3);
-        boolean original = response.asToggle(4);
+        LanguageCode language = pick(enabled, response.asDropdown(1));
+        LanguageCode write = pick(enabled, response.asDropdown(2));
+        IncomingMode incoming = IncomingMode.values()[Math.clamp(response.asDropdown(3), 0,
+                IncomingMode.values().length - 1)];
+        boolean outgoing = response.asToggle(4);
+        boolean original = response.asToggle(5);
         services.settings().update(player.getUniqueId(), current -> current.withLanguage(language)
-                        .withIncoming(incoming).withOutgoing(outgoing).withShowOriginal(original))
+                        .withWriteLanguage(write).withIncoming(incoming).withOutgoing(outgoing)
+                        .withShowOriginal(original))
                 .thenRun(() -> services.scheduler().runAtEntity(player,
                         () -> SafeText.msg("lingo.settings.saved").prefix().send(player)));
     }
@@ -249,6 +256,14 @@ public final class LingoBedrockForms {
                 })
                 .build();
         bridge.sendForm(player, form);
+    }
+
+    private static int index(@NotNull List<LanguageCode> enabled, @Nullable LanguageCode language) {
+        return language == null ? 0 : Math.max(0, enabled.indexOf(language) + 1);
+    }
+
+    private static @Nullable LanguageCode pick(@NotNull List<LanguageCode> enabled, int index) {
+        return index <= 0 || index > enabled.size() ? null : enabled.get(index - 1);
     }
 
     private static @NotNull String text(@NotNull Player player, @NotNull String key) {

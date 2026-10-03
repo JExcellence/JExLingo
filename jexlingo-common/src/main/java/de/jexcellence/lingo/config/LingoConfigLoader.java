@@ -64,10 +64,7 @@ public final class LingoConfigLoader {
         LingoConfig config = new LingoConfig(
                 provider(reader, environment),
                 languages(reader),
-                new DetectionSettings(
-                        root.getBoolean(DETECTION + "enabled", false),
-                        reader.intIn(DETECTION + "min-length", 12, 1, 500),
-                        reader.intIn(DETECTION + "min-confidence", 70, 0, 100)),
+                detection(reader, root),
                 chat(reader, root),
                 new CacheSettings(
                         reader.intIn(CACHE + "max-entries", 5000, 0, 1_000_000),
@@ -138,13 +135,25 @@ public final class LingoConfigLoader {
                 root.getBoolean(CHAT + "onboarding", true));
     }
 
+    private static @NotNull DetectionSettings detection(@NotNull Reader reader, @NotNull ConfigurationSection root) {
+        int samples = reader.intIn(DETECTION + "learn-samples", 8, 1, 50);
+        return new DetectionSettings(
+                root.getBoolean(DETECTION + "enabled", false),
+                reader.intIn(DETECTION + "min-length", 12, 1, 500),
+                reader.intIn(DETECTION + "min-confidence", 70, 0, 100),
+                root.getBoolean(DETECTION + "learn-writing-language", true),
+                samples,
+                reader.intIn(DETECTION + "learn-threshold", 5, 1, samples));
+    }
+
     private static @NotNull LearningSettings learning(@NotNull Reader reader) {
         return new LearningSettings(
                 reader.intIn(LEARNING + "suggestions-per-hour", 5, 0, 1000),
                 Duration.ofMinutes(reader.intIn(LEARNING + "min-playtime-minutes", 30, 0, 100_000)),
                 reader.intIn(LEARNING + "promote-after", 10, 2, 10_000),
                 Duration.ofHours(reader.intIn(LEARNING + "promote-window-hours", 24, 1, 720)),
-                reader.intIn(LEARNING + "promote-max-length", 40, 1, 256));
+                reader.intIn(LEARNING + "promote-max-length", 40, 1, 256),
+                reader.intIn(LEARNING + "auto-approve-votes", 3, 0, 100));
     }
 
     private static @NotNull Optional<URI> parseUrl(@NotNull String raw) {

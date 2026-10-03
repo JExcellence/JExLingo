@@ -11,9 +11,13 @@ import de.jexcellence.lingo.language.LanguageDetector;
 import de.jexcellence.lingo.language.LanguageResolver;
 import de.jexcellence.lingo.learning.PhraseService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
+import de.jexcellence.lingo.pipeline.ChatTextPreparer;
 import de.jexcellence.lingo.pipeline.PipelineLayers;
+import de.jexcellence.lingo.pipeline.ProviderResultListener;
 import de.jexcellence.lingo.pipeline.SkipRules;
+import de.jexcellence.lingo.pipeline.SlangDictionary;
 import de.jexcellence.lingo.pipeline.TranslationCache;
+import de.jexcellence.lingo.pipeline.TranslationLookup;
 import de.jexcellence.lingo.pipeline.TranslationPipeline;
 import de.jexcellence.lingo.provider.CircuitBreaker;
 import de.jexcellence.lingo.provider.ProviderGateway;
@@ -28,7 +32,7 @@ import java.util.logging.Logger;
 
 /**
  * The translation services without any Bukkit front end: provider, pipeline, settings, languages, glossary and the
- * learning layer. Built once per enable; {@link #apply(LingoConfig)} pushes a reloaded config into every service.
+ * learning layer. Built once per enable; {@link #apply(LingoConfig, SlangDictionary)} pushes a reloaded config into every service.
  *
  * @author JExcellence
  * @since 0.1.0
@@ -44,6 +48,7 @@ public final class LingoCore {
     private final LanguageResolver resolver;
     private final LanguageDetector detector;
     private final GlossaryService glossary;
+    private final ChatTextPreparer preparer;
     private final @Nullable TranslationMemoryService memory;
     private final @Nullable PhraseService phrases;
 
@@ -53,12 +58,14 @@ public final class LingoCore {
      * @param config    the loaded config
      * @param edition   the edition
      * @param hibernate the database
+     * @param slang     chat abbreviations per language
      * @param worker    executor for database and file work
      * @param logger    the plugin logger
      */
     public LingoCore(@NotNull LingoConfig config, @NotNull LingoEdition edition, @NotNull JEHibernate hibernate,
-                     @NotNull Executor worker, @NotNull Logger logger) {
+                     @NotNull SlangDictionary slang, @NotNull Executor worker, @NotNull Logger logger) {
         this.edition = edition;
+        this.preparer = new ChatTextPreparer(slang);
         var repositories = hibernate.repositories();
         this.providers = new ProviderRegistry(edition, logger);
         this.gateway = new ProviderGateway(providers.select(config.provider()),
@@ -90,8 +97,10 @@ public final class LingoCore {
      * cache size and the phrase window need a restart.
      *
      * @param config the new config
+     * @param slang  the reloaded chat abbreviations
      */
-    public void apply(@NotNull LingoConfig config) {
+    public void apply(@NotNull LingoConfig config, @NotNull SlangDictionary slang) {
+        preparer.setSlang(slang);
         gateway.switchTo(providers.select(config.provider()));
         resolver.setLanguages(config.languages());
         detector.setSettings(config.detection());
@@ -108,9 +117,10 @@ public final class LingoCore {
 
     private @NotNull PipelineLayers layers() {
         if (memory == null || phrases == null) {
-            return PipelineLayers.glossaryOnly(glossary::rulesFor);
+            return new PipelineLayers(TranslationLookup.NONE, TranslationLookup.NONE, glossary::rulesFor,
+                    ProviderResultListener.NONE, preparer);
         }
-        return new PipelineLayers(memory, phrases, glossary::rulesFor, phrases);
+        return new PipelineLayers(memory, phrases, glossary::rulesFor, phrases, preparer);
     }
 
     /**

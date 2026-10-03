@@ -56,14 +56,27 @@ lingo:
       original: '<#C4B5FD>Original ({from})</#C4B5FD><newline><#F1F5F9>{original}</#F1F5F9>'
       suggest: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Klicke, um eine bessere Übersetzung vorzuschlagen</#94A3B8>'
     original_line: '<dark_gray>| {from}:</dark_gray> <#94A3B8>{original}</#94A3B8>'
+    translate_button: '<dark_gray>[</dark_gray><#5EEAD4>Ü</#5EEAD4><dark_gray>]</dark_gray>'
+    translate_hover: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Klicke, um diese Zeile zu übersetzen</#94A3B8>'
     follow_up: '<dark_gray>[</dark_gray><#5EEAD4>{from} » {to}</#5EEAD4><dark_gray>]</dark_gray> <#F1F5F9>{name}</#F1F5F9><dark_gray>:</dark_gray> <#F1F5F9>{text}</#F1F5F9>'
+  learn:
+    hint: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Du schreibst anscheinend auf</#F1F5F9> <#5EEAD4>{language}</#5EEAD4><#F1F5F9>. Klicke hier, um das einzustellen, damit deine Nachrichten richtig übersetzt werden.</#F1F5F9>'
+    hover: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>{language} als Schreibsprache einstellen</#94A3B8>'
+  show:
+    unknown_message: '<#F87171>[X]</#F87171> <#F1F5F9>Diese Nachricht ist älter als fünf Minuten.</#F1F5F9>'
+    same_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Diese Nachricht ist schon in deiner Sprache.</#F1F5F9>'
+    failed: '<#F87171>[X]</#F87171> <#F1F5F9>Der Übersetzer ist gerade nicht erreichbar. Versuch es gleich noch einmal.</#F1F5F9>'
+  erase:
+    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Übersetzungseinstellungen von</#F1F5F9> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>und</#F1F5F9> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>offene Vorschläge gelöscht.</#F1F5F9>'
+    failed: '<#F87171>[X]</#F87171> <#F1F5F9>Löschen fehlgeschlagen. Details stehen im Server-Log.</#F1F5F9>'
   onboarding:
     message: '<#F1F5F9>Der Chat wird für dich übersetzt nach</#F1F5F9> <#5EEAD4>{language}</#5EEAD4><#F1F5F9>. Fahre über eine markierte Zeile, um das Original zu sehen.</#F1F5F9> <#94A3B8>Einstellungen: /lingo</#94A3B8>'
   help:
     - '<gradient:#5EEAD4:#38BDF8>Lingo</gradient> <dark_gray>|</dark_gray> <#94A3B8>Chat-Übersetzung</#94A3B8>'
     - '<#5EEAD4>/lingo</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>deine Einstellungen öffnen</#94A3B8>'
     - '<#5EEAD4>/lingo lang [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>die Sprache wählen, in der du liest</#94A3B8>'
-    - '<#5EEAD4>/lingo incoming [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>Nachrichten für dich übersetzen</#94A3B8>'
+    - '<#5EEAD4>/lingo write [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>die Sprache wählen, in der du schreibst</#94A3B8>'
+    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>automatisch, per Klick oder gar nicht übersetzen</#94A3B8>'
     - '<#5EEAD4>/lingo outgoing [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>deine Nachrichten übersetzen lassen</#94A3B8>'
     - '<#5EEAD4>/lingo original [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>das Original unter einer Übersetzung zeigen</#94A3B8>'
     - '<#5EEAD4>/lingo suggest</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>eine bessere Übersetzung vorschlagen</#94A3B8>'
@@ -72,13 +85,16 @@ lingo:
     players_only: '<#F87171>[X]</#F87171> <#F1F5F9>Das können nur Spieler nutzen.</#F1F5F9>'
     unknown_language: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>ist kein Sprachcode, zum Beispiel de oder en.</#F1F5F9>'
     language_not_enabled: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>wird auf diesem Server nicht übersetzt. Nutze auto oder einen der vorgeschlagenen Codes.</#F1F5F9>'
+    unknown_incoming: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>auto</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>click</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>off</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_toggle: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>enable</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>disable</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_mode: '<#F87171>[X]</#F87171> <#F1F5F9>Nutze</#F1F5F9> <#5EEAD4>keep</#5EEAD4> <#F1F5F9>oder</#F1F5F9> <#5EEAD4>force</#5EEAD4><#F1F5F9>.</#F1F5F9>'
   settings:
     saved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Deine Übersetzungseinstellungen sind gespeichert.</#F1F5F9>'
-    language_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Sprache:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>du liest jetzt auf {reading}</#94A3B8>'
+    language_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Lesesprache:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>du liest jetzt auf {effective}</#94A3B8>'
+    write_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Schreibsprache:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>deine Nachrichten gelten als {effective}</#94A3B8>'
     incoming:
-      enabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Nachrichten werden wieder für dich übersetzt.</#F1F5F9>'
+      automatic: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Nachrichten in anderen Sprachen werden automatisch übersetzt.</#F1F5F9>'
+      on_click: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Nachrichten in anderen Sprachen bekommen einen</#F1F5F9> <#5EEAD4>[Ü]</#5EEAD4><#F1F5F9>-Knopf. Klick ihn zum Übersetzen.</#F1F5F9>'
       disabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Du liest jetzt jede Nachricht so, wie sie geschrieben wurde.</#F1F5F9>'
     outgoing:
       enabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Deine Nachrichten werden wieder für andere übersetzt.</#F1F5F9>'
@@ -88,6 +104,7 @@ lingo:
       disabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Das Original siehst du nur noch beim Drüberfahren.</#F1F5F9>'
   suggest:
     saved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Danke. Deine Übersetzung wartet auf die Prüfung durch das Team.</#F1F5F9>'
+    approved_by_votes: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Danke. Andere Spieler haben dasselbe vorgeschlagen, deshalb gilt es ab jetzt.</#F1F5F9>'
     unknown_message: '<#F87171>[X]</#F87171> <#F1F5F9>Diese Nachricht ist älter als fünf Minuten oder unbekannt.</#F1F5F9>'
     not_translated: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Diese Nachricht wurde für dich nicht übersetzt.</#F1F5F9>'
     unchanged: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Das ist dieselbe Übersetzung wie jetzt.</#F1F5F9>'
@@ -137,6 +154,8 @@ lingo:
       latency: 'Antwortzeit p50 / p95'
       requests: 'Gesendet / fehlgeschlagen / abgewiesen'
       cache: 'Cache-Einträge (Trefferquote)'
+      inflight: 'Laufende Übersetzungen'
+      slang: 'Chat-Abkürzungen'
       origins: 'Ergebnisse nach Quelle'
       learning: 'Angenommen / feste Phrasen'
     value:
@@ -181,6 +200,7 @@ lingo_settings:
     description: 'Nachrichten in anderen Sprachen werden für dich übersetzt. Fahre über eine markierte Zeile, um das Original zu sehen.'
     section: 'Deine Einstellungen'
     reading: 'Du liest auf'
+    writing: 'Du schreibst auf'
   card:
     section: 'Auswahl'
   option:
@@ -188,10 +208,14 @@ lingo_settings:
       label: 'Sprache'
       name: '<#F1F5F9>Sprache</#F1F5F9> <dark_gray>|</dark_gray> {value}'
       description: 'Die Sprache, in der du den Chat liest. Auto folgt deiner Spielsprache.'
+    write:
+      label: 'Schreibsprache'
+      name: '<#F1F5F9>Schreibsprache</#F1F5F9> <dark_gray>|</dark_gray> {value}'
+      description: 'Die Sprache, in der du schreibst. Auto nimmt deine Lesesprache. Stell sie ein, wenn du in einer anderen Sprache chattest als dein Spiel.'
     incoming:
-      label: 'Für mich übersetzen'
-      name: '<#F1F5F9>Für mich übersetzen</#F1F5F9> <dark_gray>|</dark_gray> {value}'
-      description: 'Zeigt Nachrichten anderer Spieler in deiner Sprache.'
+      label: 'Andere Sprachen'
+      name: '<#F1F5F9>Andere Sprachen</#F1F5F9> <dark_gray>|</dark_gray> {value}'
+      description: 'Automatisch übersetzt jede Zeile. Per Klick zeigt stattdessen einen kleinen [Ü]-Knopf. Aus zeigt Zeilen, wie sie geschrieben wurden.'
     outgoing:
       label: 'Meine Nachrichten übersetzen'
       name: '<#F1F5F9>Meine Nachrichten übersetzen</#F1F5F9> <dark_gray>|</dark_gray> {value}'
@@ -204,6 +228,10 @@ lingo_settings:
     auto: 'Auto'
     enabled: 'An'
     disabled: 'Aus'
+    incoming:
+      automatic: 'Automatisch'
+      on_click: 'Per Klick'
+      disabled: 'Aus'
 
 lingo_review:
   title: '<gradient:#5EEAD4:#38BDF8>Vorschläge</gradient>'

@@ -9,12 +9,14 @@ import de.jexcellence.jexplatform.scheduler.TaskHandle;
 import de.jexcellence.jextranslate.R18nManager;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.command.CommandTreeMerger;
+import de.jexcellence.lingo.config.ConfigFileMerger;
 import de.jexcellence.lingo.config.LanguageSettings;
 import de.jexcellence.lingo.config.LingoConfig;
 import de.jexcellence.lingo.config.LingoConfigLoader;
 import de.jexcellence.lingo.config.TranslationFileMerger;
 import de.jexcellence.lingo.glossary.GlossarySeed;
 import de.jexcellence.lingo.glossary.GlossaryTerm;
+import de.jexcellence.lingo.pipeline.SlangDictionary;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,6 +45,7 @@ public final class JExLingo {
     private static final String[] EXTRA_LOCALES = {"de_DE"};
     private static final String CONFIG_FILE = "config.yml";
     private static final String GLOSSARY_FILE = "glossary.yml";
+    private static final String SLANG_FILE = "slang.yml";
     private static final String DATABASE_FILE = "database/hibernate.properties";
     private static final long TICKS_PER_SECOND = 20L;
     private static final long FLUSH_PERIOD_TICKS = 5L * 60L * TICKS_PER_SECOND;
@@ -78,6 +81,7 @@ public final class JExLingo {
         logger.log(Level.INFO, () -> "Loading JExLingo " + edition.name() + " Edition v"
                 + plugin.getPluginMeta().getVersion());
         saveDefault(CONFIG_FILE);
+        ConfigFileMerger.addMissingKeys(plugin, CONFIG_FILE);
         config.set(readConfig());
     }
 
@@ -97,7 +101,7 @@ public final class JExLingo {
                     .build();
             worker = Executors.newFixedThreadPool(WORKER_THREADS,
                     Thread.ofPlatform().name("JExLingo-worker-", 0).daemon(true).factory());
-            core = new LingoCore(config.get(), edition, hibernate, worker, logger);
+            core = new LingoCore(config.get(), edition, hibernate, readSlang(), worker, logger);
             loadData();
             PlatformScheduler scheduler = PlatformScheduler.of(plugin);
             frontend = new LingoFrontend(plugin, core, config, scheduler);
@@ -138,7 +142,7 @@ public final class JExLingo {
     public void reload() {
         LingoConfig next = readConfig();
         config.set(next);
-        core.apply(next);
+        core.apply(next, readSlang());
         frontend.apply(next);
         R18nManager.getInstance().reload();
     }
@@ -146,6 +150,7 @@ public final class JExLingo {
     private void prepareFiles() {
         saveDefault(DATABASE_FILE);
         saveDefault(GLOSSARY_FILE);
+        saveDefault(SLANG_FILE);
         saveDefault(LingoCommands.COMMAND_FILE);
         CommandTreeMerger.addMissingSubcommands(plugin, LingoCommands.COMMAND_FILE);
         List<String> locales = new ArrayList<>(List.of(EXTRA_LOCALES));
@@ -196,6 +201,15 @@ public final class JExLingo {
     private @NotNull List<GlossaryTerm> readGlossarySeed() {
         File file = new File(plugin.getDataFolder(), GLOSSARY_FILE);
         return GlossarySeed.parse(YamlConfiguration.loadConfiguration(file),
+                warning -> logger.log(Level.WARNING, warning));
+    }
+
+    private @NotNull SlangDictionary readSlang() {
+        File file = new File(plugin.getDataFolder(), SLANG_FILE);
+        if (!file.isFile()) {
+            return SlangDictionary.EMPTY;
+        }
+        return SlangDictionary.parse(YamlConfiguration.loadConfiguration(file),
                 warning -> logger.log(Level.WARNING, warning));
     }
 

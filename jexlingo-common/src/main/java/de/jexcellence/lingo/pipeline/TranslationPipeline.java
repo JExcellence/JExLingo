@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *     <li>pinned phrases</li>
  *     <li>cache of earlier provider results</li>
  *     <li>glossary and masking; a text made only of protected parts never reaches the provider</li>
+ *     <li>text preparation: letter spam, shouting and chat slang ({@link ChatTextPreparer})</li>
  *     <li>provider, shared by identical requests running at the same time</li>
  * </ol>
  *
@@ -118,6 +119,15 @@ public final class TranslationPipeline {
     }
 
     /**
+     * Returns the text preparer (slang, shouting, letter spam).
+     *
+     * @return the text preparer
+     */
+    public @NotNull ChatTextPreparer preparer() {
+        return layers.preparer();
+    }
+
+    /**
      * Returns provider calls currently running.
      *
      * @return provider calls currently running
@@ -156,10 +166,12 @@ public final class TranslationPipeline {
                                                                        @NotNull String key,
                                                                        @NotNull TokenMasker.MaskedText masked,
                                                                        long started) {
-        String flightKey = pair.key() + '\u0000' + masked.text();
-        return inFlight.join(flightKey, () -> gateway.translate(masked.text(), pair.source(), pair.target()))
+        ChatTextPreparer.Prepared prepared = layers.preparer().prepare(masked.text(), pair.source());
+        String flightKey = pair.key() + '\u0000' + prepared.text();
+        return inFlight.join(flightKey, () -> gateway.translate(prepared.text(), pair.source(), pair.target()))
                 .thenApply(translated -> {
-                    Optional<String> restored = TokenMasker.unmask(translated, masked);
+                    String finished = layers.preparer().finish(translated, prepared);
+                    Optional<String> restored = TokenMasker.unmask(finished, masked);
                     if (restored.isEmpty() || restored.get().isBlank()) {
                         return result(text, text, pair, TranslationOrigin.FALLBACK, started);
                     }

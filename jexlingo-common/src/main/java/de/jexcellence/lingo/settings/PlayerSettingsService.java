@@ -104,6 +104,23 @@ public final class PlayerSettingsService {
     }
 
     /**
+     * Deletes a player's stored settings (right to erasure). Waits for pending writes of that player first.
+     *
+     * @param uuid the player's UUID
+     * @return whether a row existed
+     */
+    public @NotNull CompletableFuture<Boolean> erase(@NotNull UUID uuid) {
+        cache.remove(uuid);
+        CompletableFuture<?> pending = writes.getOrDefault(uuid, CompletableFuture.completedFuture(null));
+        return pending.handleAsync((ignored, error) -> repository.findByUuid(uuid)
+                .map(row -> {
+                    repository.deleteEntity(row);
+                    return true;
+                })
+                .orElse(false), worker);
+    }
+
+    /**
      * Drops a player from memory, for example on quit.
      *
      * @param uuid the player's UUID

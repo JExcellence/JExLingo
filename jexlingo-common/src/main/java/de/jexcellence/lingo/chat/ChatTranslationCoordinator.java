@@ -7,9 +7,11 @@ import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.api.event.ChatTranslatedEvent;
 import de.jexcellence.lingo.config.ChatMode;
 import de.jexcellence.lingo.config.ChatSettings;
+import de.jexcellence.lingo.language.WritingLanguageLearner;
 import de.jexcellence.lingo.learning.RecentMessage;
 import de.jexcellence.lingo.pipeline.SkipRules;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
+import de.jexcellence.lingo.settings.IncomingMode;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,10 +19,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +43,7 @@ public final class ChatTranslationCoordinator {
     private final ChatContext context;
     private final TranslatedLineDecorator decorator;
     private final AtomicReference<ChatSettings> chat;
+    private final WritingLanguageLearner learner;
     private final Map<UUID, Long> lastProviderUse = new ConcurrentHashMap<>();
 
     /**
@@ -47,12 +52,27 @@ public final class ChatTranslationCoordinator {
      * @param context   chat services
      * @param decorator line decorator
      * @param chat      chat settings
+     * @param learner   writing-language learner
      */
     public ChatTranslationCoordinator(@NotNull ChatContext context, @NotNull TranslatedLineDecorator decorator,
-                                      @NotNull ChatSettings chat) {
+                                      @NotNull ChatSettings chat, @NotNull WritingLanguageLearner learner) {
         this.context = context;
         this.decorator = decorator;
         this.chat = new AtomicReference<>(chat);
+        this.learner = learner;
+    }
+
+    /**
+     * The viewers of one message, split by how they receive other languages.
+     *
+     * @param auto  viewer UUID to target language, translated automatically
+     * @param click viewers who get a translate button instead
+     */
+    private record Audiences(@NotNull Map<UUID, LanguageCode> auto, @NotNull Set<UUID> click) {
+
+        boolean isEmpty() {
+            return auto.isEmpty() && click.isEmpty();
+        }
     }
 
     /**
@@ -72,11 +92,15 @@ public final class ChatTranslationCoordinator {
                 || SkipRules.from(settings).skips(text, TranslationContext.CHAT)) {
             return Optional.empty();
         }
-        LanguageCode assumed = context.resolver().resolve(sender);
-        Map<UUID, LanguageCode> viewerLanguages = viewerLanguages(sender, viewers);
-        if (viewerLanguages.isEmpty()) {
+        LanguageCode assumed = context.resolver().resolveWriting(sender);
+        if (context.settings().get(sender.getUniqueId()).writeLanguage() == null) {
+            learner.observe(sender, text, assumed, context.resolver().languages());
+        }
+        Audiences audiences = classify(sender, assumed, viewers);
+        if (audiences.isEmpty()) {
             return Optional.empty();
         }
+        Map<UUID, LanguageCode> viewerLanguages = audiences.auto();
         RecentMessage message = context.recent().register(sender.getUniqueId(), sender.getName(), text, assumed);
         CompletableFuture<LanguageCode> source = context.detector()
                 .detect(text, assumed, context.resolver().languages())
@@ -91,7 +115,7 @@ public final class ChatTranslationCoordinator {
             results.put(target, translate(text, target, source, options, message));
         }
         boolean inline = mayWaitInline && settings.mode() == ChatMode.INLINE;
-        ChatSession session = new ChatSession(message, results, viewerLanguages, inline,
+        ChatSession session = new ChatSession(message, results, viewerLanguages, audiences.click(), inline,
                 settings.inlineWait().toNanos());
         whenAllDone(sender, session, source);
         if (!inline) {
@@ -116,23 +140,27 @@ public final class ChatTranslationCoordinator {
      */
     public void forget(@NotNull UUID player) {
         lastProviderUse.remove(player);
+        learner.forget(player);
     }
 
-    private @NotNull Map<UUID, LanguageCode> viewerLanguages(@NotNull Player sender,
-                                                             @NotNull Collection<? extends Audience> viewers) {
-        LanguageCode senderLanguage = context.resolver().resolve(sender);
+    private @NotNull Audiences classify(@NotNull Player sender, @NotNull LanguageCode senderLanguage,
+                                        @NotNull Collection<? extends Audience> viewers) {
         boolean detection = context.detector().isEnabled();
-        Map<UUID, LanguageCode> languages = new HashMap<>();
+        Map<UUID, LanguageCode> auto = new HashMap<>();
+        Set<UUID> click = new HashSet<>();
         for (Audience audience : viewers) {
-            if (audience instanceof Player viewer && !viewer.equals(sender)
-                    && context.settings().get(viewer.getUniqueId()).translateIncoming()) {
+            if (audience instanceof Player viewer && !viewer.equals(sender)) {
+                IncomingMode mode = context.settings().get(viewer.getUniqueId()).incoming();
                 LanguageCode language = context.resolver().resolve(viewer);
-                if (detection || !language.equals(senderLanguage)) {
-                    languages.put(viewer.getUniqueId(), language);
+                boolean foreign = !language.equals(senderLanguage);
+                if (mode == IncomingMode.AUTO && (detection || foreign)) {
+                    auto.put(viewer.getUniqueId(), language);
+                } else if (mode == IncomingMode.CLICK && foreign) {
+                    click.add(viewer.getUniqueId());
                 }
             }
         }
-        return languages;
+        return new Audiences(auto, click);
     }
 
     private @NotNull CompletableFuture<TranslationResult> translate(@NotNull String text,
@@ -167,6 +195,9 @@ public final class ChatTranslationCoordinator {
 
     private void whenAllDone(@NotNull Player sender, @NotNull ChatSession session,
                              @NotNull CompletableFuture<LanguageCode> source) {
+        if (session.results().isEmpty()) {
+            return;
+        }
         CompletableFuture<?>[] all = session.results().values().toArray(CompletableFuture[]::new);
         CompletableFuture.allOf(all).thenRunAsync(() -> {
             Map<LanguageCode, TranslationResult> done = new HashMap<>();

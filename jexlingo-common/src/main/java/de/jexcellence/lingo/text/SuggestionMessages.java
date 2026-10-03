@@ -26,6 +26,7 @@ public final class SuggestionMessages {
     public static void send(@NotNull Player player, @NotNull SuggestionService.Result result) {
         String key = switch (result) {
             case SAVED -> "saved";
+            case APPROVED_BY_VOTES -> "approved_by_votes";
             case UNKNOWN_MESSAGE -> "unknown_message";
             case NOT_TRANSLATED -> "not_translated";
             case UNCHANGED -> "unchanged";

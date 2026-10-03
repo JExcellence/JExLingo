@@ -11,6 +11,7 @@ import java.util.function.Function;
  * @param phrases  pinned frequent phrases
  * @param glossary glossary terms per language pair
  * @param listener notified about provider and cache results
+ * @param preparer cleans text before it reaches the provider
  * @author JExcellence
  * @since 0.1.0
  */
@@ -18,17 +19,18 @@ public record PipelineLayers(
         @NotNull TranslationLookup memory,
         @NotNull TranslationLookup phrases,
         @NotNull Function<LanguagePair, MaskRules> glossary,
-        @NotNull ProviderResultListener listener
+        @NotNull ProviderResultListener listener,
+        @NotNull ChatTextPreparer preparer
 ) {
 
     /**
-     * Layers with a glossary but without memory, phrases and listener.
+     * Layers with a glossary but without memory, phrases, listener and slang.
      *
      * @param glossary glossary terms per language pair
      * @return the layers
      */
     public static @NotNull PipelineLayers glossaryOnly(@NotNull Function<LanguagePair, MaskRules> glossary) {
         return new PipelineLayers(TranslationLookup.NONE, TranslationLookup.NONE, glossary,
-                ProviderResultListener.NONE);
+                ProviderResultListener.NONE, ChatTextPreparer.withoutSlang());
     }
 }

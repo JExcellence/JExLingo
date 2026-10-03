@@ -5,6 +5,7 @@ import com.raindropcentral.commands.v2.argument.ArgumentTypeRegistry;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.language.LanguageResolver;
+import de.jexcellence.lingo.settings.IncomingMode;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +17,7 @@ import java.util.stream.Stream;
 
 /**
  * The plugin's command argument types: a language choice ({@code auto} or an enabled language), any language code,
- * an {@code enable}/{@code disable} switch and a glossary mode.
+ * an incoming mode, an {@code enable}/{@code disable} switch and a glossary mode.
  *
  * @author JExcellence
  * @since 0.1.0
@@ -56,6 +57,13 @@ public final class LingoArgumentTypes {
                                 Map.of(VALUE, raw))),
                 (sender, partial) -> filter(resolver.languages().enabled().stream().map(LanguageCode::code)
                         .toList(), partial)));
+        registry.register(ArgumentType.custom("lingo_incoming", IncomingMode.class,
+                (sender, raw) -> IncomingMode.parse(raw)
+                        .map(ArgumentType.ParseResult::ok)
+                        .orElseGet(() -> ArgumentType.ParseResult.err("lingo.error.unknown_incoming",
+                                Map.of(VALUE, raw))),
+                (sender, partial) -> filter(Stream.of(IncomingMode.values()).map(IncomingMode::id).toList(),
+                        partial)));
         registry.register(ArgumentType.custom("lingo_toggle", Boolean.class,
                 LingoArgumentTypes::parseToggle,
                 (sender, partial) -> filter(List.of(ENABLE, DISABLE), partial)));

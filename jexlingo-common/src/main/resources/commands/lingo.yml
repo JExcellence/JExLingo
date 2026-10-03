@@ -22,11 +22,23 @@ subcommands:
     argumentSchema:
       - { name: language, type: lingo_language, required: true, description: "auto or a language code" }
 
-  - name: incoming
-    description: "Translate messages you read"
+  - name: write
+    description: "Choose the language you write in"
     senders: [player]
     argumentSchema:
-      - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+      - { name: language, type: lingo_language, required: true, description: "auto or a language code" }
+
+  - name: incoming
+    description: "How messages in other languages reach you"
+    senders: [player]
+    argumentSchema:
+      - { name: mode, type: lingo_incoming, required: true, description: "auto, click or off" }
+
+  - name: show
+    description: "Translate one recent line for you (used by the translate button)"
+    senders: [player]
+    argumentSchema:
+      - { name: message, type: string, required: true, description: "Message id" }
 
   - name: outgoing
     description: "Allow your messages to be translated"
@@ -121,8 +133,16 @@ subcommands:
     default: op
     senders: [player, console]
 
+  - name: erase
+    description: "Delete a player's stored translation data"
+    permission: "jexlingo.admin"
+    default: op
+    senders: [player, console]
+    argumentSchema:
+      - { name: player, type: offline_player, required: true, description: "Player" }
+
   - name: reload
-    description: "Reload config, glossary rules and translations"
+    description: "Reload config, slang, glossary rules and translations"
     permission: "jexlingo.admin"
     default: op
     senders: [player, console]

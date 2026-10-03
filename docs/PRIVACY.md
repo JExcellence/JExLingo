@@ -1,6 +1,6 @@
 # JExLingo and data protection
 
-> **Status:** matches 0.1.0. **Last verified:** 2026-10-03. Not legal advice; adapt it to your server.
+> **Status:** matches 0.2.0. **Last verified:** 2026-10-03. Not legal advice; adapt it to your server.
 
 ## What is processed
 
@@ -11,8 +11,14 @@
 | Suggested translations (Premium) | database `jexlingo_memory`; submitter UUID only while pending | approved: kept; rejected: deleted after 7 days |
 | Pinned phrases (Premium) | database `jexlingo_phrase`, no player reference | kept |
 | Phrase counters (Premium) | memory, SHA-256 hashes only | `learning.promote-window-hours` |
+| Writing-language samples | memory, detected language codes only | until the player leaves |
 
 No chat history is stored. Logs never contain chat text or the API key.
+
+## Erasure
+
+`/lingo erase <player>` deletes the player's stored settings and their open suggestions (Art. 17 GDPR). Approved
+corrections and pinned phrases hold no player reference and stay.
 
 ## Self-hosted (default)
 

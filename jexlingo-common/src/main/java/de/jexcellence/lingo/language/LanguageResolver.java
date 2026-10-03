@@ -58,6 +58,30 @@ public final class LanguageResolver {
     }
 
     /**
+     * The pure writing rule: the stored writing language if it is enabled, else the reading language.
+     *
+     * @param writePreference the stored writing language, or {@code null}
+     * @param reading         the resolved reading language
+     * @param languages       enabled languages and fallback
+     * @return the language the player writes in
+     */
+    public static @NotNull LanguageCode resolveWriting(@Nullable LanguageCode writePreference,
+                                                       @NotNull LanguageCode reading,
+                                                       @NotNull LanguageSettings languages) {
+        return writePreference != null && languages.isEnabled(writePreference) ? writePreference : reading;
+    }
+
+    /**
+     * The language an online player writes in, used as the source of their chat lines.
+     *
+     * @param player the player
+     * @return the writing language
+     */
+    public @NotNull LanguageCode resolveWriting(@NotNull Player player) {
+        return resolveWriting(settings.get(player.getUniqueId()).writeLanguage(), resolve(player), languages.get());
+    }
+
+    /**
      * The language of an online player.
      *
      * @param player the player

@@ -7,8 +7,10 @@ import de.jexcellence.lingo.bedrock.LingoBedrockForms;
 import de.jexcellence.lingo.chat.ChatContext;
 import de.jexcellence.lingo.chat.ChatTranslationCoordinator;
 import de.jexcellence.lingo.chat.ChatTranslationListener;
+import de.jexcellence.lingo.chat.OnDemandTranslator;
 import de.jexcellence.lingo.chat.TranslatedLineDecorator;
 import de.jexcellence.lingo.config.LingoConfig;
+import de.jexcellence.lingo.language.WritingLanguageLearner;
 import de.jexcellence.lingo.learning.RecentMessageBuffer;
 import de.jexcellence.lingo.learning.SuggestionService;
 import de.jexcellence.lingo.placeholder.LingoPlaceholderExpansion;
@@ -38,6 +40,7 @@ public final class LingoFrontend {
     private final PlatformScheduler scheduler;
     private final RecentMessageBuffer recent = new RecentMessageBuffer();
     private @Nullable ChatTranslationCoordinator coordinator;
+    private @Nullable WritingLanguageLearner learner;
     private @Nullable SuggestionService suggestions;
     private @Nullable LingoPlaceholderExpansion placeholders;
     private @Nullable JExLingoApi api;
@@ -68,9 +71,12 @@ public final class LingoFrontend {
         BedrockFormBridge bedrock = new BedrockFormBridge();
         TranslatedLineDecorator decorator = new TranslatedLineDecorator(core.settings(), bedrock,
                 () -> core.edition().learningEnabled(), () -> config.get().bedrock().showOriginalLine());
+        learner = new WritingLanguageLearner(core.gateway(), scheduler, config.get().detection());
         ChatTranslationCoordinator chat = new ChatTranslationCoordinator(new ChatContext(core.pipeline(),
                 core.settings(), core.resolver(), core.detector(), recent, scheduler, worker), decorator,
-                config.get().chat());
+                config.get().chat(), learner);
+        OnDemandTranslator onDemand = new OnDemandTranslator(recent, core.pipeline(), core.resolver(), decorator,
+                scheduler);
         coordinator = chat;
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new ChatTranslationListener(chat, decorator, recent), plugin);
@@ -87,7 +93,7 @@ public final class LingoFrontend {
             forms = new LingoBedrockForms(bedrock, new LingoBedrockForms.FormServices(core.settings(),
                     core.resolver(), recent, suggestions, core.memory(), core.glossary(), scheduler));
         }
-        new LingoCommands(plugin, core, scheduler).register(worker, reload, suggestions, forms);
+        new LingoCommands(plugin, core, scheduler).register(worker, reload, suggestions, forms, onDemand);
         registerPlaceholders();
         registerApi();
     }
@@ -100,6 +106,9 @@ public final class LingoFrontend {
     public void apply(@NotNull LingoConfig next) {
         if (coordinator != null) {
             coordinator.setChatSettings(next.chat());
+        }
+        if (learner != null) {
+            learner.setSettings(next.detection());
         }
         if (suggestions != null) {
             suggestions.setLimits(next.learning());

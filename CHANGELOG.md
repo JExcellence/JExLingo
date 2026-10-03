@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.0 - 2026-10-03
+
+- Proprietary license: all rights reserved (LICENSE, README).
+- Better translator input: per-language chat slang dictionary (`slang.yml`, reloadable), letter-spam shortening,
+  shouting translated in lower case and raised again in the result.
+- Writing language separate from the reading language (`/lingo write`, menu card, Bedrock form,
+  `%jexlingo_writes%`); chat lines use it as their source language.
+- Writing-language learner: samples the first messages of a session and offers the detected language with one
+  click (`detection.learn-writing-language`).
+- Incoming mode: automatic, on click (`[T]` button and `/lingo show <id>`) or off; replaces the on/off switch.
+- Crowd approval (Premium): a correction suggested by enough different players is approved without staff
+  (`learning.auto-approve-votes`).
+- `/lingo erase <player>` deletes stored settings and open suggestions (right to erasure).
+- New options are added to an existing `config.yml` on start, with backup (`config-version` 2).
+- Lookup keys ignore trailing `.`/`!` and letter spam, so more lines hit cache, memory and pinned phrases.
+- `/lingo status` shows running translations and the slang size.
+- 22 new unit tests (84 total).
+
 ## 0.1.0 - 2026-10-03
 
 First version.

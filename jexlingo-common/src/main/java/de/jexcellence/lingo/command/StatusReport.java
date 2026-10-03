@@ -82,6 +82,8 @@ public final class StatusReport {
         row(sender, "requests", gateway.requestCount() + " / " + gateway.failureCount() + " / "
                 + gateway.refusedCount());
         row(sender, "cache", pipeline.cache().size() + " (" + Math.round(pipeline.cache().hitRate() * 100.0) + "%)");
+        row(sender, "inflight", Integer.toString(pipeline.inFlight()));
+        row(sender, "slang", Integer.toString(pipeline.preparer().slang().size()));
         row(sender, "origins", origins(pipeline.stats().snapshot()));
         if (memory != null && phrases != null) {
             row(sender, "learning", memory.approvedCount() + " / " + phrases.pinnedCount());

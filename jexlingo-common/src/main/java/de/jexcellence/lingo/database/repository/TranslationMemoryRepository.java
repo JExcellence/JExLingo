@@ -3,11 +3,13 @@ package de.jexcellence.lingo.database.repository;
 import de.jexcellence.jehibernate.repository.base.AbstractCrudRepository;
 import de.jexcellence.lingo.database.entity.TranslationMemoryEntity;
 import de.jexcellence.lingo.learning.MemoryStatus;
+import de.jexcellence.lingo.pipeline.LanguagePair;
 import jakarta.persistence.EntityManagerFactory;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
@@ -34,6 +36,32 @@ public class TranslationMemoryRepository extends AbstractCrudRepository<Translat
      */
     public @NotNull CompletableFuture<List<TranslationMemoryEntity>> findByStatusAsync(@NotNull MemoryStatus status) {
         return query().and(STATUS, status.name()).orderBy("id").listAsync();
+    }
+
+    /**
+     * Pending suggestions for one original, oldest first.
+     *
+     * @param pair      the language pair
+     * @param sourceKey the normalized original
+     * @return the entries
+     */
+    public @NotNull List<TranslationMemoryEntity> findPending(@NotNull LanguagePair pair, @NotNull String sourceKey) {
+        return query().and(STATUS, MemoryStatus.PENDING.name())
+                .and("sourceLanguage", pair.source().code())
+                .and("targetLanguage", pair.target().code())
+                .and("sourceKey", sourceKey)
+                .orderBy("id")
+                .list();
+    }
+
+    /**
+     * Pending suggestions of one player.
+     *
+     * @param submitter the player's UUID
+     * @return the entries
+     */
+    public @NotNull List<TranslationMemoryEntity> findPendingBySubmitter(@NotNull UUID submitter) {
+        return query().and(STATUS, MemoryStatus.PENDING.name()).and("submittedBy", submitter).list();
     }
 
     /**

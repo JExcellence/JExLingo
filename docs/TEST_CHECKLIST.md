@@ -21,10 +21,22 @@ German game language, one with English, one Bedrock client through Geyser if ava
 - [ ] A line with a URL, `@Name`, `[item]` and a player name keeps them unchanged.
 - [ ] Muted player: nothing is translated or shown.
 - [ ] `/lingo outgoing disable`: the player's lines reach nobody translated.
-- [ ] `/lingo incoming disable`: the player sees every line as written.
+- [ ] `/lingo incoming off`: the player sees every line as written.
 - [ ] `/lingo original enable`: the original shows as a second line.
 - [ ] `chat.mode: FOLLOW_UP` + reload: original first, translated line right after.
 - [ ] A chat line containing `<red>hi</red>` or `<click:run_command:/op me>` shows as literal text in the translation.
+
+## 0.2.0 features
+
+- [ ] `idk tbh` from an English player and `vllt morgen` from a German player translate as full words.
+- [ ] `HILF MIR BITTE` arrives as `HELP ME PLEASE` (capitals kept).
+- [ ] Player with English client writes German 5 times: gets the `[!] You seem to write in German` hint; clicking it
+  sets the writing language; their lines are now translated from German.
+- [ ] `/lingo incoming click`: foreign lines show `[T]`; clicking it sends the translated line; own-language lines
+  have no button.
+- [ ] Premium: three players suggest the same correction: the third gets "used from now on", the line now shows it.
+- [ ] `/lingo erase <player>` removes their settings (menu shows defaults after relog) and their open suggestions.
+- [ ] Existing 0.1.0 `config.yml`: after start it contains the new keys with comments, a `.bak-` file exists.
 
 ## Settings and menus
 

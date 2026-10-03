@@ -1,6 +1,6 @@
 # JExLingo - Implementation Plan
 
-> **Status:** phases 1-8 built (0.1.0), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
+> **Status:** 0.2.0 built (phases 1-8 plus section 20), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
 > **Last verified:** 2026-10-03. **Owner:** JExcellence.
 > **Related:** [../../CLAUDE.md](../../CLAUDE.md), [../../docs/AGENT_BRIEF.md](../../docs/AGENT_BRIEF.md),
 > [../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md](../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md),
@@ -548,3 +548,22 @@ Java 25, Minecraft on the same host. LibreTranslate therefore binds to `127.0.0.
 - `INLINE` mode, 400 ms wait (to be tuned from the benchmark).
 - Synchronous chat events (plugins calling `player.chat()` on the main thread) never wait inline; they use
   follow-up lines, so the main thread is never blocked.
+
+---
+
+## 20. 0.2.0 (2026-10-03)
+
+Owner decisions: proprietary license, all rights reserved (LICENSE); repo stays public for viewing.
+
+| Feature | Where |
+|---|---|
+| Chat slang expansion per source language, letter-spam shortening, shouting handled | `ChatTextPreparer`, `SlangDictionary`, `slang.yml` |
+| Writing language separate from reading language | `PlayerLanguageSettings.writeLanguage`, `LanguageResolver.resolveWriting` |
+| Writing-language learner (session sample, one-click offer, nothing stored) | `WritingLanguageLearner`, `LanguageVotes` |
+| Incoming mode auto / click / off, `[T]` button, `/lingo show` | `IncomingMode`, `OnDemandTranslator` |
+| Crowd approval of corrections (Premium) | `CrowdVotes`, `TranslationMemoryService.approveByVotes` |
+| Right to erasure | `/lingo erase`, `PlayerSettingsService.erase`, `TranslationMemoryService.erasePending` |
+| New config keys merged into live config with backup | `ConfigFileMerger`, `config-version: 2` |
+| Normalized lookup keys (trailing `.`/`!`, letter spam) | `TextNormalizer.key` |
+
+Still open: bench on the Debian host, in-game checklist, Free/Premium numbers, JExEssentials/JExDiscord hooks.

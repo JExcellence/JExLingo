@@ -1,12 +1,13 @@
 # JExLingo configuration
 
-> **Status:** matches 0.1.0. **Last verified:** 2026-10-03. **Related:** [../README.md](../README.md),
+> **Status:** matches 0.2.0. **Last verified:** 2026-10-03. **Related:** [../README.md](../README.md),
 > [PLAN.md](PLAN.md).
 
 `plugins/JExLingo/config.yml` is written once and never overwritten. Defaults live in the plugin
 (`LingoConfigLoader`): a missing key uses its default, an out-of-range number is clamped, an invalid value falls back
 and a warning naming the key is logged. `/lingo reload` applies most changes; the database, cache size and phrase
-window need a restart.
+window need a restart. On start, options that a newer version added are written into an existing `config.yml`
+with their comment (backup `config.yml.bak-<time>`); your values are never changed.
 
 ## Environment variables
 
@@ -32,7 +33,10 @@ window need a restart.
 | `languages.fallback` | `en` | enabled code | language for unsupported game languages |
 | `detection.enabled` | `false` | | detect the written language per message (second provider call) |
 | `detection.min-length` | 12 | 1-500 | shortest message that is checked |
-| `detection.min-confidence` | 70 | 0-100 | lowest confidence that overrides the sender's language |
+| `detection.min-confidence` | 70 | 0-100 | lowest confidence that counts |
+| `detection.learn-writing-language` | `true` | | sample the first messages of a session and offer the detected writing language |
+| `detection.learn-samples` | 8 | 1-50 | messages sampled per session |
+| `detection.learn-threshold` | 5 | 1-samples | samples that must agree before the offer |
 | `chat.mode` | `INLINE` | `INLINE`, `FOLLOW_UP` | one translated line, or original first and translation after |
 | `chat.inline-wait-ms` | 400 | 0-5000 | wait budget per message in `INLINE` mode |
 | `chat.min-length` | 2 | 1-256 | shortest translated message |
@@ -48,12 +52,14 @@ window need a restart.
 | `learning.promote-after` | 10 | 2-10000 | Premium: uses within the window that pin a phrase |
 | `learning.promote-window-hours` | 24 | 1-720 | Premium: counting window |
 | `learning.promote-max-length` | 40 | 1-256 | Premium: longest phrase that can be pinned |
+| `learning.auto-approve-votes` | 3 | 0-100 | Premium: different players suggesting the same text approve it; 0 = off |
 
 ## Other files
 
 | File | Purpose |
 |---|---|
 | `glossary.yml` | default terms, read once while the glossary table is empty |
+| `slang.yml` | chat abbreviations per source language, expanded before translation; `/lingo reload` |
 | `commands/lingo.yml` | command tree: names, aliases, permissions, defaults |
 | `database/hibernate.properties` | H2 by default; MySQL, MariaDB, PostgreSQL supported |
 | `translations/en_US.yml`, `de_DE.yml` | every text; new keys from updates are merged in, your wording is kept |

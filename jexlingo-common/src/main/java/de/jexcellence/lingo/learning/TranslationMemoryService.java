@@ -81,6 +81,42 @@ public final class TranslationMemoryService implements TranslationLookup {
     }
 
     /**
+     * Approves a suggestion without staff when enough different players suggested the same text for the same
+     * original. The other copies of the winning text are rejected as merged.
+     *
+     * @param entry  the suggestion just stored
+     * @param needed distinct players needed, 0 = crowd approval off
+     * @return whether a suggestion was approved
+     */
+    public @NotNull CompletableFuture<Boolean> approveByVotes(@NotNull MemoryEntry entry, int needed) {
+        if (needed <= 0) {
+            return CompletableFuture.completedFuture(false);
+        }
+        return CompletableFuture.supplyAsync(() -> repository.findPending(entry.pair(), entry.sourceKey()).stream()
+                .map(TranslationMemoryEntity::toEntry).toList(), worker)
+                .thenCompose(pending -> CrowdVotes.count(pending, needed)
+                        .map(outcome -> approve(outcome.winner().id(), null).thenCompose(approved -> {
+                            outcome.duplicates().forEach(duplicate -> reject(duplicate.id()));
+                            return CompletableFuture.completedFuture(approved.isPresent());
+                        }))
+                        .orElseGet(() -> CompletableFuture.completedFuture(false)));
+    }
+
+    /**
+     * Deletes the pending suggestions of a player (right to erasure).
+     *
+     * @param submitter the player's UUID
+     * @return the number of deleted suggestions
+     */
+    public @NotNull CompletableFuture<Integer> erasePending(@NotNull UUID submitter) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<TranslationMemoryEntity> rows = repository.findPendingBySubmitter(submitter);
+            rows.forEach(repository::deleteEntity);
+            return rows.size();
+        }, worker);
+    }
+
+    /**
      * Stores a suggestion for review.
      *
      * @param pair       the language pair

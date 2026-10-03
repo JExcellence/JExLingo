@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -25,6 +26,7 @@ public final class ChatSession {
     private final RecentMessage message;
     private final Map<LanguageCode, CompletableFuture<TranslationResult>> results;
     private final Map<UUID, LanguageCode> viewerLanguages;
+    private final Set<UUID> clickViewers;
     private final boolean inline;
     private final long deadlineNanos;
 
@@ -34,15 +36,18 @@ public final class ChatSession {
      * @param message         the recent message entry
      * @param results         one future per target language
      * @param viewerLanguages viewer UUID to target language, only viewers who get a translation
+     * @param clickViewers    viewers who get a translate button instead of an automatic translation
      * @param inline          whether the renderer waits for translations
      * @param inlineWaitNanos the wait budget from now
      */
     public ChatSession(@NotNull RecentMessage message,
                        @NotNull Map<LanguageCode, CompletableFuture<TranslationResult>> results,
-                       @NotNull Map<UUID, LanguageCode> viewerLanguages, boolean inline, long inlineWaitNanos) {
+                       @NotNull Map<UUID, LanguageCode> viewerLanguages, @NotNull Set<UUID> clickViewers,
+                       boolean inline, long inlineWaitNanos) {
         this.message = message;
         this.results = Map.copyOf(results);
         this.viewerLanguages = Map.copyOf(viewerLanguages);
+        this.clickViewers = Set.copyOf(clickViewers);
         this.inline = inline;
         this.deadlineNanos = System.nanoTime() + inlineWaitNanos;
     }
@@ -81,6 +86,16 @@ public final class ChatSession {
      */
     public boolean inline() {
         return inline;
+    }
+
+    /**
+     * Whether a viewer gets a translate button on this line.
+     *
+     * @param viewer the viewer's UUID
+     * @return {@code true} for viewers in click mode who read another language
+     */
+    public boolean offersButton(@NotNull UUID viewer) {
+        return clickViewers.contains(viewer);
     }
 
     /**

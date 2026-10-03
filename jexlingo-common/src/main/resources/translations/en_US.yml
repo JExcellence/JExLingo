@@ -56,14 +56,27 @@ lingo:
       original: '<#C4B5FD>Original ({from})</#C4B5FD><newline><#F1F5F9>{original}</#F1F5F9>'
       suggest: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Click to suggest a better translation</#94A3B8>'
     original_line: '<dark_gray>| {from}:</dark_gray> <#94A3B8>{original}</#94A3B8>'
+    translate_button: '<dark_gray>[</dark_gray><#5EEAD4>T</#5EEAD4><dark_gray>]</dark_gray>'
+    translate_hover: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Click to translate this line</#94A3B8>'
     follow_up: '<dark_gray>[</dark_gray><#5EEAD4>{from} » {to}</#5EEAD4><dark_gray>]</dark_gray> <#F1F5F9>{name}</#F1F5F9><dark_gray>:</dark_gray> <#F1F5F9>{text}</#F1F5F9>'
+  learn:
+    hint: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>You seem to write in</#F1F5F9> <#5EEAD4>{language}</#5EEAD4><#F1F5F9>. Click here to set it, so your messages are translated correctly.</#F1F5F9>'
+    hover: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Set {language} as your writing language</#94A3B8>'
+  show:
+    unknown_message: '<#F87171>[X]</#F87171> <#F1F5F9>That message is older than five minutes.</#F1F5F9>'
+    same_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>That message is already in your language.</#F1F5F9>'
+    failed: '<#F87171>[X]</#F87171> <#F1F5F9>The translator is not available right now. Try again in a moment.</#F1F5F9>'
+  erase:
+    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Deleted the translation settings of</#F1F5F9> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>and</#F1F5F9> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>open suggestions.</#F1F5F9>'
+    failed: '<#F87171>[X]</#F87171> <#F1F5F9>Deleting failed. See the server log.</#F1F5F9>'
   onboarding:
     message: '<#F1F5F9>Chat is translated for you into</#F1F5F9> <#5EEAD4>{language}</#5EEAD4><#F1F5F9>. Hover a marked line to see the original.</#F1F5F9> <#94A3B8>Settings: /lingo</#94A3B8>'
   help:
     - '<gradient:#5EEAD4:#38BDF8>Lingo</gradient> <dark_gray>|</dark_gray> <#94A3B8>chat translation</#94A3B8>'
     - '<#5EEAD4>/lingo</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>open your settings</#94A3B8>'
     - '<#5EEAD4>/lingo lang [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>choose the language you read in</#94A3B8>'
-    - '<#5EEAD4>/lingo incoming [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>translate messages you read</#94A3B8>'
+    - '<#5EEAD4>/lingo write [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>choose the language you write in</#94A3B8>'
+    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>translate automatically, on click or not at all</#94A3B8>'
     - '<#5EEAD4>/lingo outgoing [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>allow your messages to be translated</#94A3B8>'
     - '<#5EEAD4>/lingo original [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>show the original under a translation</#94A3B8>'
     - '<#5EEAD4>/lingo suggest</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>suggest a better translation</#94A3B8>'
@@ -72,13 +85,16 @@ lingo:
     players_only: '<#F87171>[X]</#F87171> <#F1F5F9>Only players can use this.</#F1F5F9>'
     unknown_language: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is no language code, for example de or en.</#F1F5F9>'
     language_not_enabled: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not translated on this server. Use auto or one of the suggested codes.</#F1F5F9>'
+    unknown_incoming: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>auto</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>click</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>off</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_toggle: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>enable</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>disable</#5EEAD4><#F1F5F9>.</#F1F5F9>'
     unknown_mode: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>keep</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>force</#5EEAD4><#F1F5F9>.</#F1F5F9>'
   settings:
     saved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Your translation settings are saved.</#F1F5F9>'
-    language_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Language:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>you now read in {reading}</#94A3B8>'
+    language_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Reading language:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>you now read in {effective}</#94A3B8>'
+    write_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Writing language:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>your messages are read as {effective}</#94A3B8>'
     incoming:
-      enabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Messages you read are translated again.</#F1F5F9>'
+      automatic: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Messages in other languages are translated automatically.</#F1F5F9>'
+      on_click: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Messages in other languages get a</#F1F5F9> <#5EEAD4>[T]</#5EEAD4> <#F1F5F9>button. Click it to translate.</#F1F5F9>'
       disabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>You now read every message as written.</#F1F5F9>'
     outgoing:
       enabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Your messages are translated for other players again.</#F1F5F9>'
@@ -88,6 +104,7 @@ lingo:
       disabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>The original is only shown on hover.</#F1F5F9>'
   suggest:
     saved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Thanks. Your translation waits for staff review.</#F1F5F9>'
+    approved_by_votes: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Thanks. Other players suggested the same, so it is used from now on.</#F1F5F9>'
     unknown_message: '<#F87171>[X]</#F87171> <#F1F5F9>That message is older than five minutes or unknown.</#F1F5F9>'
     not_translated: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>That message was not translated for you.</#F1F5F9>'
     unchanged: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>That is the same as the current translation.</#F1F5F9>'
@@ -137,6 +154,8 @@ lingo:
       latency: 'Latency p50 / p95'
       requests: 'Sent / failed / refused'
       cache: 'Cache entries (hit rate)'
+      inflight: 'Translations running'
+      slang: 'Slang abbreviations'
       origins: 'Results by source'
       learning: 'Approved / pinned phrases'
     value:
@@ -181,6 +200,7 @@ lingo_settings:
     description: 'Messages in other languages are translated for you. Hover a marked line to see the original.'
     section: 'Your settings'
     reading: 'You read in'
+    writing: 'You write in'
   card:
     section: 'Choose'
   option:
@@ -188,10 +208,14 @@ lingo_settings:
       label: 'Language'
       name: '<#F1F5F9>Language</#F1F5F9> <dark_gray>|</dark_gray> {value}'
       description: 'The language you read chat in. Auto follows your game language.'
+    write:
+      label: 'Writing language'
+      name: '<#F1F5F9>Writing language</#F1F5F9> <dark_gray>|</dark_gray> {value}'
+      description: 'The language you write in. Auto uses your reading language. Set it when you chat in another language than your game.'
     incoming:
-      label: 'Translate for me'
-      name: '<#F1F5F9>Translate for me</#F1F5F9> <dark_gray>|</dark_gray> {value}'
-      description: 'Shows messages from other players in your language.'
+      label: 'Other languages'
+      name: '<#F1F5F9>Other languages</#F1F5F9> <dark_gray>|</dark_gray> {value}'
+      description: 'Automatic translates every line. On click adds a small [T] button instead. Off shows lines as written.'
     outgoing:
       label: 'Translate my messages'
       name: '<#F1F5F9>Translate my messages</#F1F5F9> <dark_gray>|</dark_gray> {value}'
@@ -204,6 +228,10 @@ lingo_settings:
     auto: 'Auto'
     enabled: 'On'
     disabled: 'Off'
+    incoming:
+      automatic: 'Automatic'
+      on_click: 'On click'
+      disabled: 'Off'
 
 lingo_review:
   title: '<gradient:#5EEAD4:#38BDF8>Suggestions</gradient>'

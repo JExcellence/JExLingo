@@ -41,6 +41,8 @@ public final class SuggestionService {
     public enum Result {
         /** Stored for review. */
         SAVED,
+        /** Enough players suggested the same text; it is approved and used from now on. */
+        APPROVED_BY_VOTES,
         /** The message id is unknown or older than five minutes. */
         UNKNOWN_MESSAGE,
         /** The message was not translated into the player's language. */
@@ -116,10 +118,12 @@ public final class SuggestionService {
         record(player.getUniqueId());
         LanguagePair pair = new LanguagePair(message.source(), target);
         UUID submitter = player.getUniqueId();
-        return memory.submit(pair, message.original(), clean, submitter).thenApply(entry -> {
+        int votesNeeded = limits.get().autoApproveVotes();
+        return memory.submit(pair, message.original(), clean, submitter).thenCompose(entry -> {
             Bukkit.getPluginManager().callEvent(new TranslationSuggestedEvent(!Bukkit.isPrimaryThread(), submitter,
                     entry.sourceText(), entry.targetText(), pair.source(), pair.target()));
-            return Result.SAVED;
+            return memory.approveByVotes(entry, votesNeeded)
+                    .thenApply(approved -> Boolean.TRUE.equals(approved) ? Result.APPROVED_BY_VOTES : Result.SAVED);
         });
     }
 

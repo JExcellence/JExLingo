@@ -6,6 +6,7 @@ import de.jexcellence.lingo.settings.PlayerLanguageSettings;
 import de.jexcellence.lingo.settings.PlayerSettingsService;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,9 @@ import org.jetbrains.annotations.Nullable;
  * <ul>
  *     <li>{@code language} / {@code language_upper}: the language the player reads in</li>
  *     <li>{@code preference}: the stored preference, {@code auto} when following the client</li>
- *     <li>{@code incoming}, {@code outgoing}, {@code original}: the switches, {@code true} or {@code false}</li>
+ *     <li>{@code writes}: the language the player writes in</li>
+ *     <li>{@code incoming}: {@code auto}, {@code click} or {@code off}</li>
+ *     <li>{@code outgoing}, {@code original}: the switches, {@code true} or {@code false}</li>
  *     <li>{@code provider}: {@code online} or {@code offline}</li>
  * </ul>
  *
@@ -65,6 +68,14 @@ public final class LingoPlaceholderExpansion extends PlaceholderExpansion {
         return true;
     }
 
+    private @NotNull String resolveWriting(@NotNull OfflinePlayer player) {
+        Player online = player.getPlayer();
+        if (online != null) {
+            return resolver.resolveWriting(online).code();
+        }
+        return resolver.resolve(player.getUniqueId()).code();
+    }
+
     @Override
     public @Nullable String onRequest(@Nullable OfflinePlayer player, @NotNull String params) {
         if ("provider".equals(params)) {
@@ -78,7 +89,8 @@ public final class LingoPlaceholderExpansion extends PlaceholderExpansion {
             case "language" -> resolver.resolve(player.getUniqueId()).code();
             case "language_upper" -> resolver.resolve(player.getUniqueId()).upper();
             case "preference" -> current.language() == null ? "auto" : current.language().code();
-            case "incoming" -> Boolean.toString(current.translateIncoming());
+            case "incoming" -> current.incoming().id();
+            case "writes" -> resolveWriting(player);
             case "outgoing" -> Boolean.toString(current.translateOutgoing());
             case "original" -> Boolean.toString(current.showOriginal());
             default -> null;

@@ -2,6 +2,7 @@ package de.jexcellence.lingo.database.entity;
 
 import de.jexcellence.jehibernate.entity.base.LongIdEntity;
 import de.jexcellence.lingo.api.LanguageCode;
+import de.jexcellence.lingo.settings.IncomingMode;
 import de.jexcellence.lingo.settings.PlayerLanguageSettings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,8 +33,14 @@ public class LingoPlayerSettingsEntity extends LongIdEntity {
     @Column(name = "language", length = 8)
     private String language;
 
+    @Column(name = "write_language", length = 8)
+    private String writeLanguage;
+
     @Column(name = "translate_incoming")
     private Boolean translateIncoming;
+
+    @Column(name = "incoming_mode", length = 16)
+    private String incomingMode;
 
     @Column(name = "translate_outgoing")
     private Boolean translateOutgoing;
@@ -77,7 +84,8 @@ public class LingoPlayerSettingsEntity extends LongIdEntity {
         PlayerLanguageSettings defaults = PlayerLanguageSettings.DEFAULTS;
         return new PlayerLanguageSettings(
                 LanguageCode.parse(language).orElse(null),
-                orDefault(translateIncoming, defaults.translateIncoming()),
+                LanguageCode.parse(writeLanguage).orElse(null),
+                incomingMode(defaults.incoming()),
                 orDefault(translateOutgoing, defaults.translateOutgoing()),
                 orDefault(showOriginal, defaults.showOriginal()),
                 orDefault(suggestionsBlocked, defaults.suggestionsBlocked()),
@@ -90,14 +98,31 @@ public class LingoPlayerSettingsEntity extends LongIdEntity {
      * @param settings the settings
      */
     public void apply(@NotNull PlayerLanguageSettings settings) {
-        this.language = settings.language() == null ? null : settings.language().code();
-        this.translateIncoming = settings.translateIncoming();
+        this.language = code(settings.language());
+        this.writeLanguage = code(settings.writeLanguage());
+        this.incomingMode = settings.incoming().name();
+        this.translateIncoming = settings.incoming() != IncomingMode.OFF;
         this.translateOutgoing = settings.translateOutgoing();
         this.showOriginal = settings.showOriginal();
         this.suggestionsBlocked = settings.suggestionsBlocked();
         if (settings.onboarded() && onboardedAt == null) {
             this.onboardedAt = Instant.now();
         }
+    }
+
+    private @NotNull IncomingMode incomingMode(@NotNull IncomingMode fallback) {
+        IncomingMode stored = IncomingMode.parse(incomingMode).orElse(null);
+        if (stored != null) {
+            return stored;
+        }
+        if (Boolean.FALSE.equals(translateIncoming)) {
+            return IncomingMode.OFF;
+        }
+        return fallback;
+    }
+
+    private static @Nullable String code(@Nullable LanguageCode value) {
+        return value == null ? null : value.code();
     }
 
     private static boolean orDefault(@Nullable Boolean stored, boolean fallback) {

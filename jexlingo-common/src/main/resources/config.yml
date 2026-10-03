@@ -1,7 +1,7 @@
 # JExLingo configuration
 # Defaults live in the plugin. A missing key uses its default, an out-of-range number is clamped and a warning
 # is logged. This file is never overwritten by an update; new options are documented in docs/CONFIG.md.
-config-version: 1
+config-version: 2
 
 provider:
   # Translation backend. Built in: libretranslate. Premium can select providers other plugins register.
@@ -33,6 +33,11 @@ detection:
   enabled: false
   min-length: 12
   min-confidence: 70
+  # Learns which language a player really writes in (for example German typed with an English client) by checking
+  # the first messages of a session. When enough agree, the player gets one clickable suggestion. Nothing is stored.
+  learn-writing-language: true
+  learn-samples: 8
+  learn-threshold: 5
 
 chat:
   # INLINE: wait up to inline-wait-ms and show one translated line. FOLLOW_UP: original first, translation after.
@@ -63,3 +68,5 @@ learning:
   promote-after: 10
   promote-window-hours: 24
   promote-max-length: 40
+  # A correction suggested by this many different players is approved without staff. 0 turns it off.
+  auto-approve-votes: 3

@@ -47,6 +47,11 @@ public final class LingoChatRenderer implements ChatRenderer {
         if (!(viewer instanceof Player player)) {
             return previous.render(source, sourceDisplayName, message, viewer);
         }
+        if (session.offersButton(player.getUniqueId())) {
+            return previous.render(source, sourceDisplayName, message, viewer)
+                    .append(Component.space())
+                    .append(decorator.translateButton(player, session.message().id()));
+        }
         Optional<TranslationResult> result = session.inlineResult(player.getUniqueId());
         if (result.isEmpty()) {
             return previous.render(source, sourceDisplayName, message, viewer);

@@ -4,8 +4,10 @@ import com.raindropcentral.commands.v2.CommandContext;
 import com.raindropcentral.commands.v2.CommandHandler;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.bedrock.LingoBedrockForms;
+import de.jexcellence.lingo.chat.OnDemandTranslator;
 import de.jexcellence.lingo.language.LanguageResolver;
 import de.jexcellence.lingo.learning.SuggestionService;
+import de.jexcellence.lingo.settings.IncomingMode;
 import de.jexcellence.lingo.settings.PlayerLanguageSettings;
 import de.jexcellence.lingo.settings.PlayerSettingsService;
 import de.jexcellence.lingo.text.SafeText;
@@ -15,6 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.UnaryOperator;
@@ -38,6 +41,7 @@ public final class LingoCommandHandler {
     private final Replies replies;
     private @Nullable LingoBedrockForms forms;
     private @Nullable SuggestionService suggestions;
+    private @Nullable OnDemandTranslator onDemand;
 
     /**
      * Creates the handler.
@@ -65,6 +69,15 @@ public final class LingoCommandHandler {
     }
 
     /**
+     * Wires the on-demand translator behind the translate button.
+     *
+     * @param value the translator
+     */
+    public void setOnDemand(@Nullable OnDemandTranslator value) {
+        this.onDemand = value;
+    }
+
+    /**
      * Wires the suggestion service (Premium).
      *
      * @param value the service
@@ -82,8 +95,10 @@ public final class LingoCommandHandler {
         return Map.ofEntries(
                 Map.entry(ROOT, this::onRoot),
                 Map.entry(ROOT + ".help", this::onHelp),
-                Map.entry(ROOT + ".lang", this::onLanguage),
-                Map.entry(ROOT + ".incoming", ctx -> onSwitch(ctx, "incoming", PlayerLanguageSettings::withIncoming)),
+                Map.entry(ROOT + ".lang", ctx -> onLanguage(ctx, false)),
+                Map.entry(ROOT + ".write", ctx -> onLanguage(ctx, true)),
+                Map.entry(ROOT + ".incoming", this::onIncoming),
+                Map.entry(ROOT + ".show", this::onShow),
                 Map.entry(ROOT + ".outgoing", ctx -> onSwitch(ctx, "outgoing", PlayerLanguageSettings::withOutgoing)),
                 Map.entry(ROOT + ".original", ctx -> onSwitch(ctx, "original",
                         PlayerLanguageSettings::withShowOriginal)),
@@ -105,7 +120,7 @@ public final class LingoCommandHandler {
         SafeText.msg("lingo.help").send(ctx.sender());
     }
 
-    private void onLanguage(@NotNull CommandContext ctx) {
+    private void onLanguage(@NotNull CommandContext ctx, boolean writing) {
         Player player = ctx.asPlayer().orElse(null);
         if (player == null) {
             replies.send(ctx.sender(), PLAYERS_ONLY);
@@ -113,13 +128,43 @@ public final class LingoCommandHandler {
         }
         String choice = ctx.require("language", String.class);
         LanguageCode language = LingoArgumentTypes.AUTO.equals(choice) ? null : LanguageCode.of(choice);
-        settings.update(player.getUniqueId(), current -> current.withLanguage(language)).thenRun(() -> {
+        UnaryOperator<PlayerLanguageSettings> change = writing
+                ? current -> current.withWriteLanguage(language)
+                : current -> current.withLanguage(language);
+        settings.update(player.getUniqueId(), change).thenRun(() -> replies.run(player, () -> {
             String name = language == null
                     ? SafeText.msg("lingo_settings.value.auto").text(player)
                     : LingoSettingsView.languageName(player, language);
-            replies.send(player, SafeText.msg(SETTINGS + "language_set")
+            LanguageCode effective = writing ? resolver.resolveWriting(player) : resolver.resolve(player);
+            SafeText.msg(SETTINGS + (writing ? "write_set" : "language_set"))
                     .with("language", name)
-                    .with("reading", resolver.resolve(player).upper()));
+                    .with("effective", LingoSettingsView.languageName(player, effective))
+                    .prefix().send(player);
+        }));
+    }
+
+    private void onIncoming(@NotNull CommandContext ctx) {
+        Player player = ctx.asPlayer().orElse(null);
+        if (player == null) {
+            replies.send(ctx.sender(), PLAYERS_ONLY);
+            return;
+        }
+        IncomingMode mode = ctx.require("mode", IncomingMode.class);
+        settings.update(player.getUniqueId(), current -> current.withIncoming(mode))
+                .thenRun(() -> replies.send(player, SETTINGS + "incoming." + mode.key()));
+    }
+
+    private void onShow(@NotNull CommandContext ctx) {
+        Player player = ctx.asPlayer().orElse(null);
+        OnDemandTranslator translator = onDemand;
+        if (player == null || translator == null) {
+            replies.send(ctx.sender(), PLAYERS_ONLY);
+            return;
+        }
+        translator.show(player, ctx.require("message", String.class)).thenAccept(result -> {
+            if (result != OnDemandTranslator.Result.SHOWN) {
+                replies.send(player, "lingo.show." + result.name().toLowerCase(Locale.ROOT));
+            }
         });
     }
 

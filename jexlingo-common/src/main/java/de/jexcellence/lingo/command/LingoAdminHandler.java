@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * The staff part of {@code /lingo}: review queue, glossary, test translation, status, export and reload.
@@ -103,6 +104,7 @@ public final class LingoAdminHandler {
         handlers.put(ROOT + "status", ctx -> status.send(ctx.sender()));
         handlers.put(ROOT + "export", this::onExport);
         handlers.put(ROOT + "reload", this::onReload);
+        handlers.put(ROOT + "erase", this::onErase);
         return handlers;
     }
 
@@ -228,6 +230,25 @@ public final class LingoAdminHandler {
                         .with("file", written.file().getFileName().toString()));
             }
         });
+    }
+
+    private void onErase(@NotNull CommandContext ctx) {
+        OfflinePlayer target = ctx.require("player", OfflinePlayer.class);
+        String name = target.getName() == null ? target.getUniqueId().toString() : target.getName();
+        TranslationMemoryService memory = services.memory();
+        CompletableFuture<Integer> suggestions = memory == null
+                ? CompletableFuture.completedFuture(0)
+                : memory.erasePending(target.getUniqueId());
+        services.settings().erase(target.getUniqueId())
+                .thenCombine(suggestions, (settingsRow, removed) -> removed)
+                .whenComplete((removed, error) -> {
+                    if (error != null) {
+                        replies.send(ctx.sender(), KEY + "erase.failed");
+                    } else {
+                        replies.send(ctx.sender(), SafeText.msg(KEY + "erase.done").with(NAME, name)
+                                .with(COUNT, removed));
+                    }
+                });
     }
 
     private void onReload(@NotNull CommandContext ctx) {

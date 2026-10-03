@@ -70,7 +70,7 @@ class TranslationPipelineTest {
         TranslationLookup memory = (pair, key) -> "wie geht es".equals(key)
                 ? Optional.of("How are you") : Optional.empty();
         TranslationPipeline pipeline = pipeline(new PipelineLayers(memory, TranslationLookup.NONE,
-                pair -> MaskRules.EMPTY, ProviderResultListener.NONE));
+                pair -> MaskRules.EMPTY, ProviderResultListener.NONE, ChatTextPreparer.withoutSlang()));
 
         TranslationResult result = pipeline.translate(chat("Wie geht es", EN), DE, TranslateOptions.DEFAULT).join();
 

@@ -4,6 +4,7 @@ import de.jexcellence.jexplatform.gui.component.CardLore;
 import de.jexcellence.jexplatform.scheduler.PlatformScheduler;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.language.LanguageResolver;
+import de.jexcellence.lingo.settings.IncomingMode;
 import de.jexcellence.lingo.settings.PlayerLanguageSettings;
 import de.jexcellence.lingo.settings.PlayerSettingsService;
 import net.kyori.adventure.text.Component;
@@ -17,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,12 +39,15 @@ public final class LingoSettingsView extends LingoBaseView {
     private static final String ENABLED = "enabled";
     private static final String DISABLED = "disabled";
     private static final String AUTO = "auto";
+    private static final String MUTED = "muted";
+    private static final String ACCENT = "accent";
 
     private enum Setting {
         LANGUAGE(Material.WRITABLE_BOOK),
+        WRITE(Material.FEATHER),
         INCOMING(Material.SPYGLASS),
-        OUTGOING(Material.FEATHER),
-        ORIGINAL(Material.PAPER);
+        OUTGOING(Material.PAPER),
+        ORIGINAL(Material.BOOK);
 
         private final Material icon;
 
@@ -114,97 +119,6 @@ public final class LingoSettingsView extends LingoBaseView {
                 }));
     }
 
-    private @NotNull ItemStack header(@NotNull Player viewer, @NotNull PlayerLanguageSettings current) {
-        List<Component> rows = new ArrayList<>();
-        for (Setting setting : Setting.values()) {
-            rows.add(LingoCards.rowOf(viewer, OPTION + setting.id() + ".label", valueText(viewer, setting, current)));
-        }
-        rows.add(LingoCards.rowOf(viewer, KEY + "header.reading", LingoCards.tone(viewer, "accent",
-                languageName(viewer, resolver.resolve(viewer)))));
-        CardLore lore = CardLore.create()
-                .block(LingoCards.paragraphOf(viewer, KEY + "header.description"))
-                .section(LingoCards.ic(viewer, KEY + "header.section"), rows);
-        return LingoCards.card(Material.COMPARATOR, LingoCards.ic(viewer, KEY + "header.name"), lore.build());
-    }
-
-    private @NotNull ItemStack card(@NotNull Player viewer, @NotNull Setting setting,
-                                    @NotNull PlayerLanguageSettings current) {
-        String base = OPTION + setting.id();
-        List<String> labels = choiceLabels(viewer, setting);
-        CardLore lore = CardLore.create()
-                .block(LingoCards.paragraphOf(viewer, base + ".description"))
-                .section(LingoCards.ic(viewer, KEY + "card.section"),
-                        LingoCards.options(viewer, labels, activeIndex(setting, current)))
-                .block(List.of(LingoCards.ic(viewer, LingoCards.COMMON + "filter.action")));
-        ItemStack item = LingoCards.card(setting.icon,
-                LingoCards.ic(LingoCards.msg(base + ".name").with("value", valueText(viewer, setting, current)),
-                        viewer),
-                lore.build());
-        tag(item, TAG_PREFIX + setting.name());
-        return isActive(setting, current) ? LingoCards.glint(item) : item;
-    }
-
-    private @NotNull List<String> choiceLabels(@NotNull Player viewer, @NotNull Setting setting) {
-        if (setting != Setting.LANGUAGE) {
-            return List.of(LingoCards.text(viewer, VALUE + ENABLED), LingoCards.text(viewer, VALUE + DISABLED));
-        }
-        List<String> labels = new ArrayList<>();
-        labels.add(LingoCards.text(viewer, VALUE + AUTO));
-        for (LanguageCode language : resolver.languages().enabled()) {
-            labels.add(languageName(viewer, language));
-        }
-        return labels;
-    }
-
-    private int activeIndex(@NotNull Setting setting, @NotNull PlayerLanguageSettings current) {
-        if (setting == Setting.LANGUAGE) {
-            LanguageCode language = current.language();
-            return language == null ? 0 : resolver.languages().enabled().indexOf(language) + 1;
-        }
-        return isActive(setting, current) ? 0 : 1;
-    }
-
-    private static boolean isActive(@NotNull Setting setting, @NotNull PlayerLanguageSettings current) {
-        return switch (setting) {
-            case LANGUAGE -> current.language() != null;
-            case INCOMING -> current.translateIncoming();
-            case OUTGOING -> current.translateOutgoing();
-            case ORIGINAL -> current.showOriginal();
-            default -> throw new IllegalStateException("Unexpected setting: " + setting);
-        };
-    }
-
-    private @NotNull PlayerLanguageSettings cycle(@NotNull Setting setting, @NotNull PlayerLanguageSettings current,
-                                                  boolean forward) {
-        return switch (setting) {
-            case LANGUAGE -> current.withLanguage(nextLanguage(current.language(), forward));
-            case INCOMING -> current.withIncoming(!current.translateIncoming());
-            case OUTGOING -> current.withOutgoing(!current.translateOutgoing());
-            case ORIGINAL -> current.withShowOriginal(!current.showOriginal());
-            default -> throw new IllegalStateException("Unexpected setting: " + setting);
-        };
-    }
-
-    private @Nullable LanguageCode nextLanguage(@Nullable LanguageCode current, boolean forward) {
-        List<LanguageCode> enabled = resolver.languages().enabled();
-        int size = enabled.size() + 1;
-        int index = current == null ? 0 : enabled.indexOf(current) + 1;
-        int next = Math.floorMod(index + (forward ? 1 : -1), size);
-        return next == 0 ? null : enabled.get(next - 1);
-    }
-
-    private @NotNull String valueText(@NotNull Player viewer, @NotNull Setting setting,
-                                      @NotNull PlayerLanguageSettings current) {
-        if (setting == Setting.LANGUAGE) {
-            LanguageCode language = current.language();
-            String label = language == null ? LingoCards.text(viewer, VALUE + AUTO) : languageName(viewer, language);
-            return LingoCards.tone(viewer, language == null ? "muted" : "accent", label);
-        }
-        boolean active = isActive(setting, current);
-        return LingoCards.tone(viewer, active ? "ok" : "muted",
-                LingoCards.text(viewer, VALUE + (active ? ENABLED : DISABLED)));
-    }
-
     /**
      * The display name of a language, from {@code lingo.language.<code>} or the upper-case code.
      *
@@ -215,6 +129,135 @@ public final class LingoSettingsView extends LingoBaseView {
     public static @NotNull String languageName(@Nullable Player viewer, @NotNull LanguageCode language) {
         var builder = LingoCards.msg("lingo.language." + language.code());
         return builder.exists(viewer) ? builder.text(viewer) : language.upper();
+    }
+
+    /**
+     * The display name of an incoming mode.
+     *
+     * @param viewer the viewer
+     * @param mode   the mode
+     * @return the name
+     */
+    public static @NotNull String incomingName(@Nullable Player viewer, @NotNull IncomingMode mode) {
+        return LingoCards.text(viewer, VALUE + "incoming." + mode.key());
+    }
+
+    private @NotNull ItemStack header(@NotNull Player viewer, @NotNull PlayerLanguageSettings current) {
+        List<Component> rows = new ArrayList<>();
+        for (Setting setting : Setting.values()) {
+            rows.add(LingoCards.rowOf(viewer, OPTION + setting.id() + ".label", valueText(viewer, setting, current)));
+        }
+        rows.add(LingoCards.rowOf(viewer, KEY + "header.reading", LingoCards.tone(viewer, ACCENT,
+                languageName(viewer, resolver.resolve(viewer)))));
+        rows.add(LingoCards.rowOf(viewer, KEY + "header.writing", LingoCards.tone(viewer, ACCENT,
+                languageName(viewer, resolver.resolveWriting(viewer)))));
+        CardLore lore = CardLore.create()
+                .block(LingoCards.paragraphOf(viewer, KEY + "header.description"))
+                .section(LingoCards.ic(viewer, KEY + "header.section"), rows);
+        return LingoCards.card(Material.COMPARATOR, LingoCards.ic(viewer, KEY + "header.name"), lore.build());
+    }
+
+    private @NotNull ItemStack card(@NotNull Player viewer, @NotNull Setting setting,
+                                    @NotNull PlayerLanguageSettings current) {
+        String base = OPTION + setting.id();
+        CardLore lore = CardLore.create()
+                .block(LingoCards.paragraphOf(viewer, base + ".description"))
+                .section(LingoCards.ic(viewer, KEY + "card.section"),
+                        LingoCards.options(viewer, choiceLabels(viewer, setting), activeIndex(setting, current)))
+                .block(List.of(LingoCards.ic(viewer, LingoCards.COMMON + "filter.action")));
+        ItemStack item = LingoCards.card(setting.icon,
+                LingoCards.ic(LingoCards.msg(base + ".name").with("value", valueText(viewer, setting, current)),
+                        viewer),
+                lore.build());
+        tag(item, TAG_PREFIX + setting.name());
+        return isActive(setting, current) ? LingoCards.glint(item) : item;
+    }
+
+    private @NotNull List<String> choiceLabels(@NotNull Player viewer, @NotNull Setting setting) {
+        return switch (setting) {
+            case LANGUAGE, WRITE -> languageLabels(viewer);
+            case INCOMING -> Arrays.stream(IncomingMode.values()).map(mode -> incomingName(viewer, mode)).toList();
+            case OUTGOING, ORIGINAL -> List.of(LingoCards.text(viewer, VALUE + ENABLED),
+                    LingoCards.text(viewer, VALUE + DISABLED));
+            default -> throw new IllegalStateException("Unexpected setting: " + setting);
+        };
+    }
+
+    private @NotNull List<String> languageLabels(@NotNull Player viewer) {
+        List<String> labels = new ArrayList<>();
+        labels.add(LingoCards.text(viewer, VALUE + AUTO));
+        for (LanguageCode language : resolver.languages().enabled()) {
+            labels.add(languageName(viewer, language));
+        }
+        return labels;
+    }
+
+    private int activeIndex(@NotNull Setting setting, @NotNull PlayerLanguageSettings current) {
+        return switch (setting) {
+            case LANGUAGE -> languageIndex(current.language());
+            case WRITE -> languageIndex(current.writeLanguage());
+            case INCOMING -> current.incoming().ordinal();
+            case OUTGOING, ORIGINAL -> isActive(setting, current) ? 0 : 1;
+            default -> throw new IllegalStateException("Unexpected setting: " + setting);
+        };
+    }
+
+    private int languageIndex(@Nullable LanguageCode language) {
+        return language == null ? 0 : resolver.languages().enabled().indexOf(language) + 1;
+    }
+
+    private static boolean isActive(@NotNull Setting setting, @NotNull PlayerLanguageSettings current) {
+        return switch (setting) {
+            case LANGUAGE -> current.language() != null;
+            case WRITE -> current.writeLanguage() != null;
+            case INCOMING -> current.incoming() != IncomingMode.OFF;
+            case OUTGOING -> current.translateOutgoing();
+            case ORIGINAL -> current.showOriginal();
+            default -> throw new IllegalStateException("Unexpected setting: " + setting);
+        };
+    }
+
+    private @NotNull PlayerLanguageSettings cycle(@NotNull Setting setting, @NotNull PlayerLanguageSettings current,
+                                                  boolean forward) {
+        return switch (setting) {
+            case LANGUAGE -> current.withLanguage(nextLanguage(current.language(), forward));
+            case WRITE -> current.withWriteLanguage(nextLanguage(current.writeLanguage(), forward));
+            case INCOMING -> current.withIncoming(current.incoming().cycle(forward));
+            case OUTGOING -> current.withOutgoing(!current.translateOutgoing());
+            case ORIGINAL -> current.withShowOriginal(!current.showOriginal());
+            default -> throw new IllegalStateException("Unexpected setting: " + setting);
+        };
+    }
+
+    private @Nullable LanguageCode nextLanguage(@Nullable LanguageCode current, boolean forward) {
+        List<LanguageCode> enabled = resolver.languages().enabled();
+        int size = enabled.size() + 1;
+        int next = Math.floorMod(languageIndex(current) + (forward ? 1 : -1), size);
+        return next == 0 ? null : enabled.get(next - 1);
+    }
+
+    private @NotNull String valueText(@NotNull Player viewer, @NotNull Setting setting,
+                                      @NotNull PlayerLanguageSettings current) {
+        return switch (setting) {
+            case LANGUAGE -> languageValue(viewer, current.language());
+            case WRITE -> languageValue(viewer, current.writeLanguage());
+            case INCOMING -> LingoCards.tone(viewer, current.incoming() == IncomingMode.OFF ? MUTED : ACCENT,
+                    incomingName(viewer, current.incoming()));
+            case OUTGOING, ORIGINAL -> switchValue(viewer, isActive(setting, current));
+            default -> throw new IllegalStateException("Unexpected setting: " + setting);
+        };
+    }
+
+    private static @NotNull String languageValue(@NotNull Player viewer, @Nullable LanguageCode language) {
+        if (language == null) {
+            return LingoCards.tone(viewer, MUTED, LingoCards.text(viewer, VALUE + AUTO));
+        }
+        return LingoCards.tone(viewer, ACCENT, languageName(viewer, language));
+    }
+
+    private static @NotNull String switchValue(@NotNull Player viewer, boolean active) {
+        String label = LingoCards.text(viewer, VALUE + (active ? ENABLED : DISABLED));
+        return LingoCards.tone(viewer, active ? "ok" : MUTED, label);
     }
 
     private static final class Holder implements InventoryHolder {

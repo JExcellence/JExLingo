@@ -92,6 +92,19 @@ public final class TranslatedLineDecorator {
         return withOriginalLine(line, result, viewer);
     }
 
+    /**
+     * The small button players in click mode get behind a line in another language.
+     *
+     * @param viewer    the viewer
+     * @param messageId the recent message id
+     * @return the button
+     */
+    public @NotNull Component translateButton(@NotNull Player viewer, @NotNull String messageId) {
+        return SafeText.msg(KEY + "translate_button").component(viewer)
+                .hoverEvent(HoverEvent.showText(SafeText.msg(KEY + "translate_hover").component(viewer)))
+                .clickEvent(ClickEvent.runCommand("/lingo show " + messageId));
+    }
+
     private @NotNull Component marker(@NotNull TranslationResult result, @NotNull Player viewer) {
         return SafeText.msg(KEY + "marker")
                 .with(FROM, result.source().upper())

@@ -16,6 +16,8 @@ public final class TextNormalizer {
 
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final Pattern LETTER = Pattern.compile("\\p{L}");
+    private static final Pattern REPEATS = Pattern.compile("(\\p{L})\\1{2,}");
+    private static final Pattern TRAILING_MARKS = Pattern.compile("[.!\\s]+$");
 
     private TextNormalizer() {
     }
@@ -24,10 +26,14 @@ public final class TextNormalizer {
      * The lookup key of a text.
      *
      * @param text the text
-     * @return trimmed, whitespace collapsed, lower case
+     * @return trimmed, whitespace collapsed, letter spam shortened, trailing {@code .} and {@code !} removed,
+     *         lower case; question marks stay because they change the meaning
      */
     public static @NotNull String key(@NotNull String text) {
-        return WHITESPACE.matcher(text.trim()).replaceAll(" ").toLowerCase(Locale.ROOT);
+        String collapsed = WHITESPACE.matcher(text.trim()).replaceAll(" ");
+        String shortened = REPEATS.matcher(collapsed).replaceAll("$1$1");
+        String trimmed = TRAILING_MARKS.matcher(shortened).replaceAll("");
+        return (trimmed.isEmpty() ? shortened : trimmed).toLowerCase(Locale.ROOT);
     }
 
     /**

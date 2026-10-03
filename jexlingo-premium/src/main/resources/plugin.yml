@@ -1,5 +1,5 @@
 name: JExLingo
-version: '0.1.0'
+version: '0.2.0'
 main: de.jexcellence.lingo.JExLingoPremium
 description: Live chat translation on a self-hosted LibreTranslate instance (Premium Edition)
 api-version: '1.21'

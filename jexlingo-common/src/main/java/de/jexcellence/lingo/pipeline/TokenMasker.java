@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Protects parts of a message from the translator: URLs, {@code {placeholders}}, {@code [item]}-style chat tokens,
+ * Protects parts of a message from the translator: colour codes, URLs, {@code {placeholders}}, {@code [item]}-style chat tokens,
  * {@code @mentions}, online player names and glossary terms. Each protected part becomes a numbered token
  * {@code {0}}, {@code {1}}, ... that the translator leaves alone; {@link #unmask(String, MaskedText)} puts the
  * original back, or the fixed translation for a force term. If the translator lost or invented a token, unmasking
@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
  */
 public final class TokenMasker {
 
-    private static final String FIXED_PARTS = "https?://\\S+|www\\.\\S+"
+    private static final String FIXED_PARTS = FormatCodes.CODE
+            + "|https?://\\S+|www\\.\\S+"
             + "|\\{[^{}\\s]{1,32}\\}"
             + "|\\[[A-Za-z0-9_]{1,32}\\]"
             + "|@\\w{2,16}";

@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
@@ -99,9 +100,10 @@ public final class LingoCommandHandler {
                 Map.entry(ROOT + ".write", ctx -> onLanguage(ctx, true)),
                 Map.entry(ROOT + ".incoming", this::onIncoming),
                 Map.entry(ROOT + ".show", this::onShow),
-                Map.entry(ROOT + ".outgoing", ctx -> onSwitch(ctx, "outgoing", PlayerLanguageSettings::withOutgoing)),
+                Map.entry(ROOT + ".outgoing", ctx -> onSwitch(ctx, "outgoing",
+                        PlayerLanguageSettings::translateOutgoing, PlayerLanguageSettings::withOutgoing)),
                 Map.entry(ROOT + ".original", ctx -> onSwitch(ctx, "original",
-                        PlayerLanguageSettings::withShowOriginal)),
+                        PlayerLanguageSettings::showOriginal, PlayerLanguageSettings::withShowOriginal)),
                 Map.entry(ROOT + ".suggest", this::onSuggest));
     }
 
@@ -149,9 +151,10 @@ public final class LingoCommandHandler {
             replies.send(ctx.sender(), PLAYERS_ONLY);
             return;
         }
-        IncomingMode mode = ctx.require("mode", IncomingMode.class);
-        settings.update(player.getUniqueId(), current -> current.withIncoming(mode))
-                .thenRun(() -> replies.send(player, SETTINGS + "incoming." + mode.key()));
+        Optional<IncomingMode> chosen = ctx.get("mode", IncomingMode.class);
+        settings.update(player.getUniqueId(),
+                        current -> current.withIncoming(chosen.orElseGet(() -> current.incoming().cycle(true))))
+                .thenAccept(after -> replies.send(player, SETTINGS + "incoming." + after.incoming().key()));
     }
 
     private void onShow(@NotNull CommandContext ctx) {
@@ -169,16 +172,17 @@ public final class LingoCommandHandler {
     }
 
     private void onSwitch(@NotNull CommandContext ctx, @NotNull String option,
-                          @NotNull SwitchSetter setter) {
+                          @NotNull Predicate<PlayerLanguageSettings> state, @NotNull SwitchSetter setter) {
         Player player = ctx.asPlayer().orElse(null);
         if (player == null) {
             replies.send(ctx.sender(), PLAYERS_ONLY);
             return;
         }
-        boolean enabled = Boolean.TRUE.equals(ctx.require(STATE, Boolean.class));
-        UnaryOperator<PlayerLanguageSettings> change = current -> setter.apply(current, enabled);
-        settings.update(player.getUniqueId(), change).thenRun(() -> replies.send(player,
-                SETTINGS + option + (enabled ? ".enabled" : ".disabled")));
+        Optional<Boolean> chosen = ctx.get(STATE, Boolean.class);
+        UnaryOperator<PlayerLanguageSettings> change = current -> setter.apply(current,
+                chosen.map(Boolean.TRUE::equals).orElseGet(() -> !state.test(current)));
+        settings.update(player.getUniqueId(), change).thenAccept(after -> replies.send(player,
+                SETTINGS + option + (state.test(after) ? ".enabled" : ".disabled")));
     }
 
     private void onSuggest(@NotNull CommandContext ctx) {

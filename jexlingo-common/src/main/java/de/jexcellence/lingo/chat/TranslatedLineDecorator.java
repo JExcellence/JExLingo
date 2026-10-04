@@ -2,6 +2,7 @@ package de.jexcellence.lingo.chat;
 
 import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.bedrock.BedrockFormBridge;
+import de.jexcellence.lingo.pipeline.FormatCodes;
 import de.jexcellence.lingo.settings.PlayerSettingsService;
 import de.jexcellence.lingo.text.SafeText;
 import net.kyori.adventure.text.Component;
@@ -115,7 +116,7 @@ public final class TranslatedLineDecorator {
     private @NotNull Component hover(@NotNull TranslationResult result, @NotNull Player viewer) {
         Component hover = SafeText.component(SafeText.msg(KEY + "hover.original")
                         .with(FROM, result.source().upper()),
-                viewer, Map.of(ORIGINAL, result.original()));
+                viewer, Map.of(ORIGINAL, FormatCodes.strip(result.original())));
         if (suggestionsEnabled.getAsBoolean()) {
             hover = hover.append(Component.newline()).append(SafeText.msg(KEY + "hover.suggest").component(viewer));
         }
@@ -134,7 +135,8 @@ public final class TranslatedLineDecorator {
             return line;
         }
         Component original = SafeText.component(SafeText.msg(KEY + "original_line")
-                .with(FROM, result.source().upper()), viewer, Map.of(ORIGINAL, result.original()));
+                .with(FROM, result.source().upper()), viewer,
+                Map.of(ORIGINAL, FormatCodes.strip(result.original())));
         return line.append(Component.newline()).append(original);
     }
 }

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public final class ProviderHealthMonitor {
 
     private static final String WARM_UP_TEXT = "Hello";
+    private static final int WARM_UP_ROUNDS = 4;
 
     private final ProviderGateway gateway;
     private final Logger logger;
@@ -118,12 +119,19 @@ public final class ProviderHealthMonitor {
 
     private void warmUp(@NotNull Set<LanguageCode> available) {
         List<LanguageCode> languages = enabled.get().stream().filter(available::contains).toList();
-        if (languages.size() < 2) {
+        for (LanguageCode source : languages) {
+            for (LanguageCode target : languages) {
+                warmUpPair(source, target);
+            }
+        }
+    }
+
+    private void warmUpPair(@NotNull LanguageCode source, @NotNull LanguageCode target) {
+        if (source.equals(target)) {
             return;
         }
-        LanguageCode source = languages.getFirst();
-        for (LanguageCode target : languages.subList(1, languages.size())) {
-            gateway.translate(WARM_UP_TEXT, source, target).exceptionally(error -> WARM_UP_TEXT);
+        for (int round = 0; round < WARM_UP_ROUNDS; round++) {
+            gateway.provider().translate(WARM_UP_TEXT, source, target).exceptionally(error -> WARM_UP_TEXT);
         }
     }
 

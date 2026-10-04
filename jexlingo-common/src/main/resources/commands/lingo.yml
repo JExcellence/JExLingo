@@ -1,6 +1,8 @@
 # JExCommand 2.0 tree for /lingo (JExLingo)
+# file-version: 2
 # Copied to the data folder once. Rename the command, change aliases, permissions or defaults here; new
-# subcommands from updates are added automatically, existing entries are never changed.
+# subcommands from updates are added automatically. When an update raises file-version, this file is replaced and
+# the old one is kept as lingo.yml.bak-<time>.
 name: lingo
 description: "Open your chat translation settings"
 aliases:
@@ -32,7 +34,7 @@ subcommands:
     description: "How messages in other languages reach you"
     senders: [player]
     argumentSchema:
-      - { name: mode, type: lingo_incoming, required: true, description: "auto, click or off" }
+      - { name: mode, type: lingo_incoming, required: false, description: "auto, click or off; empty switches to the next" }
 
   - name: show
     description: "Translate one recent line for you (used by the translate button)"
@@ -44,13 +46,13 @@ subcommands:
     description: "Allow your messages to be translated"
     senders: [player]
     argumentSchema:
-      - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+      - { name: state, type: lingo_toggle, required: false, description: "enable or disable; empty toggles" }
 
   - name: original
     description: "Show the original under every translation"
     senders: [player]
     argumentSchema:
-      - { name: state, type: lingo_toggle, required: true, description: "enable or disable" }
+      - { name: state, type: lingo_toggle, required: false, description: "enable or disable; empty toggles" }
 
   - name: suggest
     description: "Suggest a better translation for a recent chat line"

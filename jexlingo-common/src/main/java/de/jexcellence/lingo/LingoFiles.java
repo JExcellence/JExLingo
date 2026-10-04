@@ -2,6 +2,7 @@ package de.jexcellence.lingo;
 
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.command.CommandTreeMerger;
+import de.jexcellence.lingo.config.BundledFileVersion;
 import de.jexcellence.lingo.config.ConfigFileMerger;
 import de.jexcellence.lingo.config.LanguageSettings;
 import de.jexcellence.lingo.config.LingoConfig;
@@ -69,9 +70,12 @@ public final class LingoFiles {
         saveDefault(GLOSSARY_FILE);
         saveDefault(SLANG_FILE);
         saveDefault(LingoCommands.COMMAND_FILE);
-        CommandTreeMerger.addMissingSubcommands(plugin, LingoCommands.COMMAND_FILE);
+        if (!BundledFileVersion.replaceIfOutdated(plugin, LingoCommands.COMMAND_FILE)) {
+            CommandTreeMerger.addMissingSubcommands(plugin, LingoCommands.COMMAND_FILE);
+        }
         List<String> locales = new ArrayList<>(List.of(EXTRA_LOCALES));
         locales.addFirst(DEFAULT_LOCALE);
+        locales.forEach(locale -> BundledFileVersion.replaceIfOutdated(plugin, "translations/" + locale + ".yml"));
         TranslationFileMerger.addMissingKeys(plugin, locales);
     }
 

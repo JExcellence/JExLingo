@@ -69,6 +69,14 @@ public final class TranslationPipeline {
     public @NotNull CompletableFuture<TranslationResult> translate(@NotNull TranslationRequest request,
                                                                    @NotNull LanguageCode source,
                                                                    @NotNull TranslateOptions options) {
+        FormatCodes.Split split = FormatCodes.split(request.text());
+        if (split.hasPrefix() && !split.body().isBlank()) {
+            TranslationRequest body = new TranslationRequest(split.body(), request.source(), request.target(),
+                    request.context());
+            return translate(body, source, options).thenApply(result -> new TranslationResult(
+                    split.prefix() + result.text(), request.text(), result.source(), result.target(),
+                    result.origin(), result.latencyMillis()));
+        }
         long started = System.nanoTime();
         String text = request.text();
         LanguagePair pair = new LanguagePair(source, request.target());

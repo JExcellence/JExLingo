@@ -7,6 +7,7 @@ import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.api.event.ChatTranslatedEvent;
 import de.jexcellence.lingo.config.ChatMode;
 import de.jexcellence.lingo.config.ChatSettings;
+import de.jexcellence.lingo.language.LocalLanguageGuess;
 import de.jexcellence.lingo.language.WritingLanguageLearner;
 import de.jexcellence.lingo.learning.RecentMessage;
 import de.jexcellence.lingo.pipeline.SkipRules;
@@ -100,17 +101,18 @@ public final class ChatTranslationCoordinator {
         if (context.settings().get(sender.getUniqueId()).writeLanguage() == null) {
             learner.observe(sender, text, assumed, context.resolver().languages());
         }
-        Audiences audiences = classify(sender, assumed, viewers);
+        Optional<LanguageCode> guessed = LocalLanguageGuess.guess(text, context.resolver().languages());
+        LanguageCode written = guessed.orElse(assumed);
+        Audiences audiences = classify(sender, written, guessed.isEmpty(), viewers);
         if (audiences.isEmpty()) {
             return Optional.empty();
         }
         Map<UUID, LanguageCode> viewerLanguages = audiences.auto();
-        RecentMessage message = context.recent().register(sender.getUniqueId(), sender.getName(), text, assumed);
-        CompletableFuture<LanguageCode> source = context.detector()
-                .detect(text, assumed, context.resolver().languages())
-                .thenApply(detected -> {
-                    message.setSource(detected);
-                    return detected;
+        RecentMessage message = context.recent().register(sender.getUniqueId(), sender.getName(), text, written);
+        CompletableFuture<LanguageCode> source = sourceOf(text, written, guessed.isPresent())
+                .thenApply(language -> {
+                    message.setSource(language);
+                    return language;
                 });
         TranslateOptions options = new TranslateOptions(providerAllowed(sender.getUniqueId(), settings),
                 onlineNames());
@@ -147,9 +149,17 @@ public final class ChatTranslationCoordinator {
         learner.forget(player);
     }
 
+    private @NotNull CompletableFuture<LanguageCode> sourceOf(@NotNull String text, @NotNull LanguageCode written,
+                                                              boolean guessedLocally) {
+        if (guessedLocally) {
+            return CompletableFuture.completedFuture(written);
+        }
+        return context.detector().detect(text, written, context.resolver().languages());
+    }
+
     private @NotNull Audiences classify(@NotNull Player sender, @NotNull LanguageCode senderLanguage,
-                                        @NotNull Collection<? extends Audience> viewers) {
-        boolean detection = context.detector().isEnabled();
+                                        boolean uncertain, @NotNull Collection<? extends Audience> viewers) {
+        boolean detection = uncertain && context.detector().isEnabled();
         Map<UUID, LanguageCode> auto = new HashMap<>();
         Set<UUID> click = new HashSet<>();
         for (Audience audience : viewers) {

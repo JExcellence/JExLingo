@@ -1,4 +1,5 @@
 # JExLingo - English translations
+# file-version: 2
 #
 # Colour language (same as the rest of the suite):
 #   names #F1F5F9 | section titles #C4B5FD | muted text #94A3B8 | accent #5EEAD4
@@ -76,9 +77,9 @@ lingo:
     - '<#5EEAD4>/lingo</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>open your settings</#94A3B8>'
     - '<#5EEAD4>/lingo lang [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>choose the language you read in</#94A3B8>'
     - '<#5EEAD4>/lingo write [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>choose the language you write in</#94A3B8>'
-    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>translate automatically, on click or not at all</#94A3B8>'
-    - '<#5EEAD4>/lingo outgoing [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>allow your messages to be translated</#94A3B8>'
-    - '<#5EEAD4>/lingo original [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>show the original under a translation</#94A3B8>'
+    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>automatic, on click or off; empty switches to the next</#94A3B8>'
+    - '<#5EEAD4>/lingo outgoing</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>switch translating your messages on or off</#94A3B8>'
+    - '<#5EEAD4>/lingo original</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>switch the original line under translations</#94A3B8>'
     - '<#5EEAD4>/lingo suggest</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>suggest a better translation</#94A3B8>'
     - '<#94A3B8>Start a message with</#94A3B8> <#5EEAD4>!</#5EEAD4> <#94A3B8>to keep it untranslated.</#94A3B8>'
   error:

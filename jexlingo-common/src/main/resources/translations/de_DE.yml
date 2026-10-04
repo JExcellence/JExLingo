@@ -1,4 +1,5 @@
 # JExLingo - Deutsche Übersetzungen
+# file-version: 2
 #
 # Farbsprache (wie im Rest der Suite):
 #   Namen #F1F5F9 | Abschnittstitel #C4B5FD | gedämpfter Text #94A3B8 | Akzent #5EEAD4
@@ -76,9 +77,9 @@ lingo:
     - '<#5EEAD4>/lingo</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>deine Einstellungen öffnen</#94A3B8>'
     - '<#5EEAD4>/lingo lang [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>die Sprache wählen, in der du liest</#94A3B8>'
     - '<#5EEAD4>/lingo write [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>die Sprache wählen, in der du schreibst</#94A3B8>'
-    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>automatisch, per Klick oder gar nicht übersetzen</#94A3B8>'
-    - '<#5EEAD4>/lingo outgoing [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>deine Nachrichten übersetzen lassen</#94A3B8>'
-    - '<#5EEAD4>/lingo original [enable|disable]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>das Original unter einer Übersetzung zeigen</#94A3B8>'
+    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>automatisch, per Klick oder aus; leer schaltet weiter</#94A3B8>'
+    - '<#5EEAD4>/lingo outgoing</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>Übersetzen deiner Nachrichten an oder aus</#94A3B8>'
+    - '<#5EEAD4>/lingo original</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>Original-Zeile unter Übersetzungen an oder aus</#94A3B8>'
     - '<#5EEAD4>/lingo suggest</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>eine bessere Übersetzung vorschlagen</#94A3B8>'
     - '<#94A3B8>Beginne eine Nachricht mit</#94A3B8> <#5EEAD4>!</#5EEAD4><#94A3B8>, damit sie nicht übersetzt wird.</#94A3B8>'
   error:

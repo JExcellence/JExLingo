@@ -102,9 +102,10 @@ public final class StatusReport {
     }
 
     private static @NotNull String origins(@NotNull Map<TranslationOrigin, Long> counts) {
-        return counts.entrySet().stream()
+        String joined = counts.entrySet().stream()
                 .filter(entry -> entry.getValue() > 0L)
                 .map(entry -> entry.getKey().name().toLowerCase(Locale.ROOT) + " " + entry.getValue())
                 .collect(Collectors.joining(", "));
+        return joined.isEmpty() ? "-" : joined;
     }
 }

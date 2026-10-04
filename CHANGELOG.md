@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.1 - 2026-10-04
+
+- Fix: lines were only translated when the writer's game language differed from the reader's. A German player
+  with an English client was never translated. A local word check (no provider call) now finds German and English
+  per line; provider detection is only used when it is unsure and `detection.enabled` is on.
+- Fix: colour codes (`&a`, `&#A1F3BE`, `&x&...`, MiniMessage tags) are kept out of the translator and put back in
+  the translation; the original line and the hover show the text without codes.
+- Fix: `/lingo incoming` failed with "Argument 'mode' ... not found" on servers with the 0.1.0 command file.
+  `commands/lingo.yml` and the translation files now carry `# file-version`; an older copy is replaced and kept
+  as `.bak-<time>`.
+- `/lingo outgoing` and `/lingo original` toggle without an argument; `/lingo incoming` switches to the next mode.
+- Warm-up translates every language direction four times at start (one per LibreTranslate worker) and no longer
+  counts in the latency figures.
+
 ## 0.4.0 - 2026-10-03
 
 - API: `translateFor(writer, reader, text, context)` for player-to-player text, `translateFrom(writer, text,

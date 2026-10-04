@@ -10,6 +10,7 @@ import de.jexcellence.lingo.api.provider.DetectedLanguage;
 import de.jexcellence.lingo.api.provider.TranslationProvider;
 import de.jexcellence.lingo.chat.TranslationSwitch;
 import de.jexcellence.lingo.language.LanguageResolver;
+import de.jexcellence.lingo.language.LocalLanguageGuess;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
 import de.jexcellence.lingo.pipeline.TranslationPipeline;
 import de.jexcellence.lingo.provider.ProviderGateway;
@@ -66,7 +67,7 @@ public final class JExLingoApiImpl implements JExLingoApi {
     public @NotNull CompletableFuture<TranslationResult> translateFor(@NotNull UUID writer, @NotNull UUID reader,
                                                                       @NotNull String text,
                                                                       @NotNull TranslationContext context) {
-        LanguageCode source = writingLanguageOf(writer);
+        LanguageCode source = sourceOf(writer, text);
         LanguageCode target = languageOf(reader);
         boolean blocked = toggle.isPaused()
                 || !settings.get(writer).translateOutgoing()
@@ -85,7 +86,7 @@ public final class JExLingoApiImpl implements JExLingoApi {
     public @NotNull CompletableFuture<TranslationResult> translateFrom(@NotNull UUID writer, @NotNull String text,
                                                                        @NotNull LanguageCode target,
                                                                        @NotNull TranslationContext context) {
-        LanguageCode source = writingLanguageOf(writer);
+        LanguageCode source = sourceOf(writer, text);
         if (toggle.isPaused() || !settings.get(writer).translateOutgoing()) {
             return CompletableFuture.completedFuture(
                     TranslationResult.unchanged(text, source, target, TranslationOrigin.SKIPPED));
@@ -104,6 +105,10 @@ public final class JExLingoApiImpl implements JExLingoApi {
                     TranslationResult.unchanged(text, known, target, TranslationOrigin.SKIPPED));
         }
         return translate(new TranslationRequest(text, source, target, context));
+    }
+
+    private @NotNull LanguageCode sourceOf(@NotNull UUID writer, @NotNull String text) {
+        return LocalLanguageGuess.guess(text, resolver.languages()).orElseGet(() -> writingLanguageOf(writer));
     }
 
     @Override

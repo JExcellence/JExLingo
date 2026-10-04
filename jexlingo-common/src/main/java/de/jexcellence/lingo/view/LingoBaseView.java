@@ -206,9 +206,11 @@ public abstract class LingoBaseView implements Listener {
         } else {
             material = Material.BLACK_STAINED_GLASS_PANE;
         }
-        return ItemBuilder.of(material)
+        ItemStack pane = ItemBuilder.of(material)
                 .name(Component.empty())
                 .build();
+        pane.editMeta(meta -> meta.setHideTooltip(true));
+        return pane;
     }
 
     /**

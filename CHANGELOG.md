@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2 - 2026-10-04
+
+- Redesign of chat output, menus and item lore to the suite design rules: suite palette, `/lingo help` with hover
+  and click per command, status / stats / inspect / phrases / glossary as centred panels, calmer `[DE » EN]`
+  marker that keeps the chat format's colour.
+- Fix: menu section titles rendered in the default purple lore colour; filler panes showed an empty tooltip.
+- Translation files raised to file-version 3, so live servers get the new texts (old copy kept as `.bak-<time>`).
+
 ## 0.4.1 - 2026-10-04
 
 - Fix: lines were only translated when the writer's game language differed from the reader's. A German player

@@ -119,7 +119,7 @@ public final class LingoCommandHandler {
     }
 
     private void onHelp(@NotNull CommandContext ctx) {
-        SafeText.msg("lingo.help").send(ctx.sender());
+        LingoHelp.send(ctx.sender());
     }
 
     private void onLanguage(@NotNull CommandContext ctx, boolean writing) {
@@ -135,7 +135,7 @@ public final class LingoCommandHandler {
                 : current -> current.withLanguage(language);
         settings.update(player.getUniqueId(), change).thenRun(() -> replies.run(player, () -> {
             String name = language == null
-                    ? SafeText.msg("lingo_settings.value.auto").text(player)
+                    ? SafeText.msg("lingo_settings.value.auto").plain(player)
                     : LingoSettingsView.languageName(player, language);
             LanguageCode effective = writing ? resolver.resolveWriting(player) : resolver.resolve(player);
             SafeText.msg(SETTINGS + (writing ? "write_set" : "language_set"))

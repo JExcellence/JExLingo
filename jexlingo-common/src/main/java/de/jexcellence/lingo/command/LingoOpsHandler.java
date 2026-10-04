@@ -13,7 +13,6 @@ import de.jexcellence.lingo.stats.StatsLines;
 import de.jexcellence.lingo.stats.StatsPeriod;
 import de.jexcellence.lingo.stats.StatsSources;
 import de.jexcellence.lingo.text.SafeText;
-import de.jexcellence.lingo.view.LingoSettingsView;
 import de.jexcellence.lingo.view.StatsView;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -121,7 +120,7 @@ public final class LingoOpsHandler {
             CommandSender sender = ctx.sender();
             StatsPeriod chosen = period;
             sources.stats().summary(chosen).thenAccept(summary -> replies.run(sender,
-                    () -> StatsLines.of(null, chosen, summary, sources).forEach(sender::sendMessage)));
+                    () -> StatsLines.panel(null, chosen, summary, sources).send(sender)));
         }
     }
 
@@ -134,31 +133,8 @@ public final class LingoOpsHandler {
             if (online == null) {
                 settings.forget(uuid);
             }
-            SafeText.msg(KEY + "inspect.header").with(NAME, displayName(target)).prefix().send(sender);
-            inspectRows(sender, loaded, online).forEach((label, value) -> SafeText.msg("lingo.status.row")
-                    .with("label", SafeText.msg(KEY + "inspect." + label).text(null))
-                    .with(VALUE, value)
-                    .send(sender));
+            InspectReport.send(sender, displayName(target), loaded, online, resolver);
         }));
-    }
-
-    private @NotNull Map<String, String> inspectRows(@NotNull CommandSender sender,
-                                                     @NotNull PlayerLanguageSettings loaded,
-                                                     @Nullable Player online) {
-        Player viewer = sender instanceof Player player ? player : null;
-        Map<String, String> rows = new LinkedHashMap<>();
-        rows.put("reading_choice", choice(viewer, loaded.language()));
-        rows.put("writing_choice", choice(viewer, loaded.writeLanguage()));
-        if (online != null) {
-            rows.put("client", online.locale().toString());
-            rows.put("reads", LingoSettingsView.languageName(viewer, resolver.resolve(online)));
-            rows.put("writes", LingoSettingsView.languageName(viewer, resolver.resolveWriting(online)));
-        }
-        rows.put("incoming", LingoSettingsView.incomingName(viewer, loaded.incoming()));
-        rows.put("outgoing", flag(viewer, loaded.translateOutgoing()));
-        rows.put("original", flag(viewer, loaded.showOriginal()));
-        rows.put("suggestions", flag(viewer, !loaded.suggestionsBlocked()));
-        return rows;
     }
 
     private void onSetLanguage(@NotNull CommandContext ctx, boolean writing) {
@@ -177,7 +153,7 @@ public final class LingoOpsHandler {
             if (!target.isOnline()) {
                 settings.forget(uuid);
             }
-            replies.send(ctx.sender(), SafeText.msg(KEY + "set.done").with(NAME, displayName(target)));
+            replies.sendUser(ctx.sender(), SafeText.msg(KEY + "set.done"), Map.of(NAME, displayName(target)));
         });
     }
 
@@ -207,7 +183,8 @@ public final class LingoOpsHandler {
         sources.gateway().translate(PING_TEXT, enabled.get(0), enabled.get(1)).whenComplete((result, error) -> {
             long millis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
             if (error != null) {
-                replies.send(ctx.sender(), SafeText.msg(KEY + "ping.failed").with(VALUE, rootMessage(error)));
+                replies.sendUser(ctx.sender(), SafeText.msg(KEY + "ping.failed"),
+                        Map.of(VALUE, rootMessage(error)));
             } else {
                 replies.send(ctx.sender(), SafeText.msg(KEY + "ping.done").with("millis", millis)
                         .with("provider", sources.gateway().provider().id()));
@@ -223,15 +200,6 @@ public final class LingoOpsHandler {
 
     private static boolean enabled(@NotNull CommandContext ctx) {
         return Boolean.TRUE.equals(ctx.require("state", Boolean.class));
-    }
-
-    private static @NotNull String choice(@Nullable Player viewer, @Nullable LanguageCode language) {
-        return language == null ? SafeText.msg("lingo_settings.value.auto").text(viewer)
-                : LingoSettingsView.languageName(viewer, language);
-    }
-
-    private static @NotNull String flag(@Nullable Player viewer, boolean value) {
-        return SafeText.msg("lingo_settings.value." + (value ? "enabled" : "disabled")).text(viewer);
     }
 
     private static @NotNull String displayName(@NotNull OfflinePlayer target) {

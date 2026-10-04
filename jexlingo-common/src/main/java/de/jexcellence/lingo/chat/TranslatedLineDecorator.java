@@ -118,7 +118,8 @@ public final class TranslatedLineDecorator {
                         .with(FROM, result.source().upper()),
                 viewer, Map.of(ORIGINAL, FormatCodes.strip(result.original())));
         if (suggestionsEnabled.getAsBoolean()) {
-            hover = hover.append(Component.newline()).append(SafeText.msg(KEY + "hover.suggest").component(viewer));
+            hover = hover.append(Component.newline()).append(Component.newline())
+                    .append(SafeText.msg(KEY + "hover.suggest").component(viewer));
         }
         return hover;
     }

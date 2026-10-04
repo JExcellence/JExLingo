@@ -2,24 +2,26 @@ package de.jexcellence.lingo.command;
 
 import de.jexcellence.lingo.LingoEdition;
 import de.jexcellence.lingo.api.LanguageCode;
-import de.jexcellence.lingo.api.TranslationOrigin;
 import de.jexcellence.lingo.learning.PhraseService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.TranslationPipeline;
+import de.jexcellence.lingo.provider.CircuitBreaker;
 import de.jexcellence.lingo.provider.ProviderGateway;
 import de.jexcellence.lingo.provider.ProviderHealthMonitor;
+import de.jexcellence.lingo.stats.StatsLines;
+import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Locale;
-import java.util.Map;
+import java.text.NumberFormat;
 import java.util.stream.Collectors;
 
 /**
- * {@code /lingo status}: provider health, breaker, latency, cache and where translations came from. A high share
- * of provider results together with many corrections points to missing glossary terms.
+ * {@code /lingo status}: provider health, breaker, latency, cache and where translations came from, as one chat
+ * panel. A high share of provider results together with many corrections points to missing glossary terms.
  *
  * @author JExcellence
  * @since 0.1.0
@@ -27,7 +29,8 @@ import java.util.stream.Collectors;
 public final class StatusReport {
 
     private static final String KEY = "lingo.status.";
-    private static final String VALUE = "value";
+    private static final String LABEL = KEY + "label.";
+    private static final String SEPARATOR = " / ";
 
     private final LingoEdition edition;
     private final ProviderGateway gateway;
@@ -69,43 +72,43 @@ public final class StatusReport {
      * @param sender the receiver
      */
     public void send(@NotNull CommandSender sender) {
+        LingoPanel panel = LingoPanel.of(sender);
+        Player viewer = panel.viewer();
+        panel.header(KEY + "header")
+                .context(SafeText.msg(KEY + "context").with("edition", edition.name()).component(viewer));
+        provider(panel, viewer);
+        pipeline(panel, viewer);
+        panel.footer(KEY + "footer").send(sender);
+    }
+
+    private void provider(@NotNull LingoPanel panel, @Nullable Player viewer) {
         ProviderHealthMonitor.Snapshot snapshot = health.snapshot();
-        SafeText.msg(KEY + "header").with("edition", edition.name()).send(sender);
-        row(sender, "provider", gateway.provider().id());
-        row(sender, "reachable", snapshot.reachable() ? text("reachable") : text("unreachable"));
-        row(sender, "breaker", gateway.breaker().state().name().toLowerCase(Locale.ROOT));
+        CircuitBreaker.State breaker = gateway.breaker().state();
+        boolean reachable = snapshot.reachable();
+        String reachability = SafeText.msg(KEY + "value." + (reachable ? "reachable" : "unreachable")).plain(viewer);
+        panel.section(KEY + "section.provider")
+                .row(LABEL + "provider", gateway.provider().id())
+                .row(LABEL + "reachable", reachability, reachable ? LingoPanel.Tone.OK : LingoPanel.Tone.BAD)
+                .row(LABEL + "breaker", StatsLines.breakerName(viewer, breaker), StatsLines.breakerTone(breaker));
         if (!snapshot.missing().isEmpty()) {
-            row(sender, "missing", snapshot.missing().stream().map(LanguageCode::upper)
-                    .collect(Collectors.joining(", ")));
+            panel.row(LABEL + "missing", snapshot.missing().stream().map(LanguageCode::upper)
+                    .collect(Collectors.joining(", ")), LingoPanel.Tone.WARN);
         }
-        row(sender, "latency", gateway.latency().p50() + " / " + gateway.latency().p95() + " ms");
-        row(sender, "requests", gateway.requestCount() + " / " + gateway.failureCount() + " / "
-                + gateway.refusedCount());
-        row(sender, "cache", pipeline.cache().size() + " (" + Math.round(pipeline.cache().hitRate() * 100.0) + "%)");
-        row(sender, "inflight", Integer.toString(pipeline.inFlight()));
-        row(sender, "slang", Integer.toString(pipeline.preparer().slang().size()));
-        row(sender, "origins", origins(pipeline.stats().snapshot()));
+        panel.row(LABEL + "latency", gateway.latency().p50() + SEPARATOR + gateway.latency().p95() + " ms")
+                .row(LABEL + "requests", gateway.requestCount() + SEPARATOR + gateway.failureCount() + SEPARATOR
+                        + gateway.refusedCount());
+    }
+
+    private void pipeline(@NotNull LingoPanel panel, @Nullable Player viewer) {
+        NumberFormat numbers = StatsLines.numbers(viewer);
+        panel.section(KEY + "section.pipeline")
+                .row(LABEL + "cache", numbers.format(pipeline.cache().size()) + " ("
+                        + Math.round(pipeline.cache().hitRate() * 100.0) + "%)")
+                .row(LABEL + "inflight", Integer.toString(pipeline.inFlight()))
+                .row(LABEL + "slang", Integer.toString(pipeline.preparer().slang().size()))
+                .row(LABEL + "origins", StatsLines.origins(viewer, pipeline.stats().snapshot(), numbers));
         if (memory != null && phrases != null) {
-            row(sender, "learning", memory.approvedCount() + " / " + phrases.pinnedCount());
+            panel.row(LABEL + "learning", memory.approvedCount() + SEPARATOR + phrases.pinnedCount());
         }
-    }
-
-    private static void row(@NotNull CommandSender sender, @NotNull String label, @NotNull String value) {
-        SafeText.msg(KEY + "row")
-                .with("label", SafeText.msg(KEY + "label." + label).text(null))
-                .with(VALUE, value)
-                .send(sender);
-    }
-
-    private static @NotNull String text(@NotNull String key) {
-        return SafeText.msg(KEY + "value." + key).text(null);
-    }
-
-    private static @NotNull String origins(@NotNull Map<TranslationOrigin, Long> counts) {
-        String joined = counts.entrySet().stream()
-                .filter(entry -> entry.getValue() > 0L)
-                .map(entry -> entry.getKey().name().toLowerCase(Locale.ROOT) + " " + entry.getValue())
-                .collect(Collectors.joining(", "));
-        return joined.isEmpty() ? "-" : joined;
     }
 }

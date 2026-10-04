@@ -113,7 +113,7 @@ public final class GlossaryView extends LingoBaseView {
                 : LingoCards.value(viewer, count + " / " + edition.maxGlossaryTerms());
         CardLore lore = CardLore.create()
                 .block(LingoCards.paragraphOf(viewer, KEY + "header.description"))
-                .section(LingoCards.ic(viewer, KEY + "header.section"),
+                .section(LingoCards.section(viewer, KEY + "header.section"),
                         List.of(LingoCards.rowOf(viewer, KEY + "label.terms", limit)));
         return LingoCards.card(Material.KNOWLEDGE_BOOK, LingoCards.ic(viewer, KEY + "header.name"), lore.build());
     }
@@ -130,7 +130,8 @@ public final class GlossaryView extends LingoBaseView {
         rows.add(LingoCards.rowOf(viewer, KEY + "label.languages", LingoCards.value(viewer,
                 languageLabel(viewer, term.source()) + " » " + languageLabel(viewer, term.target()))));
         CardLore lore = CardLore.create()
-                .section(LingoCards.ic(viewer, KEY + "card.section"), rows)
+                .block(LingoCards.paragraphOf(viewer, KEY + "card.purpose." + modeKey(term.mode())))
+                .section(LingoCards.section(viewer, KEY + "card.section"), rows)
                 .block(List.of(LingoCards.ic(viewer, KEY + "card.remove")));
         ItemStack item = LingoCards.card(term.mode() == GlossaryMode.FORCE ? Material.NAME_TAG : Material.PAPER,
                 name, lore.build());

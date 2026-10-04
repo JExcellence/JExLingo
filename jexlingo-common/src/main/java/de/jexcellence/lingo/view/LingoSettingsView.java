@@ -128,7 +128,7 @@ public final class LingoSettingsView extends LingoBaseView {
      */
     public static @NotNull String languageName(@Nullable Player viewer, @NotNull LanguageCode language) {
         var builder = LingoCards.msg("lingo.language." + language.code());
-        return builder.exists(viewer) ? builder.text(viewer) : language.upper();
+        return builder.exists(viewer) ? builder.plain(viewer) : language.upper();
     }
 
     /**
@@ -153,7 +153,7 @@ public final class LingoSettingsView extends LingoBaseView {
                 languageName(viewer, resolver.resolveWriting(viewer)))));
         CardLore lore = CardLore.create()
                 .block(LingoCards.paragraphOf(viewer, KEY + "header.description"))
-                .section(LingoCards.ic(viewer, KEY + "header.section"), rows);
+                .section(LingoCards.section(viewer, KEY + "header.section"), rows);
         return LingoCards.card(Material.COMPARATOR, LingoCards.ic(viewer, KEY + "header.name"), lore.build());
     }
 
@@ -162,7 +162,7 @@ public final class LingoSettingsView extends LingoBaseView {
         String base = OPTION + setting.id();
         CardLore lore = CardLore.create()
                 .block(LingoCards.paragraphOf(viewer, base + ".description"))
-                .section(LingoCards.ic(viewer, KEY + "card.section"),
+                .section(LingoCards.section(viewer, KEY + "card.section"),
                         LingoCards.options(viewer, choiceLabels(viewer, setting), activeIndex(setting, current)))
                 .block(List.of(LingoCards.ic(viewer, LingoCards.COMMON + "filter.action")));
         ItemStack item = LingoCards.card(setting.icon,

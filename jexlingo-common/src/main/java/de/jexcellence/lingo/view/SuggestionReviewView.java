@@ -174,7 +174,7 @@ public final class SuggestionReviewView extends LingoBaseView {
                 : LingoCards.value(viewer, Integer.toString(entries.size()));
         CardLore lore = CardLore.create()
                 .block(LingoCards.paragraphOf(viewer, KEY + "header.description"))
-                .section(LingoCards.ic(viewer, KEY + "header.section"),
+                .section(LingoCards.section(viewer, KEY + "header.section"),
                         List.of(LingoCards.rowOf(viewer, KEY + (mode == Mode.PENDING ? "label.pending"
                                 : "label.approved"), count)));
         return LingoCards.card(Material.WRITABLE_BOOK, LingoCards.ic(viewer, KEY + "header.name"), lore.build());
@@ -186,9 +186,11 @@ public final class SuggestionReviewView extends LingoBaseView {
                 .with("from", entry.pair().source().upper())
                 .with("to", entry.pair().target().upper()), viewer);
         CardLore lore = CardLore.create()
-                .section(LingoCards.ic(viewer, KEY + "card.original"), LingoCards.userParagraph(viewer,
+                .block(LingoCards.paragraphOf(viewer, KEY + "card.purpose." + (mode == Mode.PENDING ? "pending"
+                        : "approved")))
+                .section(LingoCards.section(viewer, KEY + "card.original"), LingoCards.userParagraph(viewer,
                         entry.sourceText()))
-                .section(LingoCards.ic(viewer, KEY + "card.suggestion"), LingoCards.userParagraph(viewer,
+                .section(LingoCards.section(viewer, KEY + "card.suggestion"), LingoCards.userParagraph(viewer,
                         entry.targetText()))
                 .block(actions(viewer, mode));
         Material icon = mode == Mode.PENDING ? Material.PAPER : Material.ENCHANTED_BOOK;

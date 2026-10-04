@@ -1,13 +1,15 @@
 # JExLingo - English translations
-# file-version: 2
+# file-version: 3
 #
 # Colour language (same as the rest of the suite):
-#   names #F1F5F9 | section titles #C4B5FD | muted text #94A3B8 | accent #5EEAD4
-#   OK #4ADE80 | error #F87171 | warning #FBBF24 | title <gradient:#5EEAD4:#38BDF8>
+#   names #F1F5F9 | section titles #C4B5FD | muted text #94A3B8 | accent #A78BFA
+#   OK #4ADE80 | error #F87171 | warning #FBBF24 | title <gradient:#5EEAD4:#A78BFA>
 # Chat status markers: [OK] done, [!] blocked or missing, [X] failed.
+# Chat panels (status, stats, inspect, lists) are laid out by the plugin: header, context, rows, footer.
+# Menu section titles are plain words; the plugin colours them. Never centre text with spaces here.
 # Player text (chat lines, suggestions, glossary terms) is inserted by the plugin as plain text, never parsed.
 
-prefix: '<gradient:#5EEAD4:#38BDF8>Lingo</gradient> <dark_gray>»</dark_gray> '
+prefix: '<gradient:#5EEAD4:#A78BFA>Lingo</gradient> <dark_gray>»</dark_gray> '
 
 _defaults:
   title: '<#F1F5F9>Menu</#F1F5F9>'
@@ -15,27 +17,27 @@ _defaults:
 
 jexcommand:
   error:
-    no-permission: '<#F87171>[X]</#F87171> <#F1F5F9>You are missing the permission</#F1F5F9> <#5EEAD4>{permission}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    no-permission: '<#F87171>[X]</#F87171> <#F1F5F9>You are missing the permission</#F1F5F9> <#A78BFA>{permission}</#A78BFA><#F1F5F9>.</#F1F5F9>'
     player-only: '<#F87171>[X]</#F87171> <#F1F5F9>Only players can use this command.</#F1F5F9>'
     console-only: '<#F87171>[X]</#F87171> <#F1F5F9>Only the console can use this command.</#F1F5F9>'
-    invalid-argument: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not valid for</#F1F5F9> <#5EEAD4>{name}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    missing-argument: '<#F87171>[X]</#F87171> <#F1F5F9>Missing</#F1F5F9> <#5EEAD4>{name}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    too-many-arguments: '<#F87171>[X]</#F87171> <#F1F5F9>Too many arguments, did not expect</#F1F5F9> <#5EEAD4>{value}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    invalid-long: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not a whole number.</#F1F5F9>'
-    invalid-double: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not a number.</#F1F5F9>'
-    invalid-boolean: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not true or false.</#F1F5F9>'
-    not-positive-long: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>must be above 0.</#F1F5F9>'
-    not-positive-double: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>must be above 0.</#F1F5F9>'
-    invalid-uuid: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not a valid UUID.</#F1F5F9>'
-    invalid-enum: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not one of</#F1F5F9> <#94A3B8>{options}</#94A3B8><#F1F5F9>.</#F1F5F9>'
-    expected-single-word: '<#F87171>[X]</#F87171> <#F1F5F9>Expected one word, got</#F1F5F9> <#5EEAD4>{value}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    player-not-online: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not online.</#F1F5F9>'
-    player-unknown: '<#F87171>[X]</#F87171> <#F1F5F9>No player named</#F1F5F9> <#5EEAD4>{value}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    invalid-argument: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not valid for</#F1F5F9> <#A78BFA>{name}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    missing-argument: '<#F87171>[X]</#F87171> <#F1F5F9>Missing</#F1F5F9> <#A78BFA>{name}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    too-many-arguments: '<#F87171>[X]</#F87171> <#F1F5F9>Too many arguments, did not expect</#F1F5F9> <#A78BFA>{value}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    invalid-long: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not a whole number.</#F1F5F9>'
+    invalid-double: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not a number.</#F1F5F9>'
+    invalid-boolean: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not true or false.</#F1F5F9>'
+    not-positive-long: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>must be above 0.</#F1F5F9>'
+    not-positive-double: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>must be above 0.</#F1F5F9>'
+    invalid-uuid: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not a valid UUID.</#F1F5F9>'
+    invalid-enum: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not one of</#F1F5F9> <#94A3B8>{options}</#94A3B8><#F1F5F9>.</#F1F5F9>'
+    expected-single-word: '<#F87171>[X]</#F87171> <#F1F5F9>Expected one word, got</#F1F5F9> <#A78BFA>{value}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    player-not-online: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not online.</#F1F5F9>'
+    player-unknown: '<#F87171>[X]</#F87171> <#F1F5F9>No player named</#F1F5F9> <#A78BFA>{value}</#A78BFA><#F1F5F9>.</#F1F5F9>'
     internal: '<#F87171>[X]</#F87171> <#F1F5F9>Something went wrong:</#F1F5F9> <#94A3B8>{message}</#94A3B8>'
-    unknown-subcommand: '<#F87171>[X]</#F87171> <#F1F5F9>Unknown command</#F1F5F9> <#5EEAD4>{name}</#5EEAD4><#F1F5F9>. Try /lingo help.</#F1F5F9>'
-    ambiguous-subcommand: '<#FBBF24>[!]</#FBBF24> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>matches several subcommands:</#F1F5F9> <#5EEAD4>{choices}</#5EEAD4><#F1F5F9>. Type more letters.</#F1F5F9>'
-    unknown-type: '<#F87171>[X]</#F87171> <#F1F5F9>Unknown argument type</#F1F5F9> <#5EEAD4>{type}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-  usage: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>{usage}</#5EEAD4>'
+    unknown-subcommand: '<#F87171>[X]</#F87171> <#F1F5F9>Unknown command</#F1F5F9> <#A78BFA>{name}</#A78BFA><#F1F5F9>. Try /lingo help.</#F1F5F9>'
+    ambiguous-subcommand: '<#FBBF24>[!]</#FBBF24> <#A78BFA>{name}</#A78BFA> <#F1F5F9>matches several subcommands:</#F1F5F9> <#A78BFA>{choices}</#A78BFA><#F1F5F9>. Type more letters.</#F1F5F9>'
+    unknown-type: '<#F87171>[X]</#F87171> <#F1F5F9>Unknown argument type</#F1F5F9> <#A78BFA>{type}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+  usage: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Use</#F1F5F9> <#A78BFA>{usage}</#A78BFA>'
 
 lingo:
   language:
@@ -52,51 +54,57 @@ lingo:
     cs: 'Czech'
     uk: 'Ukrainian'
   chat:
-    marker: '<dark_gray>[</dark_gray><#5EEAD4>{from} » {to}</#5EEAD4><dark_gray>]</dark_gray>'
+    marker: '<dark_gray>[</dark_gray><#94A3B8>{from} » {to}</#94A3B8><dark_gray>]</dark_gray>'
     hover:
-      original: '<#C4B5FD>Original ({from})</#C4B5FD><newline><#F1F5F9>{original}</#F1F5F9>'
-      suggest: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Click to suggest a better translation</#94A3B8>'
-    original_line: '<dark_gray>| {from}:</dark_gray> <#94A3B8>{original}</#94A3B8>'
-    translate_button: '<dark_gray>[</dark_gray><#5EEAD4>T</#5EEAD4><dark_gray>]</dark_gray>'
-    translate_hover: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Click to translate this line</#94A3B8>'
-    follow_up: '<dark_gray>[</dark_gray><#5EEAD4>{from} » {to}</#5EEAD4><dark_gray>]</dark_gray> <#F1F5F9>{name}</#F1F5F9><dark_gray>:</dark_gray> <#F1F5F9>{text}</#F1F5F9>'
+      original: '<#C4B5FD>Original</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{from}</#94A3B8><newline><#F1F5F9>{original}</#F1F5F9>'
+      suggest: '<#A78BFA>▸</#A78BFA> <#94A3B8>Click to suggest a better translation</#94A3B8>'
+    original_line: '<dark_gray>[</dark_gray><#94A3B8>{from}</#94A3B8><dark_gray>]</dark_gray> <#94A3B8>{original}</#94A3B8>'
+    translate_button: '<dark_gray>[</dark_gray><#A78BFA>T</#A78BFA><dark_gray>]</dark_gray>'
+    translate_hover: '<#A78BFA>▸</#A78BFA> <#94A3B8>Click to translate this line</#94A3B8>'
+    follow_up: '<dark_gray>[</dark_gray><#94A3B8>{from} » {to}</#94A3B8><dark_gray>]</dark_gray> <#94A3B8>{name}</#94A3B8><dark_gray>:</dark_gray> {text}'
   learn:
-    hint: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>You seem to write in</#F1F5F9> <#5EEAD4>{language}</#5EEAD4><#F1F5F9>. Click here to set it, so your messages are translated correctly.</#F1F5F9>'
-    hover: '<#5EEAD4>▸</#5EEAD4> <#94A3B8>Set {language} as your writing language</#94A3B8>'
+    hint: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>You seem to write in</#F1F5F9> <#A78BFA>{language}</#A78BFA><#F1F5F9>. Click here to set it, so your messages are translated correctly.</#F1F5F9>'
+    hover: '<#A78BFA>▸</#A78BFA> <#94A3B8>Set {language} as your writing language</#94A3B8>'
   show:
     unknown_message: '<#F87171>[X]</#F87171> <#F1F5F9>That message is older than five minutes.</#F1F5F9>'
     same_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>That message is already in your language.</#F1F5F9>'
     failed: '<#F87171>[X]</#F87171> <#F1F5F9>The translator is not available right now. Try again in a moment.</#F1F5F9>'
   erase:
-    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Deleted the translation settings of</#F1F5F9> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>and</#F1F5F9> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>open suggestions.</#F1F5F9>'
+    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Deleted the translation settings of</#F1F5F9> <#A78BFA>{name}</#A78BFA> <#F1F5F9>and</#F1F5F9> <#A78BFA>{count}</#A78BFA> <#F1F5F9>open suggestions.</#F1F5F9>'
     failed: '<#F87171>[X]</#F87171> <#F1F5F9>Deleting failed. See the server log.</#F1F5F9>'
   onboarding:
-    message: '<#F1F5F9>Chat is translated for you into</#F1F5F9> <#5EEAD4>{language}</#5EEAD4><#F1F5F9>. Hover a marked line to see the original.</#F1F5F9> <#94A3B8>Settings: /lingo</#94A3B8>'
+    message: '<#F1F5F9>Chat is translated for you into</#F1F5F9> <#A78BFA>{language}</#A78BFA><#F1F5F9>. Hover a marked line to see the original.</#F1F5F9> <#94A3B8>Settings: /lingo</#94A3B8>'
   help:
-    - '<gradient:#5EEAD4:#38BDF8>Lingo</gradient> <dark_gray>|</dark_gray> <#94A3B8>chat translation</#94A3B8>'
-    - '<#5EEAD4>/lingo</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>open your settings</#94A3B8>'
-    - '<#5EEAD4>/lingo lang [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>choose the language you read in</#94A3B8>'
-    - '<#5EEAD4>/lingo write [auto|code]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>choose the language you write in</#94A3B8>'
-    - '<#5EEAD4>/lingo incoming [auto|click|off]</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>automatic, on click or off; empty switches to the next</#94A3B8>'
-    - '<#5EEAD4>/lingo outgoing</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>switch translating your messages on or off</#94A3B8>'
-    - '<#5EEAD4>/lingo original</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>switch the original line under translations</#94A3B8>'
-    - '<#5EEAD4>/lingo suggest</#5EEAD4> <dark_gray>-</dark_gray> <#94A3B8>suggest a better translation</#94A3B8>'
-    - '<#94A3B8>Start a message with</#94A3B8> <#5EEAD4>!</#5EEAD4> <#94A3B8>to keep it untranslated.</#94A3B8>'
+    banner: '<gradient:#5EEAD4:#A78BFA>Translation commands</gradient> <dark_gray>|</dark_gray> <#94A3B8>Click a line to use it</#94A3B8>'
+    entry: '<#A78BFA>▸</#A78BFA> <#F1F5F9>{command}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>{description}</#94A3B8>'
+    entry-with-args: '<#A78BFA>▸</#A78BFA> <#F1F5F9>{command}</#F1F5F9> <#C4B5FD>{args}</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{description}</#94A3B8>'
+    hover-base: '<#F1F5F9>{full}</#F1F5F9><newline><#94A3B8>{description}</#94A3B8>'
+    hover-action-run: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Click to run</#F1F5F9>'
+    hover-action-suggest: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Click to fill in</#F1F5F9>'
+    footer: '<#94A3B8>Start a message with</#94A3B8> <#A78BFA>!</#A78BFA> <#94A3B8>to send it untranslated.</#94A3B8>'
+    desc:
+      menu: 'Open your translation settings'
+      lang: 'Choose the language you read chat in'
+      write: 'Choose the language you write in'
+      incoming: 'Automatic, on click or off. Without a value: next mode'
+      outgoing: 'Translating your messages on or off. Without a value: toggle'
+      original: 'Original line under translations on or off. Without a value: toggle'
+      suggest: 'Suggest a better translation for a recent line'
   error:
     players_only: '<#F87171>[X]</#F87171> <#F1F5F9>Only players can use this.</#F1F5F9>'
-    unknown_language: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is no language code, for example de or en.</#F1F5F9>'
-    language_not_enabled: '<#F87171>[X]</#F87171> <#5EEAD4>{value}</#5EEAD4> <#F1F5F9>is not translated on this server. Use auto or one of the suggested codes.</#F1F5F9>'
-    unknown_incoming: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>auto</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>click</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>off</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    unknown_period: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>today</#5EEAD4><#F1F5F9>,</#F1F5F9> <#5EEAD4>week</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>month</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    unknown_toggle: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>enable</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>disable</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    unknown_mode: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#5EEAD4>keep</#5EEAD4> <#F1F5F9>or</#F1F5F9> <#5EEAD4>force</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    unknown_language: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is no language code, for example de or en.</#F1F5F9>'
+    language_not_enabled: '<#F87171>[X]</#F87171> <#A78BFA>{value}</#A78BFA> <#F1F5F9>is not translated on this server. Use auto or one of the suggested codes.</#F1F5F9>'
+    unknown_incoming: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#A78BFA>auto</#A78BFA><#F1F5F9>,</#F1F5F9> <#A78BFA>click</#A78BFA> <#F1F5F9>or</#F1F5F9> <#A78BFA>off</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    unknown_period: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#A78BFA>today</#A78BFA><#F1F5F9>,</#F1F5F9> <#A78BFA>week</#A78BFA> <#F1F5F9>or</#F1F5F9> <#A78BFA>month</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    unknown_toggle: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#A78BFA>enable</#A78BFA> <#F1F5F9>or</#F1F5F9> <#A78BFA>disable</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    unknown_mode: '<#F87171>[X]</#F87171> <#F1F5F9>Use</#F1F5F9> <#A78BFA>keep</#A78BFA> <#F1F5F9>or</#F1F5F9> <#A78BFA>force</#A78BFA><#F1F5F9>.</#F1F5F9>'
   settings:
     saved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Your translation settings are saved.</#F1F5F9>'
-    language_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Reading language:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>you now read in {effective}</#94A3B8>'
-    write_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Writing language:</#F1F5F9> <#5EEAD4>{language}</#5EEAD4> <dark_gray>|</dark_gray> <#94A3B8>your messages are read as {effective}</#94A3B8>'
+    language_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Reading language:</#F1F5F9> <#A78BFA>{language}</#A78BFA> <dark_gray>|</dark_gray> <#94A3B8>you now read in {effective}</#94A3B8>'
+    write_set: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Writing language:</#F1F5F9> <#A78BFA>{language}</#A78BFA> <dark_gray>|</dark_gray> <#94A3B8>your messages are read as {effective}</#94A3B8>'
     incoming:
       automatic: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Messages in other languages are translated automatically.</#F1F5F9>'
-      on_click: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Messages in other languages get a</#F1F5F9> <#5EEAD4>[T]</#5EEAD4> <#F1F5F9>button. Click it to translate.</#F1F5F9>'
+      on_click: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Messages in other languages get a</#F1F5F9> <#A78BFA>[T]</#A78BFA> <#F1F5F9>button. Click it to translate.</#F1F5F9>'
       disabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>You now read every message as written.</#F1F5F9>'
     outgoing:
       enabled: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Your messages are translated for other players again.</#F1F5F9>'
@@ -115,14 +123,17 @@ lingo:
     playtime: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Play a little longer before suggesting translations.</#F1F5F9>'
     blocked: '<#F87171>[X]</#F87171> <#F1F5F9>Staff turned off suggestions for you.</#F1F5F9>'
     unavailable: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Suggestions are not available on this server.</#F1F5F9>'
-    how: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Click a translated chat line, then type your better translation.</#F1F5F9>'
+    how: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Click a translated chat line, then type your better translation.</#F1F5F9>'
     missing_text: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Type your translation after the message id.</#F1F5F9>'
     nothing_recent: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>You saw no translated message in the last five minutes.</#F1F5F9>'
   phrases:
-    header: '<#C4B5FD>Pinned phrases</#C4B5FD> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>in total, newest first</#94A3B8>'
-    entry: '<dark_gray>-</dark_gray> <#5EEAD4>#{id}</#5EEAD4> <#94A3B8>{pair}</#94A3B8> <#F1F5F9>{text}</#F1F5F9> <dark_gray>></dark_gray> <#F1F5F9>{translation}</#F1F5F9>'
-    removed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Phrase</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>unpinned.</#F1F5F9>'
-    not_found: '<#F87171>[X]</#F87171> <#F1F5F9>No pinned phrase with id</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    header: '<gradient:#5EEAD4:#A78BFA>Pinned phrases</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9>'
+    context: '<#94A3B8>Showing {shown} of {count}, newest first</#94A3B8>'
+    entry: '<#A78BFA>#{id}</#A78BFA> <#94A3B8>{pair}</#94A3B8> <dark_gray>|</dark_gray> <#F1F5F9>{text}</#F1F5F9> <dark_gray>»</dark_gray> <#F1F5F9>{translation}</#F1F5F9>'
+    empty: '<#94A3B8>No phrase is pinned yet.</#94A3B8>'
+    footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Unpin one with</#94A3B8> <#F1F5F9>/lingo phrases remove</#F1F5F9> <#94A3B8>and its #id</#94A3B8>'
+    removed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Phrase</#F1F5F9> <#A78BFA>#{id}</#A78BFA> <#F1F5F9>unpinned.</#F1F5F9>'
+    not_found: '<#F87171>[X]</#F87171> <#F1F5F9>No pinned phrase with id</#F1F5F9> <#A78BFA>#{id}</#A78BFA><#F1F5F9>.</#F1F5F9>'
   origin:
     glossary: 'Glossary'
     memory: 'Approved corrections'
@@ -130,61 +141,92 @@ lingo:
     cache: 'Cache'
     provider: 'Translator'
     fallback: 'Shown untranslated'
+    same_language: 'Already in the language'
+    skipped: 'Skipped'
+  breaker:
+    closed: 'normal, calls pass'
+    open: 'tripped, calls paused'
+    half_open: 'testing one call'
+  panel:
+    label: '<#94A3B8>{label}</#94A3B8>'
+    separator: ' <dark_gray>|</dark_gray> '
+    section: '<#C4B5FD>{name}</#C4B5FD>'
+    value:
+      plain: '<#F1F5F9>{value}</#F1F5F9>'
+      accent: '<#A78BFA>{value}</#A78BFA>'
+      ok: '<#4ADE80>{value}</#4ADE80>'
+      bad: '<#F87171>{value}</#F87171>'
+      warn: '<#FBBF24>{value}</#FBBF24>'
+      muted: '<#94A3B8>{value}</#94A3B8>'
   ops:
     history_premium: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Statistics of past days are part of JExLingo Premium. Showing today.</#F1F5F9>'
     inspect:
-      header: '<#C4B5FD>Translation settings of</#C4B5FD> <#F1F5F9>{name}</#F1F5F9>'
-      reading_choice: 'Reading language (chosen)'
-      writing_choice: 'Writing language (chosen)'
-      client: 'Game language'
-      reads: 'Reads in'
-      writes: 'Writes in'
-      incoming: 'Other languages'
-      outgoing: 'Translate own messages'
-      original: 'Show original'
-      suggestions: 'May suggest'
+      header: '<gradient:#5EEAD4:#A78BFA>Translation settings</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{name}</#F1F5F9>'
+      context_online: '<#94A3B8>Stored choices and what applies right now</#94A3B8>'
+      context_offline: '<#94A3B8>Stored choices; the player is offline</#94A3B8>'
+      section:
+        choices: 'Chosen'
+        resolved: 'In use now'
+      label:
+        reading_choice: 'Reading language'
+        writing_choice: 'Writing language'
+        client: 'Game language'
+        reads: 'Reads in'
+        writes: 'Writes in'
+        incoming: 'Other languages'
+        outgoing: 'Translate own messages'
+        original: 'Show original'
+        suggestions: 'May suggest'
     set:
-      done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Translation settings of</#F1F5F9> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>changed.</#F1F5F9>'
-    paused: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Chat translation is paused until</#F1F5F9> <#5EEAD4>/lingo resume</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    paused_for: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Chat translation is paused for</#F1F5F9> <#5EEAD4>{minutes} min</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+      done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Translation settings of</#F1F5F9> <#A78BFA>{name}</#A78BFA> <#F1F5F9>changed.</#F1F5F9>'
+    paused: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Chat translation is paused until</#F1F5F9> <#A78BFA>/lingo resume</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    paused_for: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Chat translation is paused for</#F1F5F9> <#A78BFA>{minutes} min</#A78BFA><#F1F5F9>.</#F1F5F9>'
     resumed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Chat translation is running again.</#F1F5F9>'
     ping:
-      done: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{provider}</#5EEAD4> <#F1F5F9>answered in</#F1F5F9> <#5EEAD4>{millis} ms</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+      done: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{provider}</#A78BFA> <#F1F5F9>answered in</#F1F5F9> <#A78BFA>{millis} ms</#A78BFA><#F1F5F9>.</#F1F5F9>'
       failed: '<#F87171>[X]</#F87171> <#F1F5F9>The provider did not answer:</#F1F5F9> <#94A3B8>{value}</#94A3B8>'
       one_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>A ping needs at least two enabled languages.</#F1F5F9>'
-    cache_cleared: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Removed</#F1F5F9> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>cached translations.</#F1F5F9>'
+    cache_cleared: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Removed</#F1F5F9> <#A78BFA>{count}</#A78BFA> <#F1F5F9>cached translations.</#F1F5F9>'
   learning:
     unavailable: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Corrections and the translation memory are part of JExLingo Premium.</#F1F5F9>'
   review:
-    approved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Suggestion</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>approved. It is used from now on.</#F1F5F9>'
-    rejected: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Suggestion</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>rejected.</#F1F5F9>'
-    revoked: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Correction</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4> <#F1F5F9>taken back. The line is translated by the provider again.</#F1F5F9>'
-    not_approved: '<#F87171>[X]</#F87171> <#F1F5F9>No approved correction with id</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    not_pending: '<#F87171>[X]</#F87171> <#F1F5F9>No open suggestion with id</#F1F5F9> <#5EEAD4>#{id}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    blocked: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>can no longer suggest translations.</#F1F5F9>'
-    unblocked: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{name}</#5EEAD4> <#F1F5F9>can suggest translations again.</#F1F5F9>'
+    approved: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Suggestion</#F1F5F9> <#A78BFA>#{id}</#A78BFA> <#F1F5F9>approved. It is used from now on.</#F1F5F9>'
+    rejected: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Suggestion</#F1F5F9> <#A78BFA>#{id}</#A78BFA> <#F1F5F9>rejected.</#F1F5F9>'
+    revoked: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Correction</#F1F5F9> <#A78BFA>#{id}</#A78BFA> <#F1F5F9>taken back. The line is translated by the provider again.</#F1F5F9>'
+    not_approved: '<#F87171>[X]</#F87171> <#F1F5F9>No approved correction with id</#F1F5F9> <#A78BFA>#{id}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    not_pending: '<#F87171>[X]</#F87171> <#F1F5F9>No open suggestion with id</#F1F5F9> <#A78BFA>#{id}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    blocked: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{name}</#A78BFA> <#F1F5F9>can no longer suggest translations.</#F1F5F9>'
+    unblocked: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{name}</#A78BFA> <#F1F5F9>can suggest translations again.</#F1F5F9>'
   glossary:
     add:
-      added: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Glossary term</#F1F5F9> <#5EEAD4>{term}</#5EEAD4> <#F1F5F9>added.</#F1F5F9>'
-      duplicate: '<#FBBF24>[!]</#FBBF24> <#5EEAD4>{term}</#5EEAD4> <#F1F5F9>is already in the glossary.</#F1F5F9>'
+      added: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Glossary term</#F1F5F9> <#A78BFA>{term}</#A78BFA> <#F1F5F9>added.</#F1F5F9>'
+      duplicate: '<#FBBF24>[!]</#FBBF24> <#A78BFA>{term}</#A78BFA> <#F1F5F9>is already in the glossary.</#F1F5F9>'
       limit_reached: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>The glossary is full. JExLingo Premium has no limit.</#F1F5F9>'
-      missing_replacement: '<#F87171>[X]</#F87171> <#F1F5F9>A force term needs a translation, for example</#F1F5F9> <#5EEAD4>/lingo glossary add force Insel Island</#5EEAD4><#F1F5F9>.</#F1F5F9>'
-    removed: '<#4ADE80>[OK]</#4ADE80> <#5EEAD4>{term}</#5EEAD4> <#F1F5F9>removed from the glossary.</#F1F5F9>'
+      missing_replacement: '<#F87171>[X]</#F87171> <#F1F5F9>A force term needs a translation, for example</#F1F5F9> <#A78BFA>/lingo glossary add force Insel Island</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    removed: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{term}</#A78BFA> <#F1F5F9>removed from the glossary.</#F1F5F9>'
     removed_one: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Glossary term removed.</#F1F5F9>'
-    not_found: '<#F87171>[X]</#F87171> <#5EEAD4>{term}</#5EEAD4> <#F1F5F9>is not in the glossary.</#F1F5F9>'
+    not_found: '<#F87171>[X]</#F87171> <#A78BFA>{term}</#A78BFA> <#F1F5F9>is not in the glossary.</#F1F5F9>'
     list:
-      header: '<#C4B5FD>Glossary</#C4B5FD> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>terms</#94A3B8>'
-      entry: '<dark_gray>-</dark_gray> <#F1F5F9>{term}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>{mode}</#94A3B8> <#5EEAD4>{replacement}</#5EEAD4>'
+      header: '<gradient:#5EEAD4:#A78BFA>Glossary</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>terms</#94A3B8>'
+      context: '<#94A3B8>Words the translator keeps or always translates the same way</#94A3B8>'
+      entry: '<#F1F5F9>{term}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>{mode}</#94A3B8>'
+      entry_force: '<#F1F5F9>{term}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>{mode}</#94A3B8> <dark_gray>»</dark_gray> <#A78BFA>{replacement}</#A78BFA>'
+      empty: '<#94A3B8>No terms yet.</#94A3B8>'
+      footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Add one with</#94A3B8> <#F1F5F9>/lingo glossary add keep OneBlock</#F1F5F9>'
   test:
     result: '<#C4B5FD>{from} » {to}</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{origin}, {millis} ms</#94A3B8><newline><#F1F5F9>{text}</#F1F5F9>'
   export:
-    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Exported</#F1F5F9> <#5EEAD4>{count}</#5EEAD4> <#F1F5F9>approved translations to</#F1F5F9> <#5EEAD4>exports/{file}</#5EEAD4><#F1F5F9>.</#F1F5F9>'
+    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Exported</#F1F5F9> <#A78BFA>{count}</#A78BFA> <#F1F5F9>approved translations to</#F1F5F9> <#A78BFA>exports/{file}</#A78BFA><#F1F5F9>.</#F1F5F9>'
     failed: '<#F87171>[X]</#F87171> <#F1F5F9>The export failed. See the server log.</#F1F5F9>'
   reload:
     done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Config, glossary rules and translations reloaded.</#F1F5F9>'
   status:
-    header: '<#C4B5FD>JExLingo status</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{edition}</#94A3B8>'
-    row: '<#94A3B8>{label}</#94A3B8> <dark_gray>|</dark_gray> <#F1F5F9>{value}</#F1F5F9>'
+    header: '<gradient:#5EEAD4:#A78BFA>JExLingo</gradient> <dark_gray>|</dark_gray> <#F1F5F9>Status</#F1F5F9>'
+    context: '<#94A3B8>{edition} edition, live values since the last start</#94A3B8>'
+    footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Numbers per day:</#94A3B8> <#F1F5F9>/lingo stats</#F1F5F9>'
+    section:
+      provider: 'Translator'
+      pipeline: 'Pipeline'
     label:
       provider: 'Provider'
       reachable: 'Reachable'
@@ -209,7 +251,7 @@ gui:
       row: '<#94A3B8>{label}</#94A3B8> <dark_gray>|</dark_gray> {value}'
     value:
       plain: '<#F1F5F9>{value}</#F1F5F9>'
-      accent: '<#5EEAD4>{value}</#5EEAD4>'
+      accent: '<#A78BFA>{value}</#A78BFA>'
       ok: '<#4ADE80>{value}</#4ADE80>'
       bad: '<#F87171>{value}</#F87171>'
       warn: '<#FBBF24>{value}</#FBBF24>'
@@ -229,15 +271,15 @@ gui:
         lore: '<#94A3B8>Page {page} of {pages}</#94A3B8>'
     filter:
       name: '<#F1F5F9>Filter</#F1F5F9>'
-      title: '<#C4B5FD>Show</#C4B5FD>'
+      title: 'Show'
       option: '<#94A3B8>○</#94A3B8> <#94A3B8>{name}</#94A3B8>'
-      option-active: '<#5EEAD4>●</#5EEAD4> <#F1F5F9>{name}</#F1F5F9>'
-      action: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Left-click next, right-click back</#F1F5F9>'
+      option-active: '<#A78BFA>●</#A78BFA> <#F1F5F9>{name}</#F1F5F9>'
+      action: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Left-click next, right-click back</#F1F5F9>'
 
 lingo_settings:
-  title: '<gradient:#5EEAD4:#38BDF8>Translation</gradient>'
+  title: '<gradient:#5EEAD4:#A78BFA>Translation</gradient>'
   header:
-    name: '<gradient:#5EEAD4:#38BDF8>Chat translation</gradient>'
+    name: '<gradient:#5EEAD4:#A78BFA>Chat translation</gradient>'
     description: 'Messages in other languages are translated for you. Hover a marked line to see the original.'
     section: 'Your settings'
     reading: 'You read in'
@@ -275,9 +317,9 @@ lingo_settings:
       disabled: 'Off'
 
 lingo_review:
-  title: '<gradient:#5EEAD4:#38BDF8>Suggestions</gradient>'
+  title: '<gradient:#5EEAD4:#A78BFA>Suggestions</gradient>'
   header:
-    name: '<gradient:#5EEAD4:#38BDF8>Suggested translations</gradient>'
+    name: '<gradient:#5EEAD4:#A78BFA>Suggested translations</gradient>'
     description: 'Players suggested these translations. Approved ones answer every identical line from now on.'
     section: 'Queue'
   filter:
@@ -293,20 +335,23 @@ lingo_review:
     name: '<#F1F5F9>No approved corrections</#F1F5F9>'
     description: 'Approved corrections appear here. Right-click one to take it back.'
   card:
-    name: '<#F1F5F9>#{id}</#F1F5F9> <dark_gray>|</dark_gray> <#5EEAD4>{from} » {to}</#5EEAD4>'
-    original: '<#C4B5FD>Original</#C4B5FD>'
-    suggestion: '<#C4B5FD>Suggestion</#C4B5FD>'
-    approve: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Left-click to approve</#F1F5F9>'
-    reject: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Right-click to reject</#F1F5F9>'
-    revoke: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Right-click to take back</#F1F5F9>'
+    name: '<#F1F5F9>#{id}</#F1F5F9> <dark_gray>|</dark_gray> <#A78BFA>{from} » {to}</#A78BFA>'
+    original: 'Original'
+    suggestion: 'Suggestion'
+    purpose:
+      pending: 'A player suggested this wording. Approved, it answers every identical line.'
+      approved: 'Approved. Every identical line uses this wording instead of the translator.'
+    approve: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Left-click to approve</#F1F5F9>'
+    reject: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Right-click to reject</#F1F5F9>'
+    revoke: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Right-click to take back</#F1F5F9>'
 
 lingo_stats:
-  title: '<gradient:#5EEAD4:#38BDF8>Statistics</gradient>'
+  title: '<gradient:#5EEAD4:#A78BFA>Statistics</gradient>'
   loading:
     name: '<#F1F5F9>Loading</#F1F5F9>'
     description: 'Counting the translations of this period.'
   header:
-    name: '<gradient:#5EEAD4:#38BDF8>Translator</gradient>'
+    name: '<gradient:#5EEAD4:#A78BFA>Translator</gradient>'
     description: 'Live state of the translation provider.'
     section: 'Right now'
   period:
@@ -338,7 +383,7 @@ lingo_stats:
     sources: 'Sources'
     pairs: 'Language pairs'
   overview:
-    name: '<#F1F5F9>Overview</#F1F5F9> <dark_gray>|</dark_gray> <#5EEAD4>{period}</#5EEAD4>'
+    name: '<#F1F5F9>Overview</#F1F5F9> <dark_gray>|</dark_gray> <#A78BFA>{period}</#A78BFA>'
     description: 'All translated lines of the period.'
     section: 'Totals'
   origins:
@@ -367,12 +412,13 @@ lingo_stats:
     name: '<#F1F5F9>History</#F1F5F9>'
     description: 'Statistics of the last 7 and 30 days are part of JExLingo Premium.'
   chat:
-    header: '<#C4B5FD>JExLingo statistics</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{period}</#94A3B8>'
+    header: '<gradient:#5EEAD4:#A78BFA>JExLingo</gradient> <dark_gray>|</dark_gray> <#F1F5F9>Statistics</#F1F5F9>'
+    context: '<#94A3B8>{period}, every translated chat line</#94A3B8>'
 
 lingo_glossary:
-  title: '<gradient:#5EEAD4:#38BDF8>Glossary</gradient>'
+  title: '<gradient:#5EEAD4:#A78BFA>Glossary</gradient>'
   header:
-    name: '<gradient:#5EEAD4:#38BDF8>Glossary</gradient>'
+    name: '<gradient:#5EEAD4:#A78BFA>Glossary</gradient>'
     description: 'Server words the translator must keep or always translate the same way. Add terms with /lingo glossary add.'
     section: 'Terms'
   label:
@@ -384,9 +430,12 @@ lingo_glossary:
     description: 'Add a term with /lingo glossary add keep OneBlock.'
   card:
     name: '<#F1F5F9>{term}</#F1F5F9>'
-    section: '<#C4B5FD>Term</#C4B5FD>'
-    replacement: '<#94A3B8>Becomes</#94A3B8> <dark_gray>|</dark_gray> <#5EEAD4>{replacement}</#5EEAD4>'
-    remove: '<#5EEAD4>▸</#5EEAD4> <#F1F5F9>Right-click to remove</#F1F5F9>'
+    section: 'Term'
+    purpose:
+      keep: 'The translator leaves this word exactly as written.'
+      force: 'The translator always uses one fixed translation.'
+    replacement: '<#94A3B8>Becomes</#94A3B8> <dark_gray>|</dark_gray> <#A78BFA>{replacement}</#A78BFA>'
+    remove: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Right-click to remove</#F1F5F9>'
   mode:
     keep: 'Keep as written'
     force: 'Fixed translation'

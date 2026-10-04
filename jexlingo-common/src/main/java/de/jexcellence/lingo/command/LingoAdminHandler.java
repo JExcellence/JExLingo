@@ -9,7 +9,6 @@ import de.jexcellence.lingo.bedrock.LingoBedrockForms;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.glossary.GlossaryTerm;
 import de.jexcellence.lingo.learning.PhraseService;
-import de.jexcellence.lingo.learning.PinnedPhrase;
 import de.jexcellence.lingo.learning.TrainingExportService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
@@ -17,13 +16,11 @@ import de.jexcellence.lingo.text.SafeText;
 import de.jexcellence.lingo.view.GlossaryView;
 import de.jexcellence.lingo.view.SuggestionReviewView;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -179,15 +176,7 @@ public final class LingoAdminHandler {
             replies.send(ctx.sender(), UNAVAILABLE);
             return;
         }
-        CommandSender sender = ctx.sender();
-        List<PinnedPhrase> pinned = service.list();
-        SafeText.msg(KEY + "phrases.header").with(COUNT, pinned.size()).prefix().send(sender);
-        Player viewer = sender instanceof Player player ? player : null;
-        pinned.stream().limit(PHRASE_LIST_LIMIT).forEach(phrase -> sender.sendMessage(SafeText.component(
-                SafeText.msg(KEY + "phrases.entry")
-                        .with(ID, phrase.id())
-                        .with("pair", phrase.pair().source().upper() + " » " + phrase.pair().target().upper()),
-                viewer, Map.of(TEXT, phrase.sourceKey(), "translation", phrase.targetText()))));
+        AdminLists.phrases(ctx.sender(), service.list(), PHRASE_LIST_LIMIT);
     }
 
     private void onPhraseRemove(@NotNull CommandContext ctx) {
@@ -212,8 +201,9 @@ public final class LingoAdminHandler {
                     if (!target.isOnline()) {
                         services.settings().forget(target.getUniqueId());
                     }
-                    replies.send(ctx.sender(), SafeText.msg(KEY + (blocked ? "review.blocked" : "review.unblocked"))
-                            .with(NAME, name));
+                    String key = KEY + (blocked ? "review.blocked" : "review.unblocked");
+                    replies.sendUser(ctx.sender(), SafeText.msg(key),
+                            Map.of(NAME, name));
                 });
     }
 
@@ -246,16 +236,7 @@ public final class LingoAdminHandler {
     }
 
     private void onGlossaryList(@NotNull CommandContext ctx) {
-        CommandSender sender = ctx.sender();
-        List<GlossaryTerm> terms = services.glossary().terms();
-        SafeText.msg(KEY + "glossary.list.header").with(COUNT, terms.size()).prefix().send(sender);
-        for (GlossaryTerm term : terms) {
-            String replacement = term.forces() ? term.replacement() : "";
-            sender.sendMessage(SafeText.component(SafeText.msg(KEY + "glossary.list.entry")
-                            .with("mode", SafeText.msg("lingo_glossary.mode." + modeKey(term.mode())).text(null)),
-                    sender instanceof Player player ? player : null,
-                    Map.of(TERM, term.term(), "replacement", replacement)));
-        }
+        AdminLists.glossary(ctx.sender(), services.glossary().terms());
     }
 
     private void onTest(@NotNull CommandContext ctx) {
@@ -303,8 +284,8 @@ public final class LingoAdminHandler {
                     if (error != null) {
                         replies.send(ctx.sender(), KEY + "erase.failed");
                     } else {
-                        replies.send(ctx.sender(), SafeText.msg(KEY + "erase.done").with(NAME, name)
-                                .with(COUNT, removed));
+                        replies.sendUser(ctx.sender(), SafeText.msg(KEY + "erase.done").with(COUNT, removed),
+                                Map.of(NAME, name));
                     }
                 });
     }
@@ -312,9 +293,5 @@ public final class LingoAdminHandler {
     private void onReload(@NotNull CommandContext ctx) {
         services.reload().run();
         replies.send(ctx.sender(), KEY + "reload.done");
-    }
-
-    private static @NotNull String modeKey(@NotNull GlossaryMode mode) {
-        return mode == GlossaryMode.FORCE ? "force" : "keep";
     }
 }

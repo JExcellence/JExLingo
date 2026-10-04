@@ -79,7 +79,7 @@ public final class LingoCards {
      * @return the plain text of the key
      */
     public static @NotNull String text(@Nullable Player viewer, @NotNull String key) {
-        return msg(key).text(viewer);
+        return msg(key).plain(viewer);
     }
 
     /**
@@ -121,6 +121,18 @@ public final class LingoCards {
      */
     public static @NotNull List<Component> paragraphOf(@Nullable Player viewer, @NotNull String key) {
         return paragraph(viewer, text(viewer, key));
+    }
+
+    /**
+     * A section title in the section colour. The key holds only the plain title, so every section looks the same
+     * and a title can never fall back to the default lore colour.
+     *
+     * @param viewer   the viewer
+     * @param titleKey translation key of the plain title
+     * @return the coloured, non-italic title line
+     */
+    public static @NotNull Component section(@Nullable Player viewer, @NotNull String titleKey) {
+        return SafeText.item(msg(COMMON + "card.section"), viewer, Map.of("name", text(viewer, titleKey)));
     }
 
     /**
@@ -224,7 +236,7 @@ public final class LingoCards {
     public static @NotNull ItemStack filter(@Nullable Player viewer, @NotNull List<String> labels, int active) {
         return card(FilterHopperButton.ICON, ic(viewer, COMMON + "filter.name"),
                 CardLore.create()
-                        .section(ic(viewer, COMMON + "filter.title"), options(viewer, labels, active))
+                        .section(section(viewer, COMMON + "filter.title"), options(viewer, labels, active))
                         .block(List.of(ic(viewer, COMMON + "filter.action")))
                         .build());
     }

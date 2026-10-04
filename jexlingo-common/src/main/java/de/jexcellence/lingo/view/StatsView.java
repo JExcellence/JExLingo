@@ -6,6 +6,7 @@ import de.jexcellence.jexplatform.scheduler.PlatformScheduler;
 import de.jexcellence.jextranslate.MessageBuilder;
 import de.jexcellence.lingo.LingoEdition;
 import de.jexcellence.lingo.api.TranslationOrigin;
+import de.jexcellence.lingo.stats.StatsLines;
 import de.jexcellence.lingo.stats.StatsPeriod;
 import de.jexcellence.lingo.stats.StatsSources;
 import de.jexcellence.lingo.stats.StatsSummary;
@@ -149,8 +150,10 @@ public final class StatsView extends LingoBaseView {
                 sources.gateway().provider().id())));
         rows.add(LingoCards.rowOf(viewer, LABEL + "state", LingoCards.tone(viewer, reachable ? "ok" : "bad",
                 LingoCards.text(viewer, KEY + "value." + (reachable ? "online" : "offline")))));
-        rows.add(LingoCards.rowOf(viewer, LABEL + "breaker", LingoCards.value(viewer,
-                sources.gateway().breaker().state().name().toLowerCase(Locale.ROOT))));
+        var breaker = sources.gateway().breaker().state();
+        String breakerTone = StatsLines.breakerTone(breaker).name().toLowerCase(Locale.ROOT);
+        rows.add(LingoCards.rowOf(viewer, LABEL + "breaker",
+                LingoCards.tone(viewer, breakerTone, StatsLines.breakerName(viewer, breaker))));
         rows.add(LingoCards.rowOf(viewer, LABEL + "latency", LingoCards.value(viewer,
                 sources.gateway().latency().p50() + " / " + sources.gateway().latency().p95() + " ms")));
         rows.add(LingoCards.rowOf(viewer, LABEL + "inflight", LingoCards.value(viewer,
@@ -161,7 +164,7 @@ public final class StatsView extends LingoBaseView {
         }
         CardLore lore = CardLore.create()
                 .block(LingoCards.paragraphOf(viewer, KEY + "header.description"))
-                .section(LingoCards.ic(viewer, KEY + "header" + SECTION), rows);
+                .section(LingoCards.section(viewer, KEY + "header" + SECTION), rows);
         return LingoCards.card(Material.SPYGLASS, LingoCards.ic(viewer, KEY + "header" + NAME), lore.build());
     }
 
@@ -240,7 +243,7 @@ public final class StatsView extends LingoBaseView {
         Component title = name == null ? LingoCards.ic(viewer, KEY + key + NAME) : LingoCards.ic(name, viewer);
         CardLore lore = CardLore.create()
                 .block(LingoCards.paragraphOf(viewer, KEY + key + ".description"))
-                .section(LingoCards.ic(viewer, KEY + key + SECTION), rows);
+                .section(LingoCards.section(viewer, KEY + key + SECTION), rows);
         return LingoCards.card(icon, title, lore.build());
     }
 

@@ -16,7 +16,8 @@ services:
     volumes:
       - lt-models:/home/libretranslate/.local
       - lt-db:/app/db
-    mem_limit: 3g
+    # 4 worker processes each hold the models: en+de measured 2.98 GiB, so 3g is too tight.
+    mem_limit: 5g
     healthcheck:
       test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/languages')\" || exit 1"]
       interval: 30s

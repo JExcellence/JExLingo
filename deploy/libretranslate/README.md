@@ -1,6 +1,6 @@
 # LibreTranslate for JExLingo (Debian)
 
-> **Status:** ready to run, latency not yet measured. **Last verified:** 2026-10-03.
+> **Status:** running on the owner host, measured. **Last verified:** 2026-10-04.
 
 JExLingo talks to a LibreTranslate instance over HTTP. LibreTranslate runs Argos Translate models locally; after
 the first model download it needs no internet connection and sends chat text nowhere else.
@@ -17,7 +17,17 @@ the first model download it needs no internet connection and sends chat text now
 | Java | OpenJDK 25.0.3 |
 | Minecraft | same host, port 25565; port 5000 free |
 
-Fits easily: en+de needs an estimated 1-2.5 GB **[VERIFY with `bench.sh`]**. The container is capped at 3 GB.
+Measured 2026-10-04 (LibreTranslate 1.9.6, en+de, 4 workers, 50 chat lines):
+
+| Value | Result |
+|---|---|
+| p50 | 145 ms |
+| p95 | 217 ms |
+| max | 947 ms (first request, models loading) |
+| memory | 2.98 GiB |
+
+The memory hit the old 3 GB cap, so the container now gets 5 GB. `chat.inline-wait-ms: 400` covers p95 with room
+to spare; no config change needed.
 
 ## Start
 

@@ -166,6 +166,17 @@ public final class LingoPanel {
     }
 
     /**
+     * Adds a {@code Label | value} row from finished components, for rows that carry their own hover or click.
+     *
+     * @param label the translated label
+     * @param value the translated value
+     * @return this panel
+     */
+    public @NotNull LingoPanel row(@NotNull Component label, @NotNull Component value) {
+        return add(Kind.ROW, label, value);
+    }
+
+    /**
      * Adds a free left-aligned body line, such as one list entry.
      *
      * @param line the line

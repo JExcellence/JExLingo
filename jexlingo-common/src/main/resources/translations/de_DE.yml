@@ -74,10 +74,23 @@ lingo:
     failed: '<#F87171>[X]</#F87171> <#F1F5F9>Löschen fehlgeschlagen. Details stehen im Server-Log.</#F1F5F9>'
   onboarding:
     message: '<#F1F5F9>Der Chat wird für dich übersetzt nach</#F1F5F9> <#A78BFA>{language}</#A78BFA><#F1F5F9>. Fahre über eine markierte Zeile, um das Original zu sehen.</#F1F5F9> <#94A3B8>Einstellungen: /lingo</#94A3B8>'
+  chat-panel-v1:
+    help:
+      header: '<gradient:#5EEAD4:#A78BFA><bold>Übersetzungsbefehle</bold></gradient>'
+      context: '<#94A3B8>Klicke eine Zeile an, um sie zu nutzen</#94A3B8>'
+      command: '<#F1F5F9>{command}</#F1F5F9>'
+      value: '<#94A3B8>{description}</#94A3B8>'
+      value-with-args: '<#C4B5FD>{args}</#C4B5FD> <#94A3B8>{description}</#94A3B8>'
+    test:
+      header: '<gradient:#5EEAD4:#A78BFA><bold>Testübersetzung</bold></gradient>'
+      context: '<#C4B5FD>{from} » {to}</#C4B5FD>'
+      value-time: '{millis} ms'
+      label:
+        input: 'Eingabe'
+        output: 'Übersetzung'
+        origin: 'Quelle'
+        time: 'Dauer'
   help:
-    banner: '<gradient:#5EEAD4:#A78BFA>Übersetzungsbefehle</gradient> <dark_gray>|</dark_gray> <#94A3B8>Klicke eine Zeile an, um sie zu nutzen</#94A3B8>'
-    entry: '<#A78BFA>▸</#A78BFA> <#F1F5F9>{command}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>{description}</#94A3B8>'
-    entry-with-args: '<#A78BFA>▸</#A78BFA> <#F1F5F9>{command}</#F1F5F9> <#C4B5FD>{args}</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{description}</#94A3B8>'
     hover-base: '<#F1F5F9>{full}</#F1F5F9><newline><#94A3B8>{description}</#94A3B8>'
     hover-action-run: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Klicken zum Ausführen</#F1F5F9>'
     hover-action-suggest: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Klicken zum Eintragen</#F1F5F9>'
@@ -213,8 +226,6 @@ lingo:
       entry_force: '<#F1F5F9>{term}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>{mode}</#94A3B8> <dark_gray>»</dark_gray> <#A78BFA>{replacement}</#A78BFA>'
       empty: '<#94A3B8>Noch keine Begriffe.</#94A3B8>'
       footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Neuer Begriff mit</#94A3B8> <#F1F5F9>/lingo glossary add keep OneBlock</#F1F5F9>'
-  test:
-    result: '<#C4B5FD>{from} » {to}</#C4B5FD> <dark_gray>|</dark_gray> <#94A3B8>{origin}, {millis} ms</#94A3B8><newline><#F1F5F9>{text}</#F1F5F9>'
   export:
     done: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{count}</#A78BFA> <#F1F5F9>angenommene Übersetzungen exportiert nach</#F1F5F9> <#A78BFA>exports/{file}</#A78BFA><#F1F5F9>.</#F1F5F9>'
     failed: '<#F87171>[X]</#F87171> <#F1F5F9>Der Export ist fehlgeschlagen. Details stehen im Server-Log.</#F1F5F9>'

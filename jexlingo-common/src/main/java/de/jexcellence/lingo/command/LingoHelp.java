@@ -1,5 +1,6 @@
 package de.jexcellence.lingo.command;
 
+import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -13,9 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * {@code /lingo help} in the suite help style (as JExVote's help): a banner, one line per player command with its
- * arguments and description, a hover with the full command and a click that runs it or puts it into the chat, and
- * the {@code !} tip at the end. Every text comes from {@code lingo.help.*}.
+ * {@code /lingo help} as a suite chat panel: centred header and context, one {@code command | description} row per
+ * player command with the label column aligned by pixel width, a hover with the full command and a click that runs
+ * it or puts it into the chat, and the {@code !} tip as footer. Texts come from {@code lingo.chat-panel-v1.help.*}
+ * and {@code lingo.help.*}.
  *
  * @author JExcellence
  * @since 0.4.2
@@ -23,6 +25,7 @@ import java.util.Map;
 public final class LingoHelp {
 
     private static final String KEY = "lingo.help.";
+    private static final String PANEL = "lingo.chat-panel-v1.help.";
     private static final String ROOT = "/lingo";
     private static final String PARAM_COMMAND = "command";
     private static final String PARAM_DESCRIPTION = "description";
@@ -50,31 +53,41 @@ public final class LingoHelp {
      * @param sender the receiver
      */
     public static void send(@NotNull CommandSender sender) {
-        Player viewer = sender instanceof Player player ? player : null;
-        SafeText.msg(KEY + "banner").send(sender);
+        LingoPanel panel = LingoPanel.of(sender);
+        Player viewer = panel.viewer();
+        panel.header(PANEL + "header")
+                .context(SafeText.msg(PANEL + "context").component(viewer))
+                .gap();
         for (Entry entry : ENTRIES) {
-            sender.sendMessage(line(entry, viewer));
+            String description = SafeText.msg(KEY + "desc." + entry.id()).plain(viewer);
+            HoverEvent<Component> hover = HoverEvent.showText(hover(entry, description, viewer));
+            ClickEvent click = entry.action() == Action.RUN
+                    ? ClickEvent.runCommand(entry.command())
+                    : ClickEvent.suggestCommand(entry.command() + " ");
+            Component label = SafeText.msg(PANEL + "command").with(PARAM_COMMAND, entry.command()).component(viewer);
+            panel.row(label.hoverEvent(hover).clickEvent(click),
+                    value(entry, description, viewer).hoverEvent(hover).clickEvent(click));
         }
-        SafeText.msg(KEY + "footer").send(sender);
+        panel.footer(KEY + "footer").send(sender);
     }
 
-    private static @NotNull Component line(@NotNull Entry entry, @Nullable Player viewer) {
-        String description = SafeText.msg(KEY + "desc." + entry.id()).plain(viewer);
-        Component line = entry.args().isEmpty()
-                ? SafeText.msg(KEY + "entry").with(PARAM_COMMAND, entry.command())
-                        .with(PARAM_DESCRIPTION, description).component(viewer)
-                : SafeText.component(SafeText.msg(KEY + "entry-with-args").with(PARAM_COMMAND, entry.command())
-                        .with(PARAM_DESCRIPTION, description), viewer, Map.of("args", entry.args()));
+    private static @NotNull Component value(@NotNull Entry entry, @NotNull String description,
+                                            @Nullable Player viewer) {
+        if (entry.args().isEmpty()) {
+            return SafeText.msg(PANEL + "value").with(PARAM_DESCRIPTION, description).component(viewer);
+        }
+        return SafeText.component(SafeText.msg(PANEL + "value-with-args").with(PARAM_DESCRIPTION, description),
+                viewer, Map.of("args", entry.args()));
+    }
+
+    private static @NotNull Component hover(@NotNull Entry entry, @NotNull String description,
+                                            @Nullable Player viewer) {
         String full = entry.args().isEmpty() ? entry.command() : entry.command() + " " + entry.args();
-        Component hover = SafeText.component(SafeText.msg(KEY + "hover-base").with(PARAM_DESCRIPTION, description),
+        String actionKey = entry.action() == Action.RUN ? "hover-action-run" : "hover-action-suggest";
+        return SafeText.component(SafeText.msg(KEY + "hover-base").with(PARAM_DESCRIPTION, description),
                         viewer, Map.of("full", full))
                 .append(Component.newline())
                 .append(Component.newline())
-                .append(SafeText.msg(KEY + (entry.action() == Action.RUN ? "hover-action-run"
-                        : "hover-action-suggest")).component(viewer));
-        ClickEvent click = entry.action() == Action.RUN
-                ? ClickEvent.runCommand(entry.command())
-                : ClickEvent.suggestCommand(entry.command() + " ");
-        return line.hoverEvent(HoverEvent.showText(hover)).clickEvent(click);
+                .append(SafeText.msg(KEY + actionKey).component(viewer));
     }
 }

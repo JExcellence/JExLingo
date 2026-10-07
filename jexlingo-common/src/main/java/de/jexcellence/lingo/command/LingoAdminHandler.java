@@ -5,6 +5,7 @@ import com.raindropcentral.commands.v2.CommandHandler;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.api.TranslationContext;
 import de.jexcellence.lingo.api.TranslationRequest;
+import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.bedrock.LingoBedrockForms;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.glossary.GlossaryTerm;
@@ -12,10 +13,12 @@ import de.jexcellence.lingo.learning.PhraseService;
 import de.jexcellence.lingo.learning.TrainingExportService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
+import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
 import de.jexcellence.lingo.view.GlossaryView;
 import de.jexcellence.lingo.view.SuggestionReviewView;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +38,7 @@ public final class LingoAdminHandler {
 
     private static final String ROOT = "lingo.";
     private static final String KEY = "lingo.";
+    private static final String TEST_PANEL = "lingo.chat-panel-v1.test.";
     private static final String ID = "id";
     private static final String TERM = "term";
     private static final String TEXT = "text";
@@ -244,14 +248,28 @@ public final class LingoAdminHandler {
         LanguageCode to = ctx.require("to", LanguageCode.class);
         String text = ctx.require(TEXT, String.class);
         TranslationRequest request = new TranslationRequest(text, from, to, TranslationContext.API);
-        services.pipeline().translate(request, from, TranslateOptions.DEFAULT).thenAccept(result -> replies.sendUser(
-                ctx.sender(),
-                SafeText.msg(KEY + "test.result")
-                        .with("from", from.upper())
-                        .with("to", to.upper())
-                        .with("origin", result.origin().name().toLowerCase(Locale.ROOT))
-                        .with("millis", result.latencyMillis()),
-                Map.of(TEXT, result.text())));
+        services.pipeline().translate(request, from, TranslateOptions.DEFAULT).thenAccept(result -> replies.run(
+                ctx.sender(), () -> sendTestPanel(ctx.sender(), text, result)));
+    }
+
+    private static void sendTestPanel(@NotNull CommandSender sender, @NotNull String input,
+                                      @NotNull TranslationResult result) {
+        LingoPanel panel = LingoPanel.of(sender);
+        Player viewer = panel.viewer();
+        String origin = SafeText.msg(KEY + "origin." + result.origin().name().toLowerCase(Locale.ROOT)).plain(viewer);
+        String time = SafeText.msg(TEST_PANEL + "value-time").with("millis", result.latencyMillis()).plain(viewer);
+        panel.header(TEST_PANEL + "header")
+                .context(SafeText.msg(TEST_PANEL + "context")
+                        .with("from", result.source().upper())
+                        .with("to", result.target().upper())
+                        .component(viewer))
+                .gap()
+                .row(TEST_PANEL + "label.input", input, LingoPanel.Tone.MUTED)
+                .row(TEST_PANEL + "label.output", result.text(), LingoPanel.Tone.PLAIN)
+                .gap()
+                .row(TEST_PANEL + "label.origin", origin, LingoPanel.Tone.ACCENT)
+                .row(TEST_PANEL + "label.time", time, LingoPanel.Tone.MUTED)
+                .send(sender);
     }
 
     private void onExport(@NotNull CommandContext ctx) {

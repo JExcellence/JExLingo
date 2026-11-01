@@ -2,7 +2,7 @@
 
 > **Status:** 0.4.0 built (phases 1-8 plus sections 20-22), phase 0 benchmark and in-game test open. **Created:** 2026-10-03.
 > **Last verified:** 2026-10-03. **Owner:** JExcellence.
-> **Related:** [../../CLAUDE.md](../../CLAUDE.md), [../../docs/AGENT_BRIEF.md](../../docs/AGENT_BRIEF.md),
+> **Related:** [../../docs/CODE_STANDARDS.md](../../docs/CODE_STANDARDS.md),
 > [../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md](../../docs/JEXCELLENCE_FRAMEWORK_USAGE.md),
 > [../../ADDING_A_PLUGIN.md](../../ADDING_A_PLUGIN.md). Reference plugin for layout and wiring: JExVote.
 
@@ -35,7 +35,7 @@ Markers used in this document:
 
 ---
 
-## 2. Changes against the original prompt
+## 2. Changes against the original brief
 
 | Original idea | Problem | JExLingo approach |
 |---|---|---|
@@ -502,9 +502,9 @@ end of the phase.
 
 ## 17. Git rules for this repo
 
-- Author and committer: `JExcellence <justin.eiletz@outlook.com>`. No `Co-Authored-By` trailer, no generated-by
+- Author and committer: `JExcellence <justin.eiletz@outlook.com>`. No trailer lines, no generated-by
   lines in commits, PR descriptions or release notes.
-- Optional `commit-msg` hook in the repo that removes `Co-Authored-By` lines.
+- Optional `commit-msg` hook in the repo that removes trailer lines.
 - Commits inside the JExLingo submodule; the parent repo only gets the submodule pointer bump.
 - Conventional commits (`feat(lingo): ...`, `fix(lingo): ...`) for release-please.
 

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "de.jexcellence.lingo"
-version = "0.4.2"
+version = libs.versions.jexlingo.get()
 description = "JExLingo Common - translation pipeline, chat, learning, persistence, commands and views"
 
 dependenciesYml {

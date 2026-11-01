@@ -5,14 +5,16 @@ plugins {
 }
 
 group = "de.jexcellence.lingo"
-version = "0.4.2"
+version = libs.versions.jexlingo.get()
 description = "JExLingo - live chat translation on a self-hosted LibreTranslate instance"
 
 ext["vendor"] = "JExcellence"
 
+val moduleVersion = version
+
 subprojects {
     group = rootProject.group
-    version = rootProject.version
+    version = moduleVersion
 }
 
 tasks.register("buildAll") {

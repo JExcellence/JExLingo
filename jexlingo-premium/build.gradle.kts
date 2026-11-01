@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "de.jexcellence.lingo"
-version = "0.4.2"
+version = libs.versions.jexlingo.get()
 
 dependenciesYml {
     usePaperDependencies()

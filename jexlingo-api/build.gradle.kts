@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "de.jexcellence.lingo"
-version = "0.4.2"
+version = libs.versions.jexlingo.get()
 description = "JExLingo API - translation service, provider SPI and events for other plugins"
 
 dependencies {

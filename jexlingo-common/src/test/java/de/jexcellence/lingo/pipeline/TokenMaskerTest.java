@@ -23,11 +23,40 @@ class TokenMaskerTest {
 
     @Test
     void protectsPlayerNamesAndKeepTermsIgnoringCase() {
-        TokenMasker.MaskedText masked = TokenMasker.mask("notch hat eine oneblock Insel",
+        TokenMasker.MaskedText masked = TokenMasker.mask("NOTCH hat eine oneblock Insel",
                 MaskRules.keep(List.of("OneBlock")), List.of("Notch"));
 
         assertEquals("{0} hat eine {1} Insel", masked.text());
-        assertEquals(List.of("notch", "oneblock"), masked.restores());
+        assertEquals(List.of("NOTCH", "oneblock"), masked.restores());
+    }
+
+    @Test
+    void namesThatAreOrdinaryWordsStayTranslatableInLowerCase() {
+        TokenMasker.MaskedText masked = TokenMasker.mask("can someone help me at the base, Base?",
+                MaskRules.EMPTY, List.of("Help", "Base"));
+
+        assertEquals("can someone help me at the base, {0}?", masked.text());
+    }
+
+    @Test
+    void typicalUserNamesAreProtectedInAnyCase() {
+        TokenMasker.MaskedText masked = TokenMasker.mask("ask steve_42 or darkknight",
+                MaskRules.EMPTY, List.of("Steve_42", "DarkKnight"));
+
+        assertEquals("ask {0} or {1}", masked.text());
+        assertTrue(TokenMasker.isPlainWordName("Max"));
+        assertFalse(TokenMasker.isPlainWordName("DarkKnight"));
+        assertFalse(TokenMasker.isPlainWordName("Steve_42"));
+    }
+
+    @Test
+    void segmentsSplitTextAroundTokens() {
+        List<TokenMasker.Segment> parts = TokenMasker.segments("hi {0}, wie gehts {1}!");
+
+        assertEquals(List.of("hi ", "{0}", ", wie gehts ", "{1}", "!"),
+                parts.stream().map(TokenMasker.Segment::text).toList());
+        assertEquals(List.of(true, false, true, false, false),
+                parts.stream().map(TokenMasker.Segment::translatable).toList());
     }
 
     @Test

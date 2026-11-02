@@ -61,6 +61,7 @@ public final class SuggestionService {
 
     private final RecentMessageBuffer recent;
     private final TranslationMemoryService memory;
+    private final @Nullable PhraseService phrases;
     private final PlayerSettingsService settings;
     private final LanguageResolver resolver;
     private final AtomicReference<LearningSettings> limits;
@@ -71,15 +72,17 @@ public final class SuggestionService {
      *
      * @param recent   recent chat messages
      * @param memory   the translation memory
+     * @param phrases  pinned phrases; a suggestion counts against the pin of its line
      * @param settings player settings
      * @param resolver language resolver
      * @param limits   suggestion limits
      */
     public SuggestionService(@NotNull RecentMessageBuffer recent, @NotNull TranslationMemoryService memory,
-                             @NotNull PlayerSettingsService settings, @NotNull LanguageResolver resolver,
-                             @NotNull LearningSettings limits) {
+                             @Nullable PhraseService phrases, @NotNull PlayerSettingsService settings,
+                             @NotNull LanguageResolver resolver, @NotNull LearningSettings limits) {
         this.recent = recent;
         this.memory = memory;
+        this.phrases = phrases;
         this.settings = settings;
         this.resolver = resolver;
         this.limits = new AtomicReference<>(limits);
@@ -119,6 +122,9 @@ public final class SuggestionService {
         LanguagePair pair = new LanguagePair(message.source(), target);
         UUID submitter = player.getUniqueId();
         int votesNeeded = limits.get().autoApproveVotes();
+        if (phrases != null) {
+            phrases.flag(pair, TextNormalizer.key(message.original()), submitter);
+        }
         return memory.submit(pair, message.original(), clean, submitter).thenCompose(entry -> {
             Bukkit.getPluginManager().callEvent(new TranslationSuggestedEvent(!Bukkit.isPrimaryThread(), submitter,
                     entry.sourceText(), entry.targetText(), pair.source(), pair.target()));

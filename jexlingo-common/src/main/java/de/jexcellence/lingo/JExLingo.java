@@ -151,6 +151,10 @@ public final class JExLingo {
             tasks.add(scheduler.runRepeatingAsync(core.memory()::purgeRejected, PURGE_PERIOD_TICKS,
                     PURGE_PERIOD_TICKS));
         }
+        if (core.phrases() != null) {
+            tasks.add(scheduler.runRepeatingAsync(core.phrases()::purgeExpired, PURGE_PERIOD_TICKS,
+                    PURGE_PERIOD_TICKS));
+        }
     }
 
     private void shutdownWorker() {

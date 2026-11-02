@@ -13,6 +13,9 @@ import java.time.Duration;
  * @param promoteWindow      counting window for phrase promotion
  * @param promoteMaxLength   longest phrase that can be pinned
  * @param autoApproveVotes   distinct players suggesting the same text that approve it without staff, 0 = off
+ * @param unpinAfter         distinct players suggesting a change to a pinned phrase that unpin it, 0 = off
+ * @param pinLifetime        age after which a pinned phrase is dropped and checked again, zero = never
+ * @param termProposalVotes  approved corrections keeping the same word that propose it as a glossary term
  * @author JExcellence
  * @since 0.1.0
  */
@@ -22,6 +25,9 @@ public record LearningSettings(
         int promoteAfter,
         @NotNull Duration promoteWindow,
         int promoteMaxLength,
-        int autoApproveVotes
+        int autoApproveVotes,
+        int unpinAfter,
+        @NotNull Duration pinLifetime,
+        int termProposalVotes
 ) {
 }

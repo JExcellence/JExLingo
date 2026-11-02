@@ -45,9 +45,11 @@ public record LingoLearning(@Nullable TranslationMemoryService memory, @Nullable
             return new LingoLearning(null, null);
         }
         var repositories = hibernate.repositories();
-        return new LingoLearning(
-                new TranslationMemoryService(repositories.get(TranslationMemoryRepository.class), worker, logger),
-                new PhraseService(repositories.get(PinnedPhraseRepository.class), settings, logger));
+        TranslationMemoryService memory = new TranslationMemoryService(
+                repositories.get(TranslationMemoryRepository.class), worker, logger);
+        PhraseService phrases = new PhraseService(repositories.get(PinnedPhraseRepository.class), settings, logger);
+        memory.onApproved(entry -> phrases.forget(entry.pair(), entry.sourceKey()));
+        return new LingoLearning(memory, phrases);
     }
 
     /**

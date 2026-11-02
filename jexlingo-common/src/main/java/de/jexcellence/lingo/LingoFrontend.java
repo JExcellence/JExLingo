@@ -88,7 +88,8 @@ public final class LingoFrontend {
         Bukkit.getOnlinePlayers().forEach(player -> core.settings().load(player.getUniqueId()));
 
         if (core.memory() != null) {
-            suggestions = new SuggestionService(recent, core.memory(), core.settings(), core.resolver(),
+            suggestions = new SuggestionService(recent, core.memory(), core.phrases(), core.settings(),
+                    core.resolver(),
                     config.get().learning());
         }
         LingoBedrockForms forms = null;

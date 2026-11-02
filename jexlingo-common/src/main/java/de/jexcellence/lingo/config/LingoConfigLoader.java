@@ -157,7 +157,10 @@ public final class LingoConfigLoader {
                 reader.intIn(LEARNING + "promote-after", 10, 2, 10_000),
                 Duration.ofHours(reader.intIn(LEARNING + "promote-window-hours", 24, 1, 720)),
                 reader.intIn(LEARNING + "promote-max-length", 40, 1, 256),
-                reader.intIn(LEARNING + "auto-approve-votes", 3, 0, 100));
+                reader.intIn(LEARNING + "auto-approve-votes", 3, 0, 100),
+                reader.intIn(LEARNING + "unpin-after-suggestions", 2, 0, 100),
+                Duration.ofDays(reader.intIn(LEARNING + "pin-lifetime-days", 30, 0, 3650)),
+                reader.intIn(LEARNING + "term-proposal-votes", 3, 2, 100));
     }
 
     private static @NotNull Optional<URI> parseUrl(@NotNull String raw) {

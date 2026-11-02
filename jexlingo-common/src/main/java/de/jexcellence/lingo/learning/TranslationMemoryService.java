@@ -16,8 +16,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,8 +40,18 @@ public final class TranslationMemoryService implements TranslationLookup {
     private final Logger logger;
     private final Map<String, Approved> approved = new ConcurrentHashMap<>();
     private final Map<Long, LongAdder> pendingHits = new ConcurrentHashMap<>();
+    private final List<Consumer<MemoryEntry>> approvalListeners = new CopyOnWriteArrayList<>();
 
     private record Approved(long id, @NotNull String targetText) {
+    }
+
+    /**
+     * Registers a listener for approved corrections, for example to drop a pinned phrase of the same line.
+     *
+     * @param listener receives each approved entry
+     */
+    public void onApproved(@NotNull Consumer<MemoryEntry> listener) {
+        approvalListeners.add(listener);
     }
 
     /**
@@ -162,7 +174,10 @@ public final class TranslationMemoryService implements TranslationLookup {
      */
     public @NotNull CompletableFuture<Optional<MemoryEntry>> approve(long id, @Nullable String editedText) {
         return review(id, MemoryStatus.APPROVED, editedText).thenApply(entry -> {
-            entry.ifPresent(this::remember);
+            entry.ifPresent(approvedEntry -> {
+                remember(approvedEntry);
+                approvalListeners.forEach(listener -> listener.accept(approvedEntry));
+            });
             return entry;
         });
     }

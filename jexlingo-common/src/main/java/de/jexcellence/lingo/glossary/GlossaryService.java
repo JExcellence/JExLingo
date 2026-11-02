@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -50,7 +51,7 @@ public final class GlossaryService {
     private final Logger logger;
     private final AtomicReference<List<GlossaryTerm>> terms = new AtomicReference<>(List.of());
     private final Map<LanguagePair, MaskRules> rules = new ConcurrentHashMap<>();
-    private final List<Runnable> changeListeners = new ArrayList<>();
+    private final List<Runnable> changeListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Creates the service.
@@ -69,7 +70,8 @@ public final class GlossaryService {
     }
 
     /**
-     * Registers a callback for glossary changes, for example to clear the translation cache.
+     * Registers a callback for glossary edits (add and remove), for example to clear the translation cache. Loading
+     * the glossary at start does not call it.
      *
      * @param listener the callback
      */
@@ -91,7 +93,7 @@ public final class GlossaryService {
                 final int count = allowed.size();
                 logger.log(Level.INFO, () -> "Seeded the glossary with " + count + " default terms.");
             }
-            replace(repository.findAll().stream().map(GlossaryTermEntity::toTerm).toList());
+            install(repository.findAll().stream().map(GlossaryTermEntity::toTerm).toList());
         }, worker).exceptionally(error -> {
             logger.log(Level.WARNING, error, () -> "Could not load the glossary");
             return null;
@@ -199,10 +201,15 @@ public final class GlossaryService {
         return max <= 0 || seed.size() <= max ? seed : seed.subList(0, max);
     }
 
+    /** Applies an edit and tells the listeners; loading at start uses {@link #install(List)} and stays quiet. */
     private void replace(@NotNull List<GlossaryTerm> next) {
+        install(next);
+        changeListeners.forEach(Runnable::run);
+    }
+
+    private void install(@NotNull List<GlossaryTerm> next) {
         terms.set(next.stream().sorted(Comparator.comparing(term -> term.term().toLowerCase(Locale.ROOT))).toList());
         rules.clear();
-        changeListeners.forEach(Runnable::run);
     }
 
     private @NotNull MaskRules buildRules(@NotNull LanguagePair pair) {

@@ -59,6 +59,7 @@ public class PinnedPhraseEntity extends LongIdEntity {
                 getId() == null ? 0L : getId(),
                 new LanguagePair(LanguageCode.of(sourceLanguage), LanguageCode.of(targetLanguage)),
                 sourceKey,
-                targetText);
+                targetText,
+                getCreatedAt());
     }
 }

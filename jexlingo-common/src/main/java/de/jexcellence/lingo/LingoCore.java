@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -78,6 +79,15 @@ public final class LingoCore {
         this.pipeline = new TranslationPipeline(gateway, new TranslationCache(config.storage().cache()),
                 learning.layers(glossary, preparer), SkipRules.from(config.chat()));
         glossary.onChange(pipeline.cache()::clear);
+        if (learning.phrases() != null) {
+            PhraseService phraseService = learning.phrases();
+            glossary.onChange(() -> phraseService.clear().thenAccept(dropped -> {
+                if (dropped > 0) {
+                    logger.log(Level.INFO, () -> "Glossary changed: unpinned " + dropped
+                            + " phrases so they are translated with the new terms.");
+                }
+            }));
+        }
     }
 
     /**

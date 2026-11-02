@@ -1,7 +1,7 @@
 # JExLingo configuration
 # Defaults live in the plugin. A missing key uses its default, an out-of-range number is clamped and a warning
 # is logged. This file is never overwritten by an update; new options are documented in docs/CONFIG.md.
-config-version: 3
+config-version: 4
 
 provider:
   # Translation backend. Built in: libretranslate. Premium can select providers other plugins register.
@@ -76,3 +76,9 @@ learning:
   promote-max-length: 40
   # A correction suggested by this many different players is approved without staff. 0 turns it off.
   auto-approve-votes: 3
+  # A pinned phrase is unpinned when this many different players suggest a change to it. 0 turns it off.
+  unpin-after-suggestions: 2
+  # Pinned phrases older than this are dropped and translated again, so model updates reach them. 0 keeps them.
+  pin-lifetime-days: 30
+  # A word kept as written in this many approved corrections is proposed as a glossary term (/lingo terms).
+  term-proposal-votes: 3

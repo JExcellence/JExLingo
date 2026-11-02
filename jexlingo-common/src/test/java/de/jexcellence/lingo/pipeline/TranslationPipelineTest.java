@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -136,6 +137,49 @@ class TranslationPipelineTest {
         assertEquals(1L, pipeline.stats().snapshot().get(TranslationOrigin.SAME_LANGUAGE));
     }
 
+    @Test
+    void shoutedAndNormalLinesDoNotShareACacheEntry() {
+        TranslationPipeline pipeline = pipeline(PipelineLayers.glossaryOnly(pair -> MaskRules.EMPTY));
+
+        TranslationResult loud = pipeline.translate(chat("HILF MIR BITTE", EN), DE, TranslateOptions.DEFAULT).join();
+        TranslationResult quiet = pipeline.translate(chat("hilf mir bitte", EN), DE, TranslateOptions.DEFAULT).join();
+        TranslationResult loudAgain = pipeline.translate(chat("HILF MIR BITTE", EN), DE, TranslateOptions.DEFAULT)
+                .join();
+
+        assertEquals("[EN] HILF MIR BITTE", loud.text());
+        assertEquals("[en] hilf mir bitte", quiet.text());
+        assertEquals(TranslationOrigin.PROVIDER, quiet.origin());
+        assertEquals(TranslationOrigin.CACHE, loudAgain.origin());
+        assertEquals("[EN] HILF MIR BITTE", loudAgain.text());
+    }
+
+    @Test
+    void shoutedLinesDoNotTeachPhrases() {
+        List<String> learned = new ArrayList<>();
+        TranslationPipeline pipeline = pipeline(new PipelineLayers(TranslationLookup.NONE, TranslationLookup.NONE,
+                pair -> MaskRules.EMPTY, (pair, key, translation) -> learned.add(translation),
+                ChatTextPreparer.withoutSlang()));
+
+        pipeline.translate(chat("HALLO ZUSAMMEN", EN), DE, TranslateOptions.DEFAULT).join();
+        pipeline.translate(chat("hallo zusammen", EN), DE, TranslateOptions.DEFAULT).join();
+
+        assertEquals(List.of("[en] hallo zusammen"), learned);
+    }
+
+    @Test
+    void brokenTokensAreRecoveredPieceByPiece() {
+        provider.dropTokens = true;
+        TranslationPipeline pipeline = pipeline(PipelineLayers.glossaryOnly(pair -> MaskRules.EMPTY));
+
+        TranslationResult result = pipeline.translate(chat("hallo @Alex wie gehts", EN), DE,
+                TranslateOptions.DEFAULT).join();
+
+        assertEquals(TranslationOrigin.PROVIDER, result.origin());
+        assertEquals("[en] hallo @Alex [en] wie gehts", result.text());
+        assertEquals(1L, pipeline.stats().tokenLosses());
+        assertEquals(1L, pipeline.stats().recoveries());
+    }
+
     private TranslationPipeline pipeline(PipelineLayers layers) {
         ProviderGateway gateway = new ProviderGateway(provider, new CircuitBreaker(5, Duration.ofSeconds(30)), 4,
                 Duration.ofSeconds(2));
@@ -151,6 +195,7 @@ class TranslationPipelineTest {
 
         private final AtomicInteger calls = new AtomicInteger();
         private volatile boolean fail;
+        private volatile boolean dropTokens;
         private volatile String lastText;
 
         @Override
@@ -166,7 +211,8 @@ class TranslationPipelineTest {
             if (fail) {
                 return CompletableFuture.failedFuture(new IllegalStateException("down"));
             }
-            return CompletableFuture.completedFuture("[" + target.code() + "] " + text);
+            String answer = dropTokens ? text.replaceAll("\\{\\d+}", "") : text;
+            return CompletableFuture.completedFuture("[" + target.code() + "] " + answer);
         }
 
         @Override

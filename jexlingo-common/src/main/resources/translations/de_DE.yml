@@ -249,6 +249,7 @@ lingo:
       inflight: 'Laufende Übersetzungen'
       slang: 'Chat-Abkürzungen'
       origins: 'Ergebnisse nach Quelle'
+      tokens: 'Kaputte Platzhalter / stückweise gerettet'
       learning: 'Angenommen / feste Phrasen'
     value:
       reachable: 'online'

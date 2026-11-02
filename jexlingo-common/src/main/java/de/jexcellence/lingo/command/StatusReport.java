@@ -106,7 +106,9 @@ public final class StatusReport {
                         + Math.round(pipeline.cache().hitRate() * 100.0) + "%)")
                 .row(LABEL + "inflight", Integer.toString(pipeline.inFlight()))
                 .row(LABEL + "slang", Integer.toString(pipeline.preparer().slang().size()))
-                .row(LABEL + "origins", StatsLines.origins(viewer, pipeline.stats().snapshot(), numbers));
+                .row(LABEL + "origins", StatsLines.origins(viewer, pipeline.stats().snapshot(), numbers))
+                .row(LABEL + "tokens", numbers.format(pipeline.stats().tokenLosses()) + SEPARATOR
+                        + numbers.format(pipeline.stats().recoveries()));
         if (memory != null && phrases != null) {
             panel.row(LABEL + "learning", memory.approvedCount() + SEPARATOR + phrases.pinnedCount());
         }

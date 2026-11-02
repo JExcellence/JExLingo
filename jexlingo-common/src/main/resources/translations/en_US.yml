@@ -249,6 +249,7 @@ lingo:
       inflight: 'Translations running'
       slang: 'Slang abbreviations'
       origins: 'Results by source'
+      tokens: 'Broken tokens / saved piece by piece'
       learning: 'Approved / pinned phrases'
     value:
       reachable: 'online'

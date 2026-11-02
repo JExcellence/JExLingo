@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.LongAdder;
 public final class PipelineStats {
 
     private final Map<TranslationOrigin, LongAdder> counts = new EnumMap<>(TranslationOrigin.class);
+    private final LongAdder tokenLosses = new LongAdder();
+    private final LongAdder recoveries = new LongAdder();
 
     /** Creates empty counters. */
     public PipelineStats() {
@@ -53,5 +55,33 @@ public final class PipelineStats {
      */
     public long total() {
         return counts.values().stream().mapToLong(LongAdder::sum).sum();
+    }
+
+    /** Counts a provider answer whose protected tokens came back broken. */
+    public void recordTokenLoss() {
+        tokenLosses.increment();
+    }
+
+    /** Counts a broken answer that was saved by translating the line piece by piece. */
+    public void recordRecovery() {
+        recoveries.increment();
+    }
+
+    /**
+     * Returns provider answers with broken tokens.
+     *
+     * @return provider answers with broken tokens
+     */
+    public long tokenLosses() {
+        return tokenLosses.sum();
+    }
+
+    /**
+     * Returns broken answers that were saved piece by piece.
+     *
+     * @return broken answers that were saved piece by piece
+     */
+    public long recoveries() {
+        return recoveries.sum();
     }
 }

@@ -8,11 +8,13 @@ import de.jexcellence.lingo.provider.ProviderGateway;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Turns one text into one target language. The layers run in a fixed order and the first hit wins:
@@ -21,10 +23,11 @@ import java.util.function.Consumer;
  *     <li>same language or skip rule: text unchanged</li>
  *     <li>translation memory (approved corrections)</li>
  *     <li>pinned phrases</li>
- *     <li>cache of earlier provider results</li>
  *     <li>glossary and masking; a text made only of protected parts never reaches the provider</li>
  *     <li>text preparation: letter spam, shouting and chat slang ({@link ChatTextPreparer})</li>
- *     <li>provider, shared by identical requests running at the same time</li>
+ *     <li>cache of earlier provider results; shouted lines have their own entries</li>
+ *     <li>provider, shared by identical requests running at the same time; when the provider breaks a token,
+ *     the text between the tokens is translated piece by piece</li>
  * </ol>
  *
  * The returned future never fails: any problem ends in {@link TranslationOrigin#FALLBACK} with the original text.
@@ -33,6 +36,9 @@ import java.util.function.Consumer;
  * @since 0.1.0
  */
 public final class TranslationPipeline {
+
+    private static final String SHOUTED = "\u0000shouted";
+    private static final int MAX_RECOVERY_PIECES = 4;
 
     private final ProviderGateway gateway;
     private final TranslationCache cache;
@@ -96,10 +102,17 @@ public final class TranslationPipeline {
         if (!masked.hasTranslatableText()) {
             return done(glossaryOnly(text, pair, masked, started));
         }
+        ChatTextPreparer.Prepared prepared = layers.preparer().prepare(masked.text(), pair.source());
+        String cacheKey = prepared.shouting() ? key + SHOUTED : key;
+        Optional<String> cached = cache.get(pair, cacheKey);
+        if (cached.isPresent()) {
+            remember(pair, key, cached.get(), prepared);
+            return done(result(cached.get(), text, pair, TranslationOrigin.CACHE, started));
+        }
         if (!options.providerAllowed()) {
             return done(TranslationResult.unchanged(text, source, request.target(), TranslationOrigin.FALLBACK));
         }
-        return fromProvider(text, pair, key, masked, started);
+        return fromProvider(new Job(text, pair, key, cacheKey, masked, prepared, started));
     }
 
     /**
@@ -163,15 +176,15 @@ public final class TranslationPipeline {
             return Optional.of(result(memory.get(), text, pair, TranslationOrigin.MEMORY, started));
         }
         Optional<String> phrase = layers.phrases().find(pair, key);
-        if (phrase.isPresent()) {
-            return Optional.of(result(phrase.get(), text, pair, TranslationOrigin.PHRASE, started));
+        return phrase.map(found -> result(found, text, pair, TranslationOrigin.PHRASE, started));
+    }
+
+    /** Only lines in normal case teach phrases, so a shouted answer is never pinned in capitals. */
+    private void remember(@NotNull LanguagePair pair, @NotNull String key, @NotNull String translation,
+                          @NotNull ChatTextPreparer.Prepared prepared) {
+        if (!prepared.shouting()) {
+            layers.listener().onResult(pair, key, translation);
         }
-        Optional<String> cached = cache.get(pair, key);
-        if (cached.isPresent()) {
-            layers.listener().onResult(pair, key, cached.get());
-            return Optional.of(result(cached.get(), text, pair, TranslationOrigin.CACHE, started));
-        }
-        return Optional.empty();
     }
 
     private @NotNull TranslationResult glossaryOnly(@NotNull String text, @NotNull LanguagePair pair,
@@ -181,26 +194,69 @@ public final class TranslationPipeline {
         return result(restored, text, pair, origin, started);
     }
 
-    private @NotNull CompletableFuture<TranslationResult> fromProvider(@NotNull String text,
-                                                                       @NotNull LanguagePair pair,
-                                                                       @NotNull String key,
-                                                                       @NotNull TokenMasker.MaskedText masked,
-                                                                       long started) {
-        ChatTextPreparer.Prepared prepared = layers.preparer().prepare(masked.text(), pair.source());
-        String flightKey = pair.key() + '\u0000' + prepared.text();
-        return inFlight.join(flightKey, () -> gateway.translate(prepared.text(), pair.source(), pair.target()))
-                .thenApply(translated -> {
-                    String finished = layers.preparer().finish(translated, prepared);
-                    Optional<String> restored = TokenMasker.unmask(finished, masked);
-                    if (restored.isEmpty() || restored.get().isBlank()) {
-                        return result(text, text, pair, TranslationOrigin.FALLBACK, started);
+    private @NotNull CompletableFuture<TranslationResult> fromProvider(@NotNull Job job) {
+        LanguagePair pair = job.pair();
+        String sent = job.prepared().text();
+        String flightKey = pair.key() + '\u0000' + sent;
+        return inFlight.join(flightKey, () -> gateway.translate(sent, pair.source(), pair.target()))
+                .thenCompose(translated -> {
+                    Optional<String> restored = restore(translated, job);
+                    if (restored.isPresent() || job.masked().isPlain()) {
+                        return CompletableFuture.completedFuture(restored);
                     }
-                    cache.put(pair, key, restored.get());
-                    layers.listener().onResult(pair, key, restored.get());
-                    return result(restored.get(), text, pair, TranslationOrigin.PROVIDER, started);
+                    stats.recordTokenLoss();
+                    return recover(job);
                 })
-                .exceptionally(error -> result(text, text, pair, TranslationOrigin.FALLBACK, started))
+                .thenApply(restored -> restored.map(text -> stored(job, text)).orElseGet(() -> fallback(job)))
+                .exceptionally(error -> fallback(job))
                 .thenApply(this::count);
+    }
+
+    private @NotNull Optional<String> restore(@NotNull String translated, @NotNull Job job) {
+        String finished = layers.preparer().finish(translated, job.prepared());
+        return TokenMasker.unmask(finished, job.masked()).filter(text -> !text.isBlank());
+    }
+
+    /**
+     * Second try after the translator broke a token: the text between the tokens is translated piece by piece,
+     * so every token stays exactly where it was. Lines with many pieces are left untranslated instead.
+     */
+    private @NotNull CompletableFuture<Optional<String>> recover(@NotNull Job job) {
+        List<TokenMasker.Segment> parts = TokenMasker.segments(job.prepared().text());
+        long translatable = parts.stream().filter(TokenMasker.Segment::translatable).count();
+        if (translatable == 0L || translatable > MAX_RECOVERY_PIECES) {
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+        List<CompletableFuture<String>> pieces = parts.stream()
+                .map(part -> part.translatable()
+                        ? translatePiece(part.text(), job.pair())
+                        : CompletableFuture.completedFuture(part.text()))
+                .toList();
+        return CompletableFuture.allOf(pieces.toArray(CompletableFuture[]::new)).thenApply(ignored -> {
+            String joined = pieces.stream().map(CompletableFuture::join).collect(Collectors.joining());
+            Optional<String> restored = restore(joined, job);
+            restored.ifPresent(text -> stats.recordRecovery());
+            return restored;
+        });
+    }
+
+    private @NotNull CompletableFuture<String> translatePiece(@NotNull String piece, @NotNull LanguagePair pair) {
+        String core = piece.strip();
+        int start = piece.indexOf(core);
+        String leading = piece.substring(0, start);
+        String trailing = piece.substring(start + core.length());
+        return gateway.translate(core, pair.source(), pair.target())
+                .thenApply(translated -> leading + translated.strip() + trailing);
+    }
+
+    private @NotNull TranslationResult stored(@NotNull Job job, @NotNull String translation) {
+        cache.put(job.pair(), job.cacheKey(), translation);
+        remember(job.pair(), job.key(), translation, job.prepared());
+        return result(translation, job.text(), job.pair(), TranslationOrigin.PROVIDER, job.started());
+    }
+
+    private static @NotNull TranslationResult fallback(@NotNull Job job) {
+        return result(job.text(), job.text(), job.pair(), TranslationOrigin.FALLBACK, job.started());
     }
 
     private @NotNull CompletableFuture<TranslationResult> done(@NotNull TranslationResult result) {
@@ -214,6 +270,22 @@ public final class TranslationPipeline {
             sink.accept(result);
         }
         return result;
+    }
+
+    /**
+     * One line on its way to the provider.
+     *
+     * @param text     the original line
+     * @param pair     the language pair
+     * @param key      the normalized line, for memory and phrases
+     * @param cacheKey the cache key; shouted lines have their own entry
+     * @param masked   the masked line
+     * @param prepared what goes to the provider
+     * @param started  start time in nanoseconds
+     */
+    private record Job(@NotNull String text, @NotNull LanguagePair pair, @NotNull String key,
+                       @NotNull String cacheKey, @NotNull TokenMasker.MaskedText masked,
+                       @NotNull ChatTextPreparer.Prepared prepared, long started) {
     }
 
     private static @NotNull TranslationResult result(@NotNull String text, @NotNull String original,

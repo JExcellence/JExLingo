@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+- Fix: a line written in capitals was cached and then shown in capitals to everyone who wrote the same line in
+  normal case. Shouted lines now have their own cache entry and never become pinned phrases.
+- Fix: online player names that are ordinary words (`Help`, `Base`) were masked in every message, so the
+  translator never saw those words. Such names are now only protected when written capitalised or in capitals;
+  names like `Steve_42` or `DarkKnight` stay protected in any case.
+- Fix: answers like `400 language not supported` or `403 invalid API key` opened the circuit breaker and paused
+  translation for every language. Only timeouts, connection errors, 5xx and 429 count now; a pair answered with
+  400 is skipped for ten minutes.
+- Fix: the local language guess counted `am` and `an` as English, so `bin am spawn` had no guess. Both are left
+  out now; more common German and English chat words were added.
+- When the translator breaks a protected token, the text between the tokens is translated piece by piece instead of
+  showing the original. `/lingo status` shows broken and saved lines.
+- Pinned phrases (Premium) are dropped when the glossary changes, when `learning.unpin-after-suggestions` players
+  suggest a change, when a correction for the same line is approved and after `learning.pin-lifetime-days`.
+- `/lingo terms` (Premium): words kept as written in `learning.term-proposal-votes` approved corrections are
+  proposed as glossary keep terms; a click fills in the command.
+- Masking patterns are compiled once per glossary and set of online names instead of once per line.
+- Loading the glossary at start no longer counts as a glossary change.
+- `config.yml` raised to config-version 4 with the three new `learning` options.
+
 ## 0.4.2 - 2026-10-04
 
 - Redesign of chat output, menus and item lore to the suite design rules: suite palette, `/lingo help` with hover

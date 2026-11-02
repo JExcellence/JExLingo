@@ -55,6 +55,9 @@ with their comment (backup `config.yml.bak-<time>`); your values are never chang
 | `learning.promote-window-hours` | 24 | 1-720 | Premium: counting window |
 | `learning.promote-max-length` | 40 | 1-256 | Premium: longest phrase that can be pinned |
 | `learning.auto-approve-votes` | 3 | 0-100 | Premium: different players suggesting the same text approve it; 0 = off |
+| `learning.unpin-after-suggestions` | 2 | 0-100 | Premium: different players suggesting a change to a pinned phrase unpin it; 0 = off |
+| `learning.pin-lifetime-days` | 30 | 0-3650 | Premium: pinned phrases older than this are dropped and translated again; 0 = keep |
+| `learning.term-proposal-votes` | 3 | 2-100 | Premium: approved corrections keeping the same word before `/lingo terms` proposes it |
 
 ## Other files
 

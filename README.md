@@ -1,6 +1,7 @@
 # JExLingo
 
-> **Status:** 0.4.0 built, not yet deployed or tested in game. **Last verified:** 2026-10-03.
+> **Status:** 0.4.2 plus the unreleased fixes in [CHANGELOG.md](CHANGELOG.md) built and unit tested, not yet
+> tested in game. **Last verified:** 2026-11-02.
 > **License:** proprietary, all rights reserved. See [LICENSE](LICENSE).
 > **Related:** [docs/PLAN.md](docs/PLAN.md), [docs/CONFIG.md](docs/CONFIG.md), [docs/PRIVACY.md](docs/PRIVACY.md),
 > [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md), [deploy/libretranslate](deploy/libretranslate/README.md).
@@ -20,13 +21,17 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 - **One provider call per target language**, shared by every viewer of that language; identical lines running at
   the same time share one call; results are cached in memory.
 - **Never blocks the server**: async HTTP, a cap on requests in flight, a circuit breaker and a hard timeout. On any
-  failure the original line is shown.
+  failure the original line is shown. Only real outages (timeouts, connection errors, 5xx, rate limits) pause the
+  provider; a language pair it rejects is skipped for ten minutes without touching the other pairs.
 - **Protected text**: URLs, `@mentions`, `[item]`-style chat tokens, `{placeholders}`, online player names and
-  glossary terms are masked before translation and restored after. A line whose tokens come back broken is shown
-  untranslated.
+  glossary terms are masked before translation and restored after. Names that are ordinary words (`Max`, `Help`)
+  are only protected when written capitalised or in capitals, so `can someone help me` stays translatable while a
+  player called `Help` is online. When the translator breaks a token, the text between the tokens is translated
+  piece by piece instead of giving up; `/lingo status` shows how often that happens.
 - **Better input for the translator**: chat slang is expanded per language (`idk` -> `I don't know`,
   `vllt` -> `vielleicht`, editable in `slang.yml`), letter spam is shortened and shouting is translated in
-  lower case and raised again, so `HILF MIR` becomes `HELP ME`.
+  lower case and raised again, so `HILF MIR` becomes `HELP ME`. Shouted and normal lines have separate cache
+  entries.
 - **Writing language**: players who chat in another language than their game client set `/lingo write de`;
   JExLingo also learns it from their first messages and offers it with one click.
 - **On-demand mode**: `/lingo incoming click` shows lines as written with a small `[T]` button that translates
@@ -37,8 +42,11 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 - **Bedrock**: every menu has a Cumulus form; Bedrock viewers get the original as a second line instead of hover.
 - **Learning (Premium)**: players click a translated line to suggest a better translation, staff approve it, and it
   answers that line from then on. When several different players suggest the same correction, it is approved
-  without staff (`learning.auto-approve-votes`). Frequent short phrases get their translation pinned. Approved pairs export as TSV
-  for offline model training.
+  without staff (`learning.auto-approve-votes`). Frequent short phrases get their translation pinned; a pin is
+  dropped when the glossary changes, when two players suggest a change to it, when a correction for it is approved
+  and after 30 days, so a wrong machine translation does not stay forever. Words players keep as written in
+  several corrections (`Spawn` instead of `Laichen`) are proposed as glossary terms in `/lingo terms`, one click to
+  add. Approved pairs export as TSV for offline model training.
 - **Statistics**: daily totals per language pair and source (no texts, no players) in a menu with provider
   health, sources, busiest pairs and learning numbers; `/lingo stats` in chat for the console. Today in Free, the
   last 7 and 30 days in Premium.
@@ -65,7 +73,7 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 ## Quick start
 
 1. Run LibreTranslate on the same machine: [deploy/libretranslate](deploy/libretranslate/README.md).
-2. Put `JExLingo-0.4.0-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
+2. Put `JExLingo-0.4.2-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
 3. Optional: `export JEXLINGO_API_KEY=<key>` for the server process.
 4. Start the server, then `/lingo status` shows whether the provider is reachable.
 
@@ -82,10 +90,22 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 | `/lingo stats [today\|week\|month]` | `jexlingo.admin.stats` | op |
 | `/lingo inspect <player>`, `set <lang\|write\|incoming\|outgoing\|original> <player> <value>` | `jexlingo.admin` | op |
 | `/lingo pause [minutes]`, `resume`, `ping`, `cache clear` | `jexlingo.admin` | op |
-| `/lingo review revoke <id>`, `phrases [list\|remove <id>]` | `jexlingo.review` | op (Premium) |
+| `/lingo review revoke <id>`, `phrases [list\|remove <id>]`, `terms` | `jexlingo.review` | op (Premium) |
 | `/lingo test <from> <to> <text>`, `status`, `export`, `reload`, `erase <player>` | `jexlingo.admin` | op |
 
 The tree lives in `plugins/JExLingo/commands/lingo.yml`; rename the command or change permissions there.
+
+## When a line stays untranslated
+
+The original line is shown whenever a translation is not safe to show. `/lingo status` tells you which case it is:
+
+| What you see in `/lingo status` | Cause | What helps |
+|---|---|---|
+| Circuit breaker open, failed requests rising | LibreTranslate is down or too slow | Check the container; raise `provider.request-timeout-ms` on slow hardware |
+| Refused requests rising | More lines at once than `provider.max-concurrent-requests`, or a rejected pair | Raise the limit; install the missing model shown under "Missing models" |
+| Broken tokens higher than saved | The translator damaged names or links and the piece-by-piece retry failed too | Add frequent words to the glossary; report the line |
+| Results by source: many "Already in the language" | The line was read as the reader's language | The writer sets `/lingo write <code>`, or turn on `detection.enabled` |
+| Nothing, but one player's lines never change | That player turned off `/lingo outgoing`, or writes faster than `chat.player-cooldown-ms` | `/lingo inspect <player>` |
 
 ## Placeholders
 

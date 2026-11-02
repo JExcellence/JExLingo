@@ -13,6 +13,12 @@ class LocalLanguageGuessTest {
 
     private static final LanguageCode DE = LanguageCode.of("de");
     private static final LanguageCode EN = LanguageCode.of("en");
+    private static final LanguageCode FR = LanguageCode.of("fr");
+    private static final LanguageCode ES = LanguageCode.of("es");
+    private static final LanguageCode IT = LanguageCode.of("it");
+    private static final LanguageCode NL = LanguageCode.of("nl");
+    private static final LanguageCode PT = LanguageCode.of("pt");
+    private static final LanguageCode PL = LanguageCode.of("pl");
     private static final LanguageSettings BOTH = new LanguageSettings(List.of(DE, EN), EN);
 
     @Test
@@ -58,5 +64,35 @@ class LocalLanguageGuessTest {
         LanguageSettings englishOnly = new LanguageSettings(List.of(EN), EN);
 
         assertEquals(Optional.empty(), LocalLanguageGuess.guess("das ist genial", englishOnly));
+    }
+
+    @Test
+    void recognisesTheOtherSupportedLanguages() {
+        LanguageSettings all = new LanguageSettings(List.of(DE, EN, FR, ES, IT, NL, PT, PL), EN);
+
+        assertEquals(Optional.of(FR), LocalLanguageGuess.guess("salut, quelqu'un veut venir avec moi", all));
+        assertEquals(Optional.of(ES), LocalLanguageGuess.guess("hola, alguien tiene hierro?", all));
+        assertEquals(Optional.of(IT), LocalLanguageGuess.guess("ciao, qualcuno ha del ferro?", all));
+        assertEquals(Optional.of(NL), LocalLanguageGuess.guess("heeft iemand ijzer voor mij", all));
+        assertEquals(Optional.of(PT), LocalLanguageGuess.guess("oi, alguém tem ferro?", all));
+        assertEquals(Optional.of(PL), LocalLanguageGuess.guess("siema, ktoś ma żelazo?", all));
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("hat jemand eisen für mich", all));
+    }
+
+    @Test
+    void sharedWordsOnlyCountWhenOneEnabledLanguageClaimsThem() {
+        LanguageSettings spanishEnglish = new LanguageSettings(List.of(ES, EN), EN);
+        LanguageSettings spanishPortuguese = new LanguageSettings(List.of(ES, PT), ES);
+
+        assertEquals(Optional.of(ES), LocalLanguageGuess.guess("para que", spanishEnglish));
+        assertEquals(Optional.empty(), LocalLanguageGuess.guess("para que", spanishPortuguese));
+    }
+
+    @Test
+    void specialLettersHelpOnlyTheLanguageThatAloneUsesThem() {
+        LanguageSettings frenchGerman = new LanguageSettings(List.of(FR, DE), DE);
+
+        assertEquals(Optional.of(FR), LocalLanguageGuess.guess("garçon", frenchGerman));
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("schön", frenchGerman));
     }
 }

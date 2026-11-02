@@ -32,8 +32,10 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
   `vllt` -> `vielleicht`, editable in `slang.yml`), letter spam is shortened and shouting is translated in
   lower case and raised again, so `HILF MIR` becomes `HELP ME`. Shouted and normal lines have separate cache
   entries.
-- **Writing language**: players who chat in another language than their game client set `/lingo write de`;
-  JExLingo also learns it from their first messages and offers it with one click.
+- **Writing language**: every line is checked against common words and letters of German, English, French,
+  Spanish, Italian, Dutch, Portuguese and Polish without a provider call, so a German player on an English client
+  is translated from German. Players can also set `/lingo write de`; JExLingo learns it from their first messages
+  and offers it with one click.
 - **On-demand mode**: `/lingo incoming click` shows lines as written with a small `[T]` button that translates
   that one line, which also saves translator load.
 - **Glossary**: keep server words as written (`OneBlock`, `gg`) or force a fixed translation (`Insel` -> `Island`).

@@ -12,6 +12,9 @@
   400 is skipped for ten minutes.
 - Fix: the local language guess counted `am` and `an` as English, so `bin am spawn` had no guess. Both are left
   out now; more common German and English chat words were added.
+- The local language guess also knows French, Spanish, Italian, Dutch, Portuguese and Polish. A word or special
+  letter only counts when exactly one enabled language claims it, so `en`, `no` or `do` decide nothing where two
+  languages share them.
 - When the translator breaks a protected token, the text between the tokens is translated piece by piece instead of
   showing the original. `/lingo status` shows broken and saved lines.
 - Pinned phrases (Premium) are dropped when the glossary changes, when `learning.unpin-after-suggestions` players

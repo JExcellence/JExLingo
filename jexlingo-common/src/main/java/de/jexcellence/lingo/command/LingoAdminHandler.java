@@ -10,6 +10,7 @@ import de.jexcellence.lingo.bedrock.LingoBedrockForms;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.glossary.GlossaryTerm;
 import de.jexcellence.lingo.learning.PhraseService;
+import de.jexcellence.lingo.learning.TermProposals;
 import de.jexcellence.lingo.learning.TrainingExportService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
@@ -54,6 +55,7 @@ public final class LingoAdminHandler {
     private @Nullable SuggestionReviewView reviewView;
     private @Nullable LingoBedrockForms forms;
     private @Nullable PhraseService phrases;
+    private @Nullable TermProposals terms;
 
     /**
      * Creates the handler.
@@ -90,6 +92,15 @@ public final class LingoAdminHandler {
     }
 
     /**
+     * Wires the glossary proposals (Premium).
+     *
+     * @param value the proposals, or {@code null} in the free edition
+     */
+    public void setTerms(@Nullable TermProposals value) {
+        this.terms = value;
+    }
+
+    /**
      * Wires the Bedrock forms when Floodgate is present.
      *
      * @param value the forms
@@ -112,6 +123,7 @@ public final class LingoAdminHandler {
         handlers.put(ROOT + "phrases", this::onPhrases);
         handlers.put(ROOT + "phrases.list", this::onPhrases);
         handlers.put(ROOT + "phrases.remove", this::onPhraseRemove);
+        handlers.put(ROOT + "terms", this::onTerms);
         handlers.put(ROOT + "review.block", ctx -> onBlock(ctx, true));
         handlers.put(ROOT + "review.unblock", ctx -> onBlock(ctx, false));
         handlers.put(ROOT + "glossary", this::onGlossary);
@@ -193,6 +205,16 @@ public final class LingoAdminHandler {
         service.remove(id).thenAccept(done -> replies.send(ctx.sender(),
                 SafeText.msg(Boolean.TRUE.equals(done) ? KEY + "phrases.removed" : KEY + "phrases.not_found")
                         .with(ID, id)));
+    }
+
+    private void onTerms(@NotNull CommandContext ctx) {
+        TermProposals proposals = terms;
+        if (proposals == null) {
+            replies.send(ctx.sender(), UNAVAILABLE);
+            return;
+        }
+        proposals.proposals(services.glossary().terms()).thenAccept(found -> replies.run(ctx.sender(),
+                () -> AdminLists.terms(ctx.sender(), found, PHRASE_LIST_LIMIT)));
     }
 
     private void onBlock(@NotNull CommandContext ctx, boolean blocked) {

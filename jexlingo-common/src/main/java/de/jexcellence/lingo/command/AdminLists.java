@@ -3,8 +3,11 @@ package de.jexcellence.lingo.command;
 import de.jexcellence.lingo.glossary.GlossaryMode;
 import de.jexcellence.lingo.glossary.GlossaryTerm;
 import de.jexcellence.lingo.learning.PinnedPhrase;
+import de.jexcellence.lingo.learning.TermProposals;
 import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +28,7 @@ final class AdminLists {
 
     private static final String PHRASES = "lingo.phrases.";
     private static final String GLOSSARY = "lingo.glossary.list.";
+    private static final String TERMS = "lingo.terms.";
     private static final String COUNT = "count";
 
     private AdminLists() {
@@ -79,6 +83,31 @@ final class AdminLists {
                     Map.of("term", term.term(), "replacement", replacement)));
         }
         panel.footer(GLOSSARY + "footer").send(sender);
+    }
+
+    /**
+     * Sends glossary proposals learned from approved corrections. A click fills in the command that adds the term,
+     * so staff still confirm every term.
+     *
+     * @param sender    the receiver
+     * @param proposals the proposals, most corrections first
+     * @param limit     most rows to show
+     */
+    static void terms(@NotNull CommandSender sender, @NotNull List<TermProposals.Proposal> proposals, int limit) {
+        LingoPanel panel = LingoPanel.of(sender);
+        Player viewer = panel.viewer();
+        panel.header(SafeText.msg(TERMS + "header").with(COUNT, proposals.size()).component(viewer))
+                .context(SafeText.msg(TERMS + "context").component(viewer))
+                .gap();
+        if (proposals.isEmpty()) {
+            panel.line(SafeText.msg(TERMS + "empty").component(viewer));
+        }
+        proposals.stream().limit(limit).forEach(proposal -> panel.line(SafeText.component(
+                SafeText.msg(TERMS + "entry").with(COUNT, proposal.corrections()), viewer,
+                Map.of("term", proposal.term()))
+                .hoverEvent(HoverEvent.showText(SafeText.msg(TERMS + "hover").component(viewer)))
+                .clickEvent(ClickEvent.suggestCommand("/lingo glossary add keep " + proposal.term()))));
+        panel.footer(TERMS + "footer").send(sender);
     }
 
     private static @NotNull String modeKey(@NotNull GlossaryMode mode) {

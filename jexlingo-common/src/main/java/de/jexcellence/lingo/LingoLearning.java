@@ -6,6 +6,7 @@ import de.jexcellence.lingo.database.repository.PinnedPhraseRepository;
 import de.jexcellence.lingo.database.repository.TranslationMemoryRepository;
 import de.jexcellence.lingo.glossary.GlossaryService;
 import de.jexcellence.lingo.learning.PhraseService;
+import de.jexcellence.lingo.learning.TermProposals;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.ChatTextPreparer;
 import de.jexcellence.lingo.pipeline.PipelineLayers;
@@ -18,15 +19,17 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 /**
- * The learning layer of the Premium edition: approved corrections and pinned phrases. Both are {@code null} in
- * the free edition, where the pipeline only uses the glossary.
+ * The learning layer of the Premium edition: approved corrections, pinned phrases and glossary proposals. All are
+ * {@code null} in the free edition, where the pipeline only uses the glossary.
  *
  * @param memory  approved corrections, or {@code null}
  * @param phrases pinned phrases, or {@code null}
+ * @param terms   glossary proposals from corrections, or {@code null}
  * @author JExcellence
  * @since 0.3.0
  */
-public record LingoLearning(@Nullable TranslationMemoryService memory, @Nullable PhraseService phrases) {
+public record LingoLearning(@Nullable TranslationMemoryService memory, @Nullable PhraseService phrases,
+                            @Nullable TermProposals terms) {
 
     /**
      * Builds the layer for an edition.
@@ -42,14 +45,14 @@ public record LingoLearning(@Nullable TranslationMemoryService memory, @Nullable
                                                 @NotNull LearningSettings settings, @NotNull Executor worker,
                                                 @NotNull Logger logger) {
         if (!edition.learningEnabled()) {
-            return new LingoLearning(null, null);
+            return new LingoLearning(null, null, null);
         }
         var repositories = hibernate.repositories();
         TranslationMemoryService memory = new TranslationMemoryService(
                 repositories.get(TranslationMemoryRepository.class), worker, logger);
         PhraseService phrases = new PhraseService(repositories.get(PinnedPhraseRepository.class), settings, logger);
         memory.onApproved(entry -> phrases.forget(entry.pair(), entry.sourceKey()));
-        return new LingoLearning(memory, phrases);
+        return new LingoLearning(memory, phrases, new TermProposals(memory, settings::termProposalVotes));
     }
 
     /**

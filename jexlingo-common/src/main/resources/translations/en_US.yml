@@ -147,6 +147,13 @@ lingo:
     footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Unpin one with</#94A3B8> <#F1F5F9>/lingo phrases remove</#F1F5F9> <#94A3B8>and its #id</#94A3B8>'
     removed: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Phrase</#F1F5F9> <#A78BFA>#{id}</#A78BFA> <#F1F5F9>unpinned.</#F1F5F9>'
     not_found: '<#F87171>[X]</#F87171> <#F1F5F9>No pinned phrase with id</#F1F5F9> <#A78BFA>#{id}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+  terms:
+    header: '<gradient:#5EEAD4:#A78BFA>Proposed glossary terms</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9>'
+    context: '<#94A3B8>Words players kept as written in approved corrections</#94A3B8>'
+    entry: '<#F1F5F9>{term}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>kept in {count} corrections</#94A3B8>'
+    hover: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Click to fill in the command that keeps this word</#F1F5F9>'
+    empty: '<#94A3B8>No proposals yet. They appear once several approved corrections keep the same word.</#94A3B8>'
+    footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Click a word, then send the command to add it</#94A3B8>'
   origin:
     glossary: 'Glossary'
     memory: 'Approved corrections'

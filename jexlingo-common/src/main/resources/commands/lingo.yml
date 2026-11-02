@@ -133,6 +133,12 @@ subcommands:
         argumentSchema:
           - { name: id, type: positive_long, required: true, description: "Phrase id" }
 
+  - name: terms
+    description: "Glossary terms proposed by approved corrections"
+    permission: "jexlingo.review"
+    default: op
+    senders: [player, console]
+
   - name: stats
     description: "Translation statistics"
     permission: "jexlingo.admin.stats"

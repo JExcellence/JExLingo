@@ -39,6 +39,21 @@ class LocalLanguageGuessTest {
     }
 
     @Test
+    void wordsSharedByBothLanguagesDoNotDecide() {
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("bin am spawn", BOTH));
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("es geht an die base", BOTH));
+        assertEquals(Optional.of(EN), LocalLanguageGuess.guess("I am at spawn", BOTH));
+        assertEquals(Optional.of(EN), LocalLanguageGuess.guess("what's this", BOTH));
+    }
+
+    @Test
+    void knowsCommonWordsOfEveryLanguage() {
+        assertEquals(true, LocalLanguageGuess.isCommonWord("Und"));
+        assertEquals(true, LocalLanguageGuess.isCommonWord("the"));
+        assertEquals(false, LocalLanguageGuess.isCommonWord("Spawn"));
+    }
+
+    @Test
     void ignoresLanguagesThatAreNotEnabled() {
         LanguageSettings englishOnly = new LanguageSettings(List.of(EN), EN);
 

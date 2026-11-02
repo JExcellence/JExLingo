@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 /**
  * Guesses the language of a chat line without a provider call, from common function words and German letters.
  * Takes no time, so it runs for every line: a German player with an English client who writes German is translated
- * from German. Words that are common in more than one language ({@code in}, {@code was}, {@code die}) are left out.
+ * from German. Words that are common in more than one language ({@code in}, {@code was}, {@code die}, {@code am},
+ * {@code an}, {@code man}) are left out.
  * Without a clear winner the caller keeps the player's own language.
  *
  * @author JExcellence
@@ -36,18 +37,34 @@ public final class LocalLanguageGuess {
                     "wer", "wie", "wo", "warum", "wann", "welche", "jetzt", "heute", "morgen", "hier", "dort",
                     "mit", "von", "zu", "zum", "zur", "auf", "aus", "bei", "nach", "für", "über", "unter",
                     "ja", "nein", "nee", "danke", "bitte", "hallo", "moin", "servus", "gut", "sehr", "viel",
-                    "alle", "alles", "nichts", "etwas", "mein", "dein", "sein", "wenn", "dann", "weil", "dass"),
+                    "alle", "alles", "nichts", "etwas", "mein", "dein", "sein", "wenn", "dann", "weil", "dass",
+                    "es", "hat", "hab", "nen", "ne", "denn", "wieso", "weiß", "weiss", "jemand", "leute", "sich",
+                    "einfach", "vielleicht", "vllt", "komm", "kommt", "brauch", "brauche", "suche", "kaufe",
+                    "verkaufe", "geh", "gehe"),
             LanguageCode.of("en"), Set.of(
                     "i", "you", "he", "she", "we", "they", "me", "him", "her", "us", "them", "my", "your",
-                    "the", "a", "an", "and", "or", "but", "not", "no", "yes", "yeah", "too", "only", "just",
-                    "is", "are", "am", "be", "been", "have", "has", "do", "does", "did", "can", "could",
+                    "the", "a", "and", "or", "but", "not", "no", "yes", "yeah", "too", "only", "just",
+                    "is", "are", "be", "been", "have", "has", "do", "does", "did", "can", "could",
                     "would", "should", "it", "this", "that", "these", "those", "there", "here",
                     "who", "what", "where", "why", "when", "how", "which", "now", "today", "tomorrow",
                     "with", "of", "to", "for", "from", "on", "at", "by", "about", "into",
                     "thanks", "thank", "please", "hello", "hi", "hey", "good", "very", "much", "all",
-                    "nothing", "something", "if", "then", "because", "anyone", "someone", "lets", "let's"));
+                    "nothing", "something", "if", "then", "because", "anyone", "someone", "lets", "let's",
+                    "i'm", "it's", "don't", "dont", "can't", "cant", "isn't", "what's", "you're", "want", "need",
+                    "know", "think", "going", "anybody", "everyone", "guys", "pls", "plz", "thx"));
 
     private LocalLanguageGuess() {
+    }
+
+    /**
+     * Returns whether a word is one of the common function words this guess knows in any language.
+     *
+     * @param word the word, any case
+     * @return whether it is a common word
+     */
+    public static boolean isCommonWord(@NotNull String word) {
+        String lower = word.toLowerCase(Locale.ROOT);
+        return WORDS.values().stream().anyMatch(words -> words.contains(lower));
     }
 
     /**

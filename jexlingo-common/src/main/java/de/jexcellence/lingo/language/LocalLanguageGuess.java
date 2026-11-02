@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * Guesses the language of a chat line without a provider call, from common function words and German letters.
  * Takes no time, so it runs for every line: a German player with an English client who writes German is translated
- * from German. Words that are common in more than one language ({@code in}, {@code was}, {@code die}) are left out.
+ * from German. Words that are common in more than one language ({@code in}, {@code was}, {@code will}) are left out.
  * Without a clear winner the caller keeps the player's own language.
  *
  * @author JExcellence
@@ -36,11 +36,12 @@ public final class LocalLanguageGuess {
                     "wer", "wie", "wo", "warum", "wann", "welche", "jetzt", "heute", "morgen", "hier", "dort",
                     "mit", "von", "zu", "zum", "zur", "auf", "aus", "bei", "nach", "für", "über", "unter",
                     "ja", "nein", "nee", "danke", "bitte", "hallo", "moin", "servus", "gut", "sehr", "viel",
-                    "alle", "alles", "nichts", "etwas", "mein", "dein", "sein", "wenn", "dann", "weil", "dass"),
+                    "alle", "alles", "nichts", "etwas", "mein", "dein", "sein", "wenn", "dann", "weil", "dass",
+                    "die", "es", "im", "hab", "ne", "nen", "isses", "denn", "man"),
             LanguageCode.of("en"), Set.of(
                     "i", "you", "he", "she", "we", "they", "me", "him", "her", "us", "them", "my", "your",
-                    "the", "a", "an", "and", "or", "but", "not", "no", "yes", "yeah", "too", "only", "just",
-                    "is", "are", "am", "be", "been", "have", "has", "do", "does", "did", "can", "could",
+                    "the", "a", "and", "or", "but", "not", "no", "yes", "yeah", "too", "only", "just",
+                    "is", "are", "be", "been", "have", "has", "do", "does", "did", "can", "could",
                     "would", "should", "it", "this", "that", "these", "those", "there", "here",
                     "who", "what", "where", "why", "when", "how", "which", "now", "today", "tomorrow",
                     "with", "of", "to", "for", "from", "on", "at", "by", "about", "into",

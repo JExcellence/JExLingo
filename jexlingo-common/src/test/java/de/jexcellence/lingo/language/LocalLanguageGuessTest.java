@@ -33,6 +33,19 @@ class LocalLanguageGuessTest {
     }
 
     @Test
+    void guessesShortGermanChatLines() {
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("bin am spawn", BOTH));
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("die base ist weg", BOTH));
+        assertEquals(Optional.of(DE), LocalLanguageGuess.guess("was geht", BOTH));
+    }
+
+    @Test
+    void guessesShortEnglishChatLines() {
+        assertEquals(Optional.of(EN), LocalLanguageGuess.guess("I am at spawn", BOTH));
+        assertEquals(Optional.of(EN), LocalLanguageGuess.guess("what is this", BOTH));
+    }
+
+    @Test
     void staysUnsureWithoutHints() {
         assertEquals(Optional.empty(), LocalLanguageGuess.guess("hay", BOTH));
         assertEquals(Optional.empty(), LocalLanguageGuess.guess("lol xd", BOTH));

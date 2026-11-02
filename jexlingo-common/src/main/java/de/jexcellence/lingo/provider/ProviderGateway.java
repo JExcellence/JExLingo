@@ -3,11 +3,15 @@ package de.jexcellence.lingo.provider;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.api.provider.DetectedLanguage;
 import de.jexcellence.lingo.api.provider.TranslationProvider;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,14 +20,26 @@ import java.util.concurrent.atomic.LongAdder;
 /**
  * The only way JExLingo talks to a provider. Adds what every backend needs: a cap on requests in flight, the
  * {@link CircuitBreaker}, a hard timeout and latency statistics. A refused call fails at once instead of queueing,
- * so chat never waits behind a slow backend.
+ * so chat never waits behind a slow backend. Only outages count against the breaker ({@link #isOutage(Throwable)});
+ * a language pair the provider rejects is skipped for a few minutes.
  *
  * @author JExcellence
  * @since 0.1.0
  */
 public final class ProviderGateway {
 
+    private static final int HTTP_BAD_REQUEST = 400;
+    private static final int HTTP_TIMEOUT = 408;
+    private static final int HTTP_TOO_MANY = 429;
+    private static final int HTTP_SERVER_ERROR = 500;
+    private static final Duration REJECTED_PAIR_PAUSE = Duration.ofMinutes(10);
+
     private final AtomicReference<TranslationProvider> provider;
+    /** Pairs the provider answered with 400, skipped for a while so one bad pair does not hit it on every line. */
+    private final Cache<String, Boolean> unsupportedPairs = Caffeine.newBuilder()
+            .expireAfterWrite(REJECTED_PAIR_PAUSE)
+            .maximumSize(256)
+            .build();
     private final CircuitBreaker breaker;
     private final Semaphore permits;
     private final long timeoutMillis;
@@ -58,6 +74,12 @@ public final class ProviderGateway {
      */
     public @NotNull CompletableFuture<String> translate(@NotNull String text, @NotNull LanguageCode source,
                                                         @NotNull LanguageCode target) {
+        String pairKey = source.code() + '>' + target.code();
+        if (unsupportedPairs.getIfPresent(pairKey) != null) {
+            refused.increment();
+            return CompletableFuture.failedFuture(new ProviderException(ProviderException.NOT_SENT,
+                    "The provider rejected " + pairKey + " recently"));
+        }
         if (!permits.tryAcquire()) {
             refused.increment();
             return CompletableFuture.failedFuture(new ProviderException(ProviderException.NOT_SENT,
@@ -78,7 +100,27 @@ public final class ProviderGateway {
             call = CompletableFuture.failedFuture(ex);
         }
         return call.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
-                .whenComplete((result, error) -> complete(started, error == null));
+                .whenComplete((result, error) -> complete(started, error, pairKey));
+    }
+
+    /**
+     * Returns whether a failure means the provider itself is in trouble. Timeouts, connection problems, server
+     * errors (5xx) and rate limits count against the breaker. Answers that reject this one request (other 4xx, an
+     * unreadable body) prove the provider is up and do not.
+     *
+     * @param error the failure
+     * @return whether the failure counts against the breaker
+     */
+    static boolean isOutage(@NotNull Throwable error) {
+        Throwable cause = error instanceof CompletionException && error.getCause() != null ? error.getCause() : error;
+        if (!(cause instanceof ProviderException provider)) {
+            return true;
+        }
+        int status = provider.status();
+        if (status == ProviderException.NOT_SENT) {
+            return false;
+        }
+        return status >= HTTP_SERVER_ERROR || status == HTTP_TIMEOUT || status == HTTP_TOO_MANY;
     }
 
     /**
@@ -106,6 +148,7 @@ public final class ProviderGateway {
         if (previous != next) {
             previous.close();
         }
+        unsupportedPairs.invalidateAll();
         breaker.recordSuccess();
     }
 
@@ -168,14 +211,26 @@ public final class ProviderGateway {
         return refused.sum();
     }
 
-    private void complete(long startedNanos, boolean success) {
+    private void complete(long startedNanos, @Nullable Throwable error, @NotNull String pairKey) {
         permits.release();
-        if (success) {
+        if (error == null) {
             breaker.recordSuccess();
             latency.record(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedNanos));
-        } else {
-            failures.increment();
-            breaker.recordFailure();
+            return;
         }
+        failures.increment();
+        if (isOutage(error)) {
+            breaker.recordFailure();
+        } else {
+            breaker.recordSuccess();
+            if (isRejectedPair(error)) {
+                unsupportedPairs.put(pairKey, Boolean.TRUE);
+            }
+        }
+    }
+
+    private static boolean isRejectedPair(@NotNull Throwable error) {
+        Throwable cause = error instanceof CompletionException && error.getCause() != null ? error.getCause() : error;
+        return cause instanceof ProviderException provider && provider.status() == HTTP_BAD_REQUEST;
     }
 }

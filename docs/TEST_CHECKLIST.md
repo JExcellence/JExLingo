@@ -22,9 +22,9 @@ everything else runs with JExLingo alone.
 ## Unreleased: translation quality
 
 - [x] `/lingo test de en Hat jemand Notch gesehen?` keeps `Notch`.
-- [ ] A name with an underscore (`Steve_42`) is kept even when that player is offline.
+- [x] A name with an underscore (`Steve_42`) is kept even when that player is offline.
 - [ ] `&aHallo zusammen` from a player with colour permission arrives as `&aHello everyone` in green.
-- [ ] `HILFE` then `hilfe`: the second line is not in capitals.
+- [x] `HILFE` then `hilfe`: the second line is not in capitals.
 - [ ] A player called `Help` is online: `can someone help me` translates fully; `Help, wo bist du?` keeps the name.
 - [ ] `chat.protect-names: ALWAYS` + reload: `help` is kept as a name; `MENTIONS`: only `@Help` is kept.
 - [ ] A player sends four lines within a second: the first three are translated (`chat.burst: 3`).
@@ -33,8 +33,8 @@ everything else runs with JExLingo alone.
 ## Unreleased: learning and glossary (Premium where noted)
 
 - [x] `/lingo glossary import` with nothing new: "Added 0 terms ... 11 were already there".
-- [ ] Add a term to `glossary.yml`, `/lingo glossary import`: it is added, existing terms stay.
-- [ ] `/lingo glossary add force de>en:Truhe chest`: `Truhe` becomes `chest` from German to English only.
+- [x] Add a term to `glossary.yml`, `/lingo glossary import`: it is added, existing terms stay.
+- [x] `/lingo glossary add force de>en:Truhe chest`: `Truhe` becomes `chest` from German to English only.
 - [ ] Premium: after three approved corrections that keep `Spawn`, `/lingo terms` proposes it; a click fills in the
   command.
 - [ ] Premium: after three approved corrections that change `box` to `chest` in lines with `Truhe`, `/lingo terms`

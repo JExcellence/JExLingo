@@ -23,7 +23,35 @@
   proposed as glossary keep terms; a click fills in the command.
 - Masking patterns are compiled once per glossary and set of online names instead of once per line.
 - Loading the glossary at start no longer counts as a glossary change.
-- `config.yml` raised to config-version 4 with the three new `learning` options.
+- Protected text is sent as `Q0Q` tokens instead of `{0}`. Measured on LibreTranslate de to en, `{0}` was dropped in
+  three of four lines and `Q0Q` was kept in all of them with natural word order. A token glued to a word (a colour
+  code in `&awirklich`) gets a space that is removed again. Fifteen real chat lines through the full pipeline:
+  15 translated, no broken tokens.
+- Words with an inner underscore (`Steve_42`) are protected even when that player is offline; `/lingo test` uses the
+  online names like chat.
+- `chat.protect-names`: `SMART` (default), `ALWAYS` or `MENTIONS`.
+- Spam protection lets short bursts through: `chat.burst` lines in a row (default 3), then one per
+  `chat.player-cooldown-ms`; cache and memory hits never count.
+- Language detection takes a slot from the request cap, and a timed-out HTTP call is aborted instead of running on.
+- Provider log lines name the address and the next step: unreachable (connection refused, unknown host, no answer),
+  the exact `--load-only` value for missing models, and a rejected API key once. A warning when `provider.url` is
+  plain http to another machine.
+- `/lingo status` and the stats show `-` instead of `-1 ms` and `100%` before there is data.
+- Daily statistics keep broken and saved tokens and, per language pair, the corrections per 1,000 translations.
+- `/lingo terms` (Premium) also proposes force terms: words players replaced the same way in several lines, scoped to
+  the language pair. `/lingo glossary add` accepts a `de>en:` prefix for that.
+- `/lingo glossary import` adds new terms from `glossary.yml`; existing terms stay.
+- New subcommands reach existing `commands/lingo.yml` files, not only new top-level commands.
+- New servers get a glossary that fits any server (chat slang, Spawn, Nether, Creeper ...) instead of island terms.
+- Release jars no longer contain demo translations, configs and files of the bundled libraries; JExLingo ships its
+  own `translations/config.yml`.
+- The bundled database config offers only H2 and MySQL/MariaDB, whose drivers are downloaded, with a smaller pool.
+- No SLF4J "no providers" lines in the console.
+- `docs/SELF_HOSTING.md` walks from an empty server to translated chat; the LibreTranslate compose file reads its
+  languages, port and memory from `.env`.
+- New database columns (`jexlingo_daily_stats`: token_losses, recoveries, corrections; `jexlingo_memory`:
+  machine_text) are added on start.
+- `config.yml` raised to config-version 6 with the new `learning` and `chat` options.
 
 ## 0.4.2 - 2026-10-04
 

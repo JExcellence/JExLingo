@@ -1,9 +1,46 @@
 # JExLingo in-game test checklist
 
-> **Status:** not run yet. **Last verified:** 2026-10-03. Run on the test server before every release.
+> **Status:** console checks of the "Unreleased" section run on a clean Paper 26.3 server (2026-11-03); the client
+> checks are open. Run on the test server before every release.
 
-Setup: LibreTranslate running ([deploy/libretranslate](../deploy/libretranslate/README.md)), one Java client with
-German game language, one with English, one Bedrock client through Geyser if available, JExEssentials installed.
+Setup: LibreTranslate running ([docs/SELF_HOSTING.md](SELF_HOSTING.md)), one Java client with German game language,
+one with English, one Bedrock client through Geyser if available. The integration section needs the matching plugins;
+everything else runs with JExLingo alone.
+
+## Unreleased: self-hosting and upgrades
+
+- [x] Clean server with only the JExLingo jar: starts, downloads its libraries, creates the H2 database, no SLF4J
+  lines in the console.
+- [x] LibreTranslate stopped: the log names `provider.url`, says "connection refused" and links the guide.
+- [x] `provider.url` changed to the running instance + `/lingo reload`: log says "reachable".
+- [ ] `languages.enabled` with a language LibreTranslate did not load: the log prints the exact `--load-only` value.
+- [ ] LibreTranslate with `--api-keys` and no key set: the log says the key was rejected, once.
+- [ ] `provider.url: http://<public address>`: a warning about unencrypted chat at start.
+- [x] Upgrade over an older install: `config.yml`, `commands/lingo.yml` and the translation files get the new keys,
+  each with a `.bak-` file; the stats tables get their new columns.
+
+## Unreleased: translation quality
+
+- [x] `/lingo test de en Hat jemand Notch gesehen?` keeps `Notch`.
+- [ ] A name with an underscore (`Steve_42`) is kept even when that player is offline.
+- [ ] `&aHallo zusammen` from a player with colour permission arrives as `&aHello everyone` in green.
+- [ ] `HILFE` then `hilfe`: the second line is not in capitals.
+- [ ] A player called `Help` is online: `can someone help me` translates fully; `Help, wo bist du?` keeps the name.
+- [ ] `chat.protect-names: ALWAYS` + reload: `help` is kept as a name; `MENTIONS`: only `@Help` is kept.
+- [ ] A player sends four lines within a second: the first three are translated (`chat.burst: 3`).
+- [ ] `/lingo status` shows the "Broken tokens / saved" row.
+
+## Unreleased: learning and glossary (Premium where noted)
+
+- [x] `/lingo glossary import` with nothing new: "Added 0 terms ... 11 were already there".
+- [ ] Add a term to `glossary.yml`, `/lingo glossary import`: it is added, existing terms stay.
+- [ ] `/lingo glossary add force de>en:Truhe chest`: `Truhe` becomes `chest` from German to English only.
+- [ ] Premium: after three approved corrections that keep `Spawn`, `/lingo terms` proposes it; a click fills in the
+  command.
+- [ ] Premium: after three approved corrections that change `box` to `chest` in lines with `Truhe`, `/lingo terms`
+  proposes `Truhe » chest` for DE » EN.
+- [ ] Premium: a pinned phrase is dropped after a glossary edit and after two players suggested a change to it.
+- [ ] Premium: `/lingo stats` shows "corrections per 1,000" next to a pair that got corrections.
 
 ## Provider
 
@@ -14,7 +51,7 @@ German game language, one with English, one Bedrock client through Geyser if ava
 
 ## Chat
 
-- [ ] German player writes German: English player sees `[DE » EN]` + translation in the JExEssentials format
+- [ ] German player writes German: English player sees `[DE » EN]` + translation in the server's chat format
   (rank, name, colours intact), German player sees the original.
 - [ ] Hover shows `Original (DE)` and the original text.
 - [ ] `!test` is not translated; `123` is not translated.
@@ -26,7 +63,7 @@ German game language, one with English, one Bedrock client through Geyser if ava
 - [ ] `chat.mode: FOLLOW_UP` + reload: original first, translated line right after.
 - [ ] A chat line containing `<red>hi</red>` or `<click:run_command:/op me>` shows as literal text in the translation.
 
-## 0.4.0 integrations
+## Suite integrations (only with the matching plugins installed)
 
 - [ ] JExEssentials: German player `/msg <english player> Hast du Eisen?`: receiver sees `[DE » EN]` and English,
   hover shows the original; sender and social spy see the original.

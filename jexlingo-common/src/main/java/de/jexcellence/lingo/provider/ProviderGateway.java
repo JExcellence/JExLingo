@@ -124,17 +124,24 @@ public final class ProviderGateway {
     }
 
     /**
-     * Detects a language through the active provider. Not counted against the breaker; detection is optional.
+     * Detects a language through the active provider. Takes an in-flight slot like a translation, so detection never
+     * adds load beyond the cap, but is not counted against the breaker; detection is optional.
      *
      * @param text the text
      * @return the best guess, or empty on any failure
      */
     public @NotNull CompletableFuture<Optional<DetectedLanguage>> detect(@NotNull String text) {
-        if (breaker.state() != CircuitBreaker.State.CLOSED) {
+        if (breaker.state() != CircuitBreaker.State.CLOSED || !permits.tryAcquire()) {
             return CompletableFuture.completedFuture(Optional.empty());
         }
-        return provider.get().detect(text)
-                .orTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+        CompletableFuture<Optional<DetectedLanguage>> call;
+        try {
+            call = provider.get().detect(text);
+        } catch (RuntimeException ex) {
+            call = CompletableFuture.failedFuture(ex);
+        }
+        return call.orTimeout(timeoutMillis, TimeUnit.MILLISECONDS)
+                .whenComplete((result, error) -> permits.release())
                 .exceptionally(error -> Optional.empty());
     }
 

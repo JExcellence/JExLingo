@@ -105,15 +105,23 @@ public final class LibreTranslateProvider implements TranslationProvider {
 
     private <T> @NotNull CompletableFuture<T> send(@NotNull HttpRequest request,
                                                    @NotNull Function<String, T> parser) {
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
-                .thenApply(response -> {
-                    if (response.statusCode() != HTTP_OK) {
-                        throw new ProviderException(response.statusCode(),
-                                "LibreTranslate answered " + response.statusCode() + ": "
-                                        + LibreTranslateJson.parseError(response.body()));
-                    }
-                    return parser.apply(response.body());
-                });
+        CompletableFuture<HttpResponse<String>> exchange =
+                client.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        CompletableFuture<T> result = exchange.thenApply(response -> {
+            if (response.statusCode() != HTTP_OK) {
+                throw new ProviderException(response.statusCode(),
+                        "LibreTranslate answered " + response.statusCode() + ": "
+                                + LibreTranslateJson.parseError(response.body()));
+            }
+            return parser.apply(response.body());
+        });
+        // When the caller gives up (timeout, shutdown), abort the HTTP exchange instead of letting it run on.
+        result.whenComplete((value, error) -> {
+            if (error != null && !exchange.isDone()) {
+                exchange.cancel(true);
+            }
+        });
+        return result;
     }
 
     private static @NotNull URI withTrailingSlash(@NotNull URI url) {

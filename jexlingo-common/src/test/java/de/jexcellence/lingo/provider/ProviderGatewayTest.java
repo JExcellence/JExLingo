@@ -77,6 +77,46 @@ class ProviderGatewayTest {
         assertFalse(ProviderGateway.isOutage(new ProviderException(ProviderException.NOT_SENT, "no text")));
     }
 
+    @Test
+    void detectionWaitsForAFreeSlotLikeATranslation() {
+        HangingProvider provider = new HangingProvider();
+        ProviderGateway gateway = new ProviderGateway(provider, new CircuitBreaker(3, Duration.ofSeconds(30)), 1,
+                Duration.ofSeconds(30));
+
+        gateway.translate("hallo", DE, EN);
+        Optional<DetectedLanguage> detected = gateway.detect("hallo").join();
+
+        assertTrue(detected.isEmpty());
+        assertEquals(0, provider.detections.get());
+    }
+
+    private static final class HangingProvider implements TranslationProvider {
+
+        private final AtomicInteger detections = new AtomicInteger();
+
+        @Override
+        public @NotNull String id() {
+            return "hanging";
+        }
+
+        @Override
+        public @NotNull CompletableFuture<String> translate(@NotNull String text, @NotNull LanguageCode source,
+                                                            @NotNull LanguageCode target) {
+            return new CompletableFuture<>();
+        }
+
+        @Override
+        public @NotNull CompletableFuture<Set<LanguageCode>> languages() {
+            return CompletableFuture.completedFuture(Set.of(DE, EN));
+        }
+
+        @Override
+        public @NotNull CompletableFuture<Optional<DetectedLanguage>> detect(@NotNull String text) {
+            detections.incrementAndGet();
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+    }
+
     private static final class StatusProvider implements TranslationProvider {
 
         private final AtomicInteger calls = new AtomicInteger();

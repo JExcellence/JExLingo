@@ -100,7 +100,7 @@ class TranslationPipelineTest {
                 new TranslateOptions(true, List.of())).join();
 
         assertEquals("[en] Meine OneBlock Insel", result.text());
-        assertEquals("Meine {0} Insel", provider.lastText);
+        assertEquals("Meine Q0Q Insel", provider.lastText);
     }
 
     @Test
@@ -211,7 +211,7 @@ class TranslationPipelineTest {
             if (fail) {
                 return CompletableFuture.failedFuture(new IllegalStateException("down"));
             }
-            String answer = dropTokens ? text.replaceAll("\\{\\d+}", "") : text;
+            String answer = dropTokens ? text.replaceAll("Q\\d+Q", "") : text;
             return CompletableFuture.completedFuture("[" + target.code() + "] " + answer);
         }
 

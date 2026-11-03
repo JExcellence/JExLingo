@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
  * Protects parts of a message from the translator: colour codes, URLs, {@code {placeholders}}, {@code [item]}-style chat tokens,
  * {@code @mentions}, online player names and glossary terms. Names that are ordinary words ({@code Max},
  * {@code Help}) do not count when typed in lower case. Each protected part becomes a numbered token
- * {@code {0}}, {@code {1}}, ... that the translator leaves alone; {@link #unmask(String, MaskedText)} puts the
+ * {@code Q0Q}, {@code Q1Q}, ... that the translator keeps like a name; {@link #unmask(String, MaskedText)} puts the
  * original back, or the fixed translation for a force term. If the translator lost or invented a token, unmasking
  * fails and the caller shows the original instead of a broken line.
  *
@@ -33,9 +34,15 @@ public final class TokenMasker {
             + "|https?://\\S+|www\\.\\S+"
             + "|\\{[^{}\\s]{1,32}\\}"
             + "|\\[[A-Za-z0-9_]{1,32}\\]"
-            + "|@\\w{2,16}";
+            + "|@\\w{2,16}"
+            + "|(?<![\\p{L}\\p{N}])Q\\d{1,3}Q(?![\\p{L}\\p{N}])";
     private static final Pattern FIXED_ONLY = Pattern.compile(FIXED_PARTS);
-    private static final Pattern TOKEN = Pattern.compile("\\{\\s*(\\d{1,3})\\s*\\}");
+    /**
+     * A token as the translator may return it, with changed case or an inserted space ({@code q0q}, {@code Q 0 Q}).
+     * Measured on LibreTranslate de to en: {@code {0}} was lost in 3 of 4 lines, {@code Q0Q} kept in all of them
+     * with natural word order, because the model reads it as a name.
+     */
+    private static final Pattern TOKEN = Pattern.compile("(?<![\\p{L}\\p{N}])[Qq] ?(\\d{1,3}) ?[Qq](?![\\p{L}\\p{N}])");
     private static final Pattern PLAIN_WORD = Pattern.compile("\\p{L}+");
     private static final int PATTERN_CACHE_SIZE = 128;
     /** Compiled patterns by glossary rules and online names; both change rarely compared to chat lines. */
@@ -52,18 +59,43 @@ public final class TokenMasker {
      * @param text     the text with tokens
      * @param restores the replacement of token {@code i} at index {@code i}
      * @param forced   whether at least one force term was replaced
+     * @param glue     per token: {@link #GLUE_BEFORE} and {@link #GLUE_AFTER} when a space was added because the
+     *                 protected part touched a letter or digit ({@code &awirklich}); the space is removed again
      */
-    public record MaskedText(@NotNull String text, @NotNull List<String> restores, boolean forced) {
+    public record MaskedText(@NotNull String text, @NotNull List<String> restores, boolean forced,
+                             @NotNull List<Integer> glue) {
+
+        /** The token was glued to the character before it. */
+        public static final int GLUE_BEFORE = 1;
+        /** The token was glued to the character after it. */
+        public static final int GLUE_AFTER = 2;
 
         /**
-         * Copies the list.
+         * Copies the lists.
+         *
+         * @param text     the text with tokens
+         * @param restores token replacements
+         * @param forced   whether a force term was replaced
+         * @param glue     glue flags per token
+         */
+        public MaskedText {
+            restores = List.copyOf(restores);
+            glue = List.copyOf(glue);
+        }
+
+        /**
+         * Creates a masked text whose tokens were not glued to anything.
          *
          * @param text     the text with tokens
          * @param restores token replacements
          * @param forced   whether a force term was replaced
          */
-        public MaskedText {
-            restores = List.copyOf(restores);
+        public MaskedText(@NotNull String text, @NotNull List<String> restores, boolean forced) {
+            this(text, restores, forced, Collections.nCopies(restores.size(), 0));
+        }
+
+        private int glueOf(int index) {
+            return index < glue.size() ? glue.get(index) : 0;
         }
 
         /**
@@ -81,7 +113,7 @@ public final class TokenMasker {
          * @return whether the text has words left for the translator once the tokens are removed
          */
         public boolean hasTranslatableText() {
-            return TextNormalizer.hasLetters(TOKEN.matcher(text).replaceAll(" "));
+            return TextNormalizer.hasLetters(withoutTokens(text));
         }
     }
 
@@ -99,16 +131,21 @@ public final class TokenMasker {
         Matcher matcher = pattern.matcher(text);
         StringBuilder out = new StringBuilder(text.length() + 8);
         List<String> restores = new ArrayList<>();
+        List<Integer> glue = new ArrayList<>();
         boolean forced = false;
         while (matcher.find()) {
             String matched = matcher.group();
             Optional<String> replacement = rules.forced(matched);
             forced |= replacement.isPresent();
-            matcher.appendReplacement(out, Matcher.quoteReplacement("{" + restores.size() + "}"));
+            boolean before = matcher.start() > 0 && Character.isLetterOrDigit(text.codePointBefore(matcher.start()));
+            boolean after = matcher.end() < text.length() && Character.isLetterOrDigit(text.codePointAt(matcher.end()));
+            String padded = (before ? " " : "") + token(restores.size()) + (after ? " " : "");
+            matcher.appendReplacement(out, Matcher.quoteReplacement(padded));
             restores.add(replacement.orElse(matched));
+            glue.add((before ? MaskedText.GLUE_BEFORE : 0) | (after ? MaskedText.GLUE_AFTER : 0));
         }
         matcher.appendTail(out);
-        return new MaskedText(out.toString(), restores, forced);
+        return new MaskedText(out.toString(), restores, forced, glue);
     }
 
     /**
@@ -126,18 +163,49 @@ public final class TokenMasker {
         StringBuilder out = new StringBuilder(translated.length() + 16);
         Set<Integer> seen = new LinkedHashSet<>();
         boolean valid = true;
+        int last = 0;
         while (matcher.find() && valid) {
             int index = Integer.parseInt(matcher.group(1));
-            valid = index < masked.restores().size() && seen.add(index);
+            valid = index < masked.restores().size() && seen.add(index) && matcher.start() >= last;
             if (valid) {
-                matcher.appendReplacement(out, Matcher.quoteReplacement(masked.restores().get(index)));
+                int glue = masked.glueOf(index);
+                String between = translated.substring(last, matcher.start());
+                if ((glue & MaskedText.GLUE_BEFORE) != 0 && between.endsWith(" ")) {
+                    between = between.substring(0, between.length() - 1);
+                }
+                out.append(between).append(masked.restores().get(index));
+                last = matcher.end();
+                if ((glue & MaskedText.GLUE_AFTER) != 0 && last < translated.length()
+                        && translated.charAt(last) == ' ') {
+                    last++;
+                }
             }
         }
         if (!valid || seen.size() != masked.restores().size()) {
             return Optional.empty();
         }
-        matcher.appendTail(out);
+        out.append(translated, last, translated.length());
         return Optional.of(out.toString());
+    }
+
+    /**
+     * Returns the token that stands for protected part {@code index}.
+     *
+     * @param index the index of the protected part
+     * @return the token
+     */
+    public static @NotNull String token(int index) {
+        return "Q" + index + "Q";
+    }
+
+    /**
+     * Removes every token, for checks that must only look at the words around them.
+     *
+     * @param masked the masked text
+     * @return the text without tokens
+     */
+    public static @NotNull String withoutTokens(@NotNull String masked) {
+        return TOKEN.matcher(masked).replaceAll(" ");
     }
 
     /**

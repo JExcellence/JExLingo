@@ -3,6 +3,7 @@ package de.jexcellence.lingo.pipeline;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -43,7 +44,9 @@ class FormatCodesTest {
     void masksCodesInsideTheText() {
         TokenMasker.MaskedText masked = TokenMasker.mask("das ist &cwirklich gut", MaskRules.EMPTY, List.of());
 
-        assertEquals("das ist {0}wirklich gut", masked.text());
+        assertEquals("das ist Q0Q wirklich gut", masked.text());
+        assertEquals(Optional.of("this is &creally good"),
+                TokenMasker.unmask("this is Q0Q really good", masked));
         assertEquals(List.of("&c"), masked.restores());
     }
 }

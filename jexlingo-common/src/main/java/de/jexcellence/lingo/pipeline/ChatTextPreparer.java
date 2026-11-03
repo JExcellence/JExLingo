@@ -65,7 +65,7 @@ public final class ChatTextPreparer {
      */
     public @NotNull Prepared prepare(@NotNull String masked, @NotNull LanguageCode source) {
         String text = REPEATS.matcher(masked).replaceAll("$1$1");
-        boolean shouting = isShouting(text);
+        boolean shouting = isShouting(TokenMasker.withoutTokens(text));
         if (shouting) {
             text = text.toLowerCase(Locale.ROOT);
         }

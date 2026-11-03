@@ -46,7 +46,7 @@ class ChatTextPreparerTest {
 
     @Test
     void doesNotExpandInsideWordsOrTokens() {
-        assertEquals("run {0} umbrella", preparer.prepare("run {0} umbrella", EN).text());
+        assertEquals("run Q0Q umbrella", preparer.prepare("run Q0Q umbrella", EN).text());
     }
 
     @Test
@@ -56,11 +56,11 @@ class ChatTextPreparerTest {
 
     @Test
     void lowersShoutingAndRaisesTheAnswer() {
-        ChatTextPreparer.Prepared prepared = preparer.prepare("HILF MIR {0}", DE);
+        ChatTextPreparer.Prepared prepared = preparer.prepare("HILF MIR Q0Q", DE);
 
         assertTrue(prepared.shouting());
-        assertEquals("hilf mir {0}", prepared.text());
-        assertEquals("HELP ME {0}", preparer.finish("help me {0}", prepared));
+        assertEquals("hilf mir q0q", prepared.text());
+        assertEquals("HELP ME Q0Q", preparer.finish("help me Q0Q", prepared));
     }
 
     @Test
@@ -96,7 +96,7 @@ class ChatTextPreparerTest {
                 new TranslationRequest("KP WO NOTCH IST", null, EN, TranslationContext.CHAT), DE,
                 new TranslateOptions(true, List.of("Notch"))).join();
 
-        assertEquals("keine Ahnung wo {0} ist", sent.get());
+        assertEquals("keine Ahnung wo q0q ist", sent.get());
         assertEquals("KEINE AHNUNG WO NOTCH IST", result.text());
     }
 

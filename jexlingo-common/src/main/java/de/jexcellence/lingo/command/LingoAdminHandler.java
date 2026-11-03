@@ -18,6 +18,7 @@ import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
 import de.jexcellence.lingo.view.GlossaryView;
 import de.jexcellence.lingo.view.SuggestionReviewView;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -309,8 +310,9 @@ public final class LingoAdminHandler {
         LanguageCode to = ctx.require("to", LanguageCode.class);
         String text = ctx.require(TEXT, String.class);
         TranslationRequest request = new TranslationRequest(text, from, to, TranslationContext.API);
-        services.pipeline().translate(request, from, TranslateOptions.DEFAULT).thenAccept(result -> replies.run(
-                ctx.sender(), () -> sendTestPanel(ctx.sender(), text, result)));
+        List<String> online = Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        services.pipeline().translate(request, from, new TranslateOptions(true, online)).thenAccept(result ->
+                replies.run(ctx.sender(), () -> sendTestPanel(ctx.sender(), text, result)));
     }
 
     private static void sendTestPanel(@NotNull CommandSender sender, @NotNull String input,

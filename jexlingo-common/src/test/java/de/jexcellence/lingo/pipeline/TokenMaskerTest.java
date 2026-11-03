@@ -39,6 +39,15 @@ class TokenMaskerTest {
     }
 
     @Test
+    void wordsWithAnUnderscoreAreProtectedEvenWhenNobodyIsOnline() {
+        TokenMasker.MaskedText masked = TokenMasker.mask("kommst du zu Steve_42 oder xX_Pro_Xx? _nicht_ so",
+                MaskRules.EMPTY, List.of());
+
+        assertEquals("kommst du zu Q0Q oder Q1Q? _nicht_ so", masked.text());
+        assertEquals(List.of("Steve_42", "xX_Pro_Xx"), masked.restores());
+    }
+
+    @Test
     void alwaysProtectsEveryNameAndMentionsOnlyAtNames() {
         String line = "ask max or @Steve_42 about the base";
         List<String> names = List.of("Max", "Steve_42");

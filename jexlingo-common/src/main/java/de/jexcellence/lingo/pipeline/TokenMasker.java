@@ -35,7 +35,9 @@ public final class TokenMasker {
             + "|\\{[^{}\\s]{1,32}\\}"
             + "|\\[[A-Za-z0-9_]{1,32}\\]"
             + "|@\\w{2,16}"
-            + "|(?<![\\p{L}\\p{N}])Q\\d{1,3}Q(?![\\p{L}\\p{N}])";
+            + "|(?<![\\p{L}\\p{N}])Q\\d{1,3}Q(?![\\p{L}\\p{N}])"
+            // A word with an inner underscore is a user or technical name (Steve_42), online or not.
+            + "|(?<![\\p{L}\\p{N}_])[\\p{L}\\p{N}]+(?:_+[\\p{L}\\p{N}]+)+(?![\\p{L}\\p{N}_])";
     private static final Pattern FIXED_ONLY = Pattern.compile(FIXED_PARTS);
     /**
      * A token as the translator may return it, with changed case or an inserted space ({@code q0q}, {@code Q 0 Q}).

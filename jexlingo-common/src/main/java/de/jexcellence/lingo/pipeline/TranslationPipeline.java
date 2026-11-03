@@ -237,7 +237,7 @@ public final class TranslationPipeline {
     }
 
     private @NotNull Optional<String> restore(@NotNull String translated, @NotNull Job job) {
-        String finished = layers.preparer().finish(translated, job.prepared());
+        String finished = layers.preparer().finish(translated, job.prepared(), job.pair().target());
         return TokenMasker.unmask(finished, job.masked()).filter(text -> !text.isBlank());
     }
 

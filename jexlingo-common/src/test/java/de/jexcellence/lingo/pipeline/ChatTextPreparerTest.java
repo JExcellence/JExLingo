@@ -64,6 +64,15 @@ class ChatTextPreparerTest {
     }
 
     @Test
+    void englishAnswersGetACapitalI() {
+        ChatTextPreparer.Prepared prepared = preparer.prepare("ich verkaufe Q0Q", DE);
+
+        assertEquals("I sell Q0Q, I'm in the shop and if it rains I'll stay",
+                preparer.finish("i sell Q0Q, i'm in the shop and if it rains i'll stay", prepared, EN));
+        assertEquals("i sell Q0Q", preparer.finish("i sell Q0Q", prepared, DE));
+    }
+
+    @Test
     void shortCapsAreNoShouting() {
         assertFalse(preparer.prepare("OK gg", EN).shouting());
         assertFalse(preparer.prepare("GG", EN).shouting());

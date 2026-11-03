@@ -26,6 +26,9 @@ public final class ChatTextPreparer {
     private static final Pattern REPEATS = Pattern.compile("(\\p{L})\\1{2,}");
     private static final Pattern LETTER = Pattern.compile("\\p{L}");
     private static final int SHOUT_MIN_LETTERS = 4;
+    private static final LanguageCode ENGLISH = LanguageCode.of("en");
+    /** The English pronoun on its own or before a contraction: {@code i}, {@code i'm}, {@code i'll}. */
+    private static final Pattern ENGLISH_I = Pattern.compile("(?<![\\p{L}\\p{N}_'’])i(?![\\p{L}\\p{N}_])");
 
     private final AtomicReference<SlangDictionary> slang;
 
@@ -81,6 +84,21 @@ public final class ChatTextPreparer {
      */
     public @NotNull String finish(@NotNull String translated, @NotNull Prepared prepared) {
         return prepared.shouting() ? translated.toUpperCase(Locale.ROOT) : translated;
+    }
+
+    /**
+     * Applies the original's style and the target language's fixed spelling to the provider's answer. Chat is mostly
+     * typed in lower case and the translator keeps that, so an English answer gets its pronoun {@code I} back.
+     *
+     * @param translated the provider's answer, still masked
+     * @param prepared   what was sent
+     * @param target     the target language
+     * @return the finished text
+     */
+    public @NotNull String finish(@NotNull String translated, @NotNull Prepared prepared,
+                                  @NotNull LanguageCode target) {
+        String finished = finish(translated, prepared);
+        return ENGLISH.equals(target) ? ENGLISH_I.matcher(finished).replaceAll("I") : finished;
     }
 
     /**

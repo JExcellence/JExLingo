@@ -1,6 +1,7 @@
 package de.jexcellence.lingo.config;
 
 import de.jexcellence.lingo.api.LanguageCode;
+import de.jexcellence.lingo.pipeline.NameProtection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,17 @@ class LingoConfigLoaderTest {
         assertEquals(Duration.ofMillis(400), config.chat().inlineWait());
         assertFalse(config.detection().enabled());
         assertTrue(config.bedrock().showOriginalLine());
+    }
+
+    @Test
+    void nameProtectionIsReadAndUnknownValuesFallBackToSmart() throws InvalidConfigurationException {
+        LingoConfigLoader.LoadResult always = LingoConfigLoader.load(yaml("chat:\n  protect-names: always\n"), Map.of());
+        LingoConfigLoader.LoadResult unknown = LingoConfigLoader.load(yaml("chat:\n  protect-names: maybe\n"), Map.of());
+
+        assertEquals(NameProtection.ALWAYS, always.config().chat().protectNames());
+        assertEquals(NameProtection.SMART, unknown.config().chat().protectNames());
+        assertTrue(unknown.warnings().stream().anyMatch(warning -> warning.contains("chat.protect-names")));
+        assertEquals(NameProtection.SMART, LingoConfigLoader.load(yaml(""), Map.of()).config().chat().protectNames());
     }
 
     @Test

@@ -42,6 +42,7 @@ with their comment (backup `config.yml.bak-<time>`); your values are never chang
 | `chat.min-length` | 2 | 1-256 | shortest translated message |
 | `chat.max-length` | 256 | min-2000 | longest translated message |
 | `chat.skip-prefix` | `!` | | messages starting with it stay untranslated; `""` disables |
+| `chat.protect-names` | `SMART` | SMART, ALWAYS, MENTIONS | which online player names stay out of the translator: SMART skips names that are ordinary words when typed in lower case, ALWAYS protects every name, MENTIONS only `@name` |
 | `chat.player-cooldown-ms` | 500 | 0-60000 | minimum time between provider calls per sender |
 | `chat.onboarding` | `true` | | one-time hint on first join |
 | `bedrock.show-original-line` | `true` | | Bedrock viewers get the original as second line |

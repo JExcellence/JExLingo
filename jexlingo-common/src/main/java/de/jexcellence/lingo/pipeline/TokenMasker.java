@@ -118,7 +118,7 @@ public final class TokenMasker {
     }
 
     /**
-     * Masks a text.
+     * Masks a text with the {@link NameProtection#SMART} name rule.
      *
      * @param text  the original text
      * @param rules glossary terms of the language pair
@@ -127,7 +127,22 @@ public final class TokenMasker {
      */
     public static @NotNull MaskedText mask(@NotNull String text, @NotNull MaskRules rules,
                                            @NotNull Collection<String> names) {
-        Pattern pattern = patternFor(rules, names);
+        return mask(text, rules, names, NameProtection.SMART);
+    }
+
+    /**
+     * Masks a text.
+     *
+     * @param text       the original text
+     * @param rules      glossary terms of the language pair
+     * @param names      online player names
+     * @param protection which of the names are protected
+     * @return the masked text
+     */
+    public static @NotNull MaskedText mask(@NotNull String text, @NotNull MaskRules rules,
+                                           @NotNull Collection<String> names, @NotNull NameProtection protection) {
+        Collection<String> protectedNames = protection == NameProtection.MENTIONS ? List.of() : names;
+        Pattern pattern = patternFor(rules, protectedNames, protection);
         Matcher matcher = pattern.matcher(text);
         StringBuilder out = new StringBuilder(text.length() + 8);
         List<String> restores = new ArrayList<>();
@@ -247,11 +262,12 @@ public final class TokenMasker {
         return name.substring(1).chars().noneMatch(Character::isUpperCase);
     }
 
-    private static @NotNull Pattern patternFor(@NotNull MaskRules rules, @NotNull Collection<String> names) {
+    private static @NotNull Pattern patternFor(@NotNull MaskRules rules, @NotNull Collection<String> names,
+                                               @NotNull NameProtection protection) {
         if (rules.isEmpty() && names.isEmpty()) {
             return FIXED_ONLY;
         }
-        return PATTERNS.get(new PatternKey(rules, List.copyOf(names)), TokenMasker::compile);
+        return PATTERNS.get(new PatternKey(rules, List.copyOf(names), protection), TokenMasker::compile);
     }
 
     private static @NotNull Pattern compile(@NotNull PatternKey key) {
@@ -260,7 +276,7 @@ public final class TokenMasker {
         List<String> exactCase = new ArrayList<>();
         for (String name : key.names()) {
             String trimmed = name.trim();
-            if (isPlainWordName(trimmed)) {
+            if (key.protection() == NameProtection.SMART && isPlainWordName(trimmed)) {
                 exactCase.addAll(nameSpellings(trimmed));
             } else {
                 anyCase.add(trimmed);
@@ -311,6 +327,7 @@ public final class TokenMasker {
         }
     }
 
-    private record PatternKey(@NotNull MaskRules rules, @NotNull List<String> names) {
+    private record PatternKey(@NotNull MaskRules rules, @NotNull List<String> names,
+                              @NotNull NameProtection protection) {
     }
 }

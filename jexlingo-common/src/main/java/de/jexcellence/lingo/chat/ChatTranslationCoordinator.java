@@ -10,7 +10,6 @@ import de.jexcellence.lingo.config.ChatSettings;
 import de.jexcellence.lingo.language.LocalLanguageGuess;
 import de.jexcellence.lingo.language.WritingLanguageLearner;
 import de.jexcellence.lingo.learning.RecentMessage;
-import de.jexcellence.lingo.pipeline.SkipRules;
 import de.jexcellence.lingo.pipeline.TranslateOptions;
 import de.jexcellence.lingo.settings.IncomingMode;
 import net.kyori.adventure.audience.Audience;
@@ -94,7 +93,7 @@ public final class ChatTranslationCoordinator {
                                                 boolean mayWaitInline) {
         ChatSettings settings = chat.get();
         if (toggle.isPaused() || !context.settings().get(sender.getUniqueId()).translateOutgoing()
-                || SkipRules.from(settings).skips(text, TranslationContext.CHAT)) {
+                || settings.skip().skips(text, TranslationContext.CHAT)) {
             return Optional.empty();
         }
         LanguageCode assumed = context.resolver().resolveWriting(sender);

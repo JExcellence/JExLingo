@@ -10,7 +10,6 @@ import de.jexcellence.lingo.language.LanguageResolver;
 import de.jexcellence.lingo.learning.PhraseService;
 import de.jexcellence.lingo.learning.TranslationMemoryService;
 import de.jexcellence.lingo.pipeline.ChatTextPreparer;
-import de.jexcellence.lingo.pipeline.SkipRules;
 import de.jexcellence.lingo.pipeline.SlangDictionary;
 import de.jexcellence.lingo.pipeline.TranslationCache;
 import de.jexcellence.lingo.pipeline.TranslationPipeline;
@@ -78,7 +77,8 @@ public final class LingoCore {
         this.glossary = new GlossaryService(repositories.get(GlossaryTermRepository.class), edition, worker, logger);
         this.learning = LingoLearning.create(edition, hibernate, config.learning(), worker, logger);
         this.pipeline = new TranslationPipeline(gateway, new TranslationCache(config.storage().cache()),
-                learning.layers(glossary, preparer), SkipRules.from(config.chat()));
+                learning.layers(glossary, preparer), config.chat().skip());
+        pipeline.setNameProtection(config.chat().protectNames());
         glossary.onChange(pipeline.cache()::clear);
         if (learning.phrases() != null) {
             PhraseService phraseService = learning.phrases();
@@ -105,7 +105,8 @@ public final class LingoCore {
         detector.setSettings(config.detection());
         health.setEnabled(config.languages().enabled());
         health.setLocation(config.provider().url().toString());
-        pipeline.setSkipRules(SkipRules.from(config.chat()));
+        pipeline.setSkipRules(config.chat().skip());
+        pipeline.setNameProtection(config.chat().protectNames());
         pipeline.cache().clear();
         health.check();
     }

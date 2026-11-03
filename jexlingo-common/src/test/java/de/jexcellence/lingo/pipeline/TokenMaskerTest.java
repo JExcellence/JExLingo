@@ -39,6 +39,17 @@ class TokenMaskerTest {
     }
 
     @Test
+    void alwaysProtectsEveryNameAndMentionsOnlyAtNames() {
+        String line = "ask max or @Steve_42 about the base";
+        List<String> names = List.of("Max", "Steve_42");
+
+        assertEquals("ask Q0Q or Q1Q about the base",
+                TokenMasker.mask(line, MaskRules.EMPTY, names, NameProtection.ALWAYS).text());
+        assertEquals("ask max or Q0Q about the base",
+                TokenMasker.mask(line, MaskRules.EMPTY, names, NameProtection.MENTIONS).text());
+    }
+
+    @Test
     void typicalUserNamesAreProtectedInAnyCase() {
         TokenMasker.MaskedText masked = TokenMasker.mask("ask steve_42 or darkknight",
                 MaskRules.EMPTY, List.of("Steve_42", "DarkKnight"));

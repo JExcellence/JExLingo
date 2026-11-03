@@ -1,6 +1,8 @@
 package de.jexcellence.lingo.config;
 
 import de.jexcellence.lingo.api.LanguageCode;
+import de.jexcellence.lingo.pipeline.NameProtection;
+import de.jexcellence.lingo.pipeline.SkipRules;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,11 +134,10 @@ public final class LingoConfigLoader {
         return new ChatSettings(
                 reader.chatMode(),
                 Duration.ofMillis(reader.intIn(CHAT + "inline-wait-ms", 400, 0, 5000)),
-                minLength,
-                maxLength,
-                root.getString(CHAT + "skip-prefix", "!"),
+                new SkipRules(minLength, maxLength, root.getString(CHAT + "skip-prefix", "!")),
                 Duration.ofMillis(reader.intIn(CHAT + "player-cooldown-ms", 500, 0, 60_000)),
-                root.getBoolean(CHAT + "onboarding", true));
+                root.getBoolean(CHAT + "onboarding", true),
+                reader.nameProtection());
     }
 
     private static @NotNull DetectionSettings detection(@NotNull Reader reader, @NotNull ConfigurationSection root) {
@@ -222,6 +223,16 @@ public final class LingoConfigLoader {
             } catch (IllegalArgumentException ex) {
                 warn("chat.mode '" + raw + "' is unknown (INLINE, FOLLOW_UP); using INLINE");
                 return ChatMode.INLINE;
+            }
+        }
+
+        private @NotNull NameProtection nameProtection() {
+            String raw = root.getString(CHAT + "protect-names", NameProtection.SMART.name());
+            try {
+                return NameProtection.valueOf(raw.trim().toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ex) {
+                warn("chat.protect-names '" + raw + "' is unknown (SMART, ALWAYS, MENTIONS); using SMART");
+                return NameProtection.SMART;
             }
         }
     }

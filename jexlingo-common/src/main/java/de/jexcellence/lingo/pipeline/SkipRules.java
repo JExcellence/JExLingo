@@ -1,7 +1,6 @@
 package de.jexcellence.lingo.pipeline;
 
 import de.jexcellence.lingo.api.TranslationContext;
-import de.jexcellence.lingo.config.ChatSettings;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,16 +14,6 @@ import org.jetbrains.annotations.NotNull;
  * @since 0.1.0
  */
 public record SkipRules(int minLength, int maxLength, @NotNull String skipPrefix) {
-
-    /**
-     * Rules from the chat settings.
-     *
-     * @param chat the chat settings
-     * @return the rules
-     */
-    public static @NotNull SkipRules from(@NotNull ChatSettings chat) {
-        return new SkipRules(chat.minLength(), chat.maxLength(), chat.skipPrefix());
-    }
 
     /**
      * Whether a text is left as it is.

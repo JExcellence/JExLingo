@@ -44,6 +44,7 @@ public final class TranslationPipeline {
     private final TranslationCache cache;
     private final PipelineLayers layers;
     private final AtomicReference<SkipRules> skipRules;
+    private final AtomicReference<NameProtection> nameProtection = new AtomicReference<>(NameProtection.SMART);
     private final InFlightRegistry<String> inFlight = new InFlightRegistry<>();
     private final PipelineStats stats = new PipelineStats();
     private final AtomicReference<Consumer<TranslationResult>> resultSink = new AtomicReference<>();
@@ -98,7 +99,7 @@ public final class TranslationPipeline {
             return done(stored.get());
         }
         TokenMasker.MaskedText masked = TokenMasker.mask(text, layers.glossary().apply(pair),
-                options.protectedNames());
+                options.protectedNames(), nameProtection.get());
         if (!masked.hasTranslatableText()) {
             return done(glossaryOnly(text, pair, masked, started));
         }
@@ -131,6 +132,15 @@ public final class TranslationPipeline {
      */
     public void setSkipRules(@NotNull SkipRules rules) {
         skipRules.set(rules);
+    }
+
+    /**
+     * Sets which online player names are kept out of the translator ({@code chat.protect-names}).
+     *
+     * @param protection the rule
+     */
+    public void setNameProtection(@NotNull NameProtection protection) {
+        nameProtection.set(protection);
     }
 
     /**

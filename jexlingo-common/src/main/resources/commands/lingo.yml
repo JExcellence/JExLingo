@@ -117,6 +117,9 @@ subcommands:
       - name: list
         description: "List every term in chat"
         senders: [player, console]
+      - name: import
+        description: "Add new terms from glossary.yml; existing terms stay"
+        senders: [player, console]
 
   - name: phrases
     description: "List or remove pinned phrases"

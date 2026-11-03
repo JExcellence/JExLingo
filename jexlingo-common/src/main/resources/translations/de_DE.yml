@@ -226,6 +226,8 @@ lingo:
     removed: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{term}</#A78BFA> <#F1F5F9>aus dem Glossar entfernt.</#F1F5F9>'
     removed_one: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Glossarbegriff entfernt.</#F1F5F9>'
     not_found: '<#F87171>[X]</#F87171> <#A78BFA>{term}</#A78BFA> <#F1F5F9>steht nicht im Glossar.</#F1F5F9>'
+    import:
+      done: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{added}</#A78BFA> <#F1F5F9>Begriffe aus glossary.yml übernommen.</#F1F5F9> <#94A3B8>{duplicates} gab es schon, {limit} passten nicht mehr ins Limit.</#94A3B8>'
     list:
       header: '<gradient:#5EEAD4:#A78BFA>Glossar</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>Begriffe</#94A3B8>'
       context: '<#94A3B8>Wörter, die der Übersetzer behält oder immer gleich übersetzt</#94A3B8>'

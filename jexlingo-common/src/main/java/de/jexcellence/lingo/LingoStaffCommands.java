@@ -90,6 +90,7 @@ public final class LingoStaffCommands {
         admin.setForms(forms);
         admin.setPhrases(core.phrases());
         admin.setTerms(core.learning().terms());
+        admin.setGlossarySeed(new LingoFiles(plugin, core.edition(), plugin.getLogger())::readGlossarySeed);
 
         LingoOpsHandler ops = new LingoOpsHandler(sources, core.edition(), core.settings(), core.resolver(),
                 statsView, replies);

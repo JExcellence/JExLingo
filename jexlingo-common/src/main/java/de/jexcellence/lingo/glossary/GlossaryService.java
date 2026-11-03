@@ -10,11 +10,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -43,6 +45,59 @@ public final class GlossaryService {
         LIMIT_REACHED,
         /** A force term needs a replacement. */
         MISSING_REPLACEMENT
+    }
+
+    /**
+     * Outcome of an import from {@code glossary.yml}.
+     *
+     * @param toAdd      terms that are new and fit the limit
+     * @param duplicates terms already in the glossary
+     * @param overLimit  new terms left out because of the edition's limit
+     */
+    public record ImportResult(@NotNull List<GlossaryTerm> toAdd, int duplicates, int overLimit) {
+
+        /**
+         * Copies the list.
+         *
+         * @param toAdd      terms that are new and fit the limit
+         * @param duplicates terms already in the glossary
+         * @param overLimit  new terms left out because of the limit
+         */
+        public ImportResult {
+            toAdd = List.copyOf(toAdd);
+        }
+    }
+
+    /**
+     * Decides which candidates an import adds: new terms in file order until the limit, skipping terms whose text
+     * and languages are already in the glossary or earlier in the file.
+     *
+     * @param existing   the current glossary
+     * @param candidates terms from the file
+     * @param maxTerms   the edition's limit, 0 for none
+     * @return the plan
+     */
+    public static @NotNull ImportResult plan(@NotNull List<GlossaryTerm> existing,
+                                             @NotNull List<GlossaryTerm> candidates, int maxTerms) {
+        Set<String> known = new HashSet<>();
+        existing.forEach(term -> known.add(identity(term)));
+        List<GlossaryTerm> toAdd = new ArrayList<>();
+        int duplicates = 0;
+        int overLimit = 0;
+        for (GlossaryTerm candidate : candidates) {
+            if (!known.add(identity(candidate))) {
+                duplicates++;
+            } else if (maxTerms > 0 && existing.size() + toAdd.size() >= maxTerms) {
+                overLimit++;
+            } else {
+                toAdd.add(candidate);
+            }
+        }
+        return new ImportResult(toAdd, duplicates, overLimit);
+    }
+
+    private static @NotNull String identity(@NotNull GlossaryTerm term) {
+        return term.term().toLowerCase(Locale.ROOT) + '\u0000' + term.source() + '\u0000' + term.target();
     }
 
     private final GlossaryTermRepository repository;
@@ -141,6 +196,24 @@ public final class GlossaryService {
             next.add(stored);
             replace(next);
             return AddResult.ADDED;
+        }, worker);
+    }
+
+    /**
+     * Adds the terms of {@code glossary.yml} that are not in the glossary yet. Existing terms stay as they are, and
+     * the edition's limit still applies.
+     *
+     * @param candidates the terms read from the file
+     * @return what was added, skipped as duplicates and left out because of the limit
+     */
+    public @NotNull CompletableFuture<ImportResult> importTerms(@NotNull List<GlossaryTerm> candidates) {
+        return CompletableFuture.supplyAsync(() -> {
+            ImportResult result = plan(terms.get(), candidates, edition.maxGlossaryTerms());
+            if (!result.toAdd().isEmpty()) {
+                repository.createAll(result.toAdd().stream().map(GlossaryTermEntity::new).toList());
+                replace(repository.findAll().stream().map(GlossaryTermEntity::toTerm).toList());
+            }
+            return result;
         }, worker);
     }
 

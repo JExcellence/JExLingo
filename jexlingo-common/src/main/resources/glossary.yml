@@ -1,5 +1,7 @@
 # JExLingo default glossary
-# Read once, when the glossary is still empty. After that, manage it in game:
+# Read once, when the glossary is still empty. To add new terms from this file later, run
+#   /lingo glossary import       (adds what is new, keeps existing terms)
+# or manage it in game:
 #   /lingo glossary add keep <term>
 #   /lingo glossary add force <term> <translation>
 #   /lingo glossary remove <term>

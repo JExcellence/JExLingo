@@ -92,7 +92,7 @@ Step by step with checks and fixes for every log message: [docs/SELF_HOSTING.md]
 | `/lingo incoming <auto\|click\|off>`, `outgoing`, `original <enable\|disable>`, `show <id>` | `jexlingo.use` | everyone |
 | `/lingo suggest [id] [text]` | `jexlingo.suggest` | everyone (Premium) |
 | `/lingo review [approve\|reject\|block\|unblock]` | `jexlingo.review` | op (Premium) |
-| `/lingo glossary [add\|remove\|list]` | `jexlingo.admin.glossary` | op |
+| `/lingo glossary [add\|remove\|list\|import]` | `jexlingo.admin.glossary` | op |
 | `/lingo stats [today\|week\|month]` | `jexlingo.admin.stats` | op |
 | `/lingo inspect <player>`, `set <lang\|write\|incoming\|outgoing\|original> <player> <value>` | `jexlingo.admin` | op |
 | `/lingo pause [minutes]`, `resume`, `ping`, `cache clear` | `jexlingo.admin` | op |

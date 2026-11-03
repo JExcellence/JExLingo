@@ -25,9 +25,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * The staff part of {@code /lingo}: review queue, glossary, test translation, status, export and reload.
@@ -56,6 +58,7 @@ public final class LingoAdminHandler {
     private @Nullable LingoBedrockForms forms;
     private @Nullable PhraseService phrases;
     private @Nullable TermProposals terms;
+    private Supplier<List<GlossaryTerm>> glossarySeed = List::of;
 
     /**
      * Creates the handler.
@@ -89,6 +92,15 @@ public final class LingoAdminHandler {
      */
     public void setPhrases(@Nullable PhraseService value) {
         this.phrases = value;
+    }
+
+    /**
+     * Wires the reader of {@code glossary.yml} for {@code /lingo glossary import}.
+     *
+     * @param value reads the terms from the file each time it is called
+     */
+    public void setGlossarySeed(@NotNull Supplier<List<GlossaryTerm>> value) {
+        this.glossarySeed = value;
     }
 
     /**
@@ -130,6 +142,7 @@ public final class LingoAdminHandler {
         handlers.put(ROOT + "glossary.add", this::onGlossaryAdd);
         handlers.put(ROOT + "glossary.remove", this::onGlossaryRemove);
         handlers.put(ROOT + "glossary.list", this::onGlossaryList);
+        handlers.put(ROOT + "glossary.import", this::onGlossaryImport);
         handlers.put(ROOT + "test", this::onTest);
         handlers.put(ROOT + "status", ctx -> status.send(ctx.sender()));
         handlers.put(ROOT + "export", this::onExport);
@@ -263,6 +276,14 @@ public final class LingoAdminHandler {
 
     private void onGlossaryList(@NotNull CommandContext ctx) {
         AdminLists.glossary(ctx.sender(), services.glossary().terms());
+    }
+
+    private void onGlossaryImport(@NotNull CommandContext ctx) {
+        services.glossary().importTerms(glossarySeed.get()).thenAccept(result -> replies.send(ctx.sender(),
+                SafeText.msg(KEY + "glossary.import.done")
+                        .with("added", result.toAdd().size())
+                        .with("duplicates", result.duplicates())
+                        .with("limit", result.overLimit())));
     }
 
     private void onTest(@NotNull CommandContext ctx) {

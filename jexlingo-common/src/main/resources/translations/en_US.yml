@@ -226,6 +226,8 @@ lingo:
     removed: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{term}</#A78BFA> <#F1F5F9>removed from the glossary.</#F1F5F9>'
     removed_one: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Glossary term removed.</#F1F5F9>'
     not_found: '<#F87171>[X]</#F87171> <#A78BFA>{term}</#A78BFA> <#F1F5F9>is not in the glossary.</#F1F5F9>'
+    import:
+      done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Added</#F1F5F9> <#A78BFA>{added}</#A78BFA> <#F1F5F9>terms from glossary.yml.</#F1F5F9> <#94A3B8>{duplicates} were already there, {limit} did not fit the limit.</#94A3B8>'
     list:
       header: '<gradient:#5EEAD4:#A78BFA>Glossary</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>terms</#94A3B8>'
       context: '<#94A3B8>Words the translator keeps or always translates the same way</#94A3B8>'

@@ -72,9 +72,21 @@ public final class JExLingo {
         config.set(files.readConfig());
     }
 
+    /**
+     * Hikari/Hibernate log through SLF4J. With no provider on the Paper classpath, SLF4J prints
+     * its "no providers" WARN to STDERR, which Paper surfaces as {@code [ERROR]: [STDERR]}. Raise
+     * internal verbosity so that notice stays quiet unless the operator already set the property.
+     */
+    static void quietSlf4jInternalNotices() {
+        if (System.getProperty("slf4j.internal.verbosity") == null) {
+            System.setProperty("slf4j.internal.verbosity", "ERROR");
+        }
+    }
+
     /** Starts every service; disables the plugin when the start fails. */
     public void onEnable() {
         try {
+            quietSlf4jInternalNotices();
             files.prepareRest();
             platform = JExPlatform.builder(plugin)
                     .withLogLevel(LogLevel.INFO)

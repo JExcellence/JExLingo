@@ -4,12 +4,12 @@
 # or manage it in game:
 #   /lingo glossary add keep <term>
 #   /lingo glossary add force <term> <translation>
+#   /lingo glossary add force de>en:<term> <translation>   (only for one language pair)
 #   /lingo glossary remove <term>
 
-# Terms that are never translated: server names, game modes, ranks, chat slang.
+# Terms that are never translated. Add your server name, game modes and ranks here.
 keep:
-  - OneBlock
-  - Ironman
+  # Chat slang
   - gg
   - afk
   - brb
@@ -17,8 +17,15 @@ keep:
   - xp
   - pvp
   - pve
+  # Game words a translator tends to change (Spawn -> "Laichen", Creeper -> "Kriecher")
+  - Spawn
+  - Nether
+  - Creeper
+  - Enderman
+  - Elytra
+  - Redstone
 
-# Terms that always get the same translation. source/target are optional (empty = every language).
-force:
-  - { term: Insel, replacement: Island, source: de, target: en }
-  - { term: Island, replacement: Insel, source: en, target: de }
+# Terms that always get the same translation. source/target are optional (empty = every language pair).
+# Example for a skyblock server:
+#   - { term: Insel, replacement: island, source: de, target: en }
+force: []

@@ -6,6 +6,8 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +40,22 @@ class GlossarySeedTest {
         assertTrue(insel.appliesTo(new LanguagePair(DE, EN)));
         assertFalse(insel.appliesTo(new LanguagePair(EN, DE)));
         assertEquals(1, warnings.size());
+    }
+
+    @Test
+    void theBundledGlossaryReadsWithoutWarnings() throws Exception {
+        YamlConfiguration yaml = new YamlConfiguration();
+        try (InputStream in = getClass().getResourceAsStream("/glossary.yml")) {
+            assertTrue(in != null, "glossary.yml is bundled");
+            yaml.loadFromString(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+        }
+        List<String> warnings = new ArrayList<>();
+
+        List<GlossaryTerm> terms = GlossarySeed.parse(yaml, warnings::add);
+
+        assertTrue(warnings.isEmpty(), () -> String.join("\n", warnings));
+        assertTrue(terms.stream().anyMatch(term -> term.term().equals("Spawn")));
+        assertTrue(terms.stream().noneMatch(GlossaryTerm::forces));
     }
 
     @Test

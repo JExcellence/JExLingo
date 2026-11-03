@@ -66,6 +66,6 @@ with their comment (backup `config.yml.bak-<time>`); your values are never chang
 | `glossary.yml` | default terms, read once while the glossary table is empty |
 | `slang.yml` | chat abbreviations per source language, expanded before translation; `/lingo reload` |
 | `commands/lingo.yml` | command tree: names, aliases, permissions, defaults |
-| `database/hibernate.properties` | H2 by default; MySQL, MariaDB, PostgreSQL supported |
+| `database/hibernate.properties` | H2 by default (no setup); `MYSQL` for a MySQL or MariaDB server. Only these two drivers are downloaded |
 | `translations/en_US.yml`, `de_DE.yml` | every text; new keys from updates are merged in, your wording is kept |
 | `exports/` | Premium TSV exports |

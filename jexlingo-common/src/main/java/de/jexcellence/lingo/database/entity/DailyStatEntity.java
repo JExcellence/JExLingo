@@ -4,6 +4,7 @@ import de.jexcellence.jehibernate.entity.base.LongIdEntity;
 import de.jexcellence.lingo.api.LanguageCode;
 import de.jexcellence.lingo.api.TranslationOrigin;
 import de.jexcellence.lingo.pipeline.LanguagePair;
+import de.jexcellence.lingo.stats.QualityCounts;
 import de.jexcellence.lingo.stats.StatRow;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,6 +49,15 @@ public class DailyStatEntity extends LongIdEntity {
     @Column(name = "latency_ms")
     private Long latencyMs;
 
+    @Column(name = "token_losses")
+    private Long tokenLosses;
+
+    @Column(name = "recoveries")
+    private Long recoveries;
+
+    @Column(name = "corrections")
+    private Long corrections;
+
     protected DailyStatEntity() {
     }
 
@@ -82,6 +92,17 @@ public class DailyStatEntity extends LongIdEntity {
     }
 
     /**
+     * Adds quality signals.
+     *
+     * @param added broken tokens, saved lines and corrections
+     */
+    public void addQuality(@NotNull QualityCounts added) {
+        this.tokenLosses = value(tokenLosses) + added.tokenLosses();
+        this.recoveries = value(recoveries) + added.recoveries();
+        this.corrections = value(corrections) + added.corrections();
+    }
+
+    /**
      * Returns the row as a value.
      *
      * @return the row
@@ -90,7 +111,8 @@ public class DailyStatEntity extends LongIdEntity {
         return new StatRow(day,
                 new LanguagePair(LanguageCode.of(sourceLanguage), LanguageCode.of(targetLanguage)),
                 TranslationOrigin.valueOf(origin),
-                value(translations), value(characters), value(latencyMs));
+                value(translations), value(characters), value(latencyMs),
+                new QualityCounts(value(tokenLosses), value(recoveries), value(corrections)));
     }
 
     private static long value(Long stored) {

@@ -381,6 +381,7 @@ lingo_stats:
     online: 'online'
     offline: 'offline'
     paused: 'paused by staff'
+    corrections: '{rate} corrections per 1,000'
   label:
     provider: 'Provider'
     state: 'State'
@@ -401,6 +402,7 @@ lingo_stats:
     pinned: 'Pinned phrases'
     sources: 'Sources'
     pairs: 'Language pairs'
+    tokens: 'Broken tokens / saved'
   overview:
     name: '<#F1F5F9>Overview</#F1F5F9> <dark_gray>|</dark_gray> <#A78BFA>{period}</#A78BFA>'
     description: 'All translated lines of the period.'

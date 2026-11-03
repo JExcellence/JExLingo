@@ -381,6 +381,7 @@ lingo_stats:
     online: 'online'
     offline: 'offline'
     paused: 'vom Team pausiert'
+    corrections: '{rate} Korrekturen pro 1.000'
   label:
     provider: 'Anbieter'
     state: 'Zustand'
@@ -401,6 +402,7 @@ lingo_stats:
     pinned: 'Feste Phrasen'
     sources: 'Quellen'
     pairs: 'Sprachpaare'
+    tokens: 'Kaputte Platzhalter / gerettet'
   overview:
     name: '<#F1F5F9>Überblick</#F1F5F9> <dark_gray>|</dark_gray> <#A78BFA>{period}</#A78BFA>'
     description: 'Alle übersetzten Zeilen des Zeitraums.'

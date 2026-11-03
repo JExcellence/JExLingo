@@ -36,6 +36,19 @@ class StatsSummaryTest {
     }
 
     @Test
+    void addsUpQualitySignalsAndTheCorrectionRatePerPair() {
+        StatsSummary summary = StatsSummary.of(List.of(
+                new StatRow(DAY, DE_EN, TranslationOrigin.PROVIDER, 1500, 30_000, 0, new QualityCounts(4, 3, 6)),
+                new StatRow(DAY, DE_EN, TranslationOrigin.CACHE, 500, 9_000, 0),
+                new StatRow(DAY, EN_DE, TranslationOrigin.PROVIDER, 0, 0, 0, new QualityCounts(1, 0, 0))));
+
+        assertEquals(new QualityCounts(5, 3, 6), summary.quality());
+        assertEquals(3L, summary.correctionsPerThousand("de>en").orElseThrow());
+        assertTrue(summary.correctionsPerThousand("en>de").isEmpty());
+        assertTrue(summary.correctionsPerThousand("fr>en").isEmpty());
+    }
+
+    @Test
     void emptyPeriodHasNoDivisionByZero() {
         assertEquals(0, StatsSummary.EMPTY.savedPercent());
         assertEquals(0L, StatsSummary.EMPTY.averageProviderLatency());

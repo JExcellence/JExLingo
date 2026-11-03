@@ -58,6 +58,7 @@ public final class LingoOperations {
         this.logger = logger;
         this.settings = new AtomicReference<>(settings);
         core.pipeline().setResultSink(recorder);
+        core.pipeline().setQualitySink(recorder);
     }
 
     /** Loads today's stored total for the today counter. */

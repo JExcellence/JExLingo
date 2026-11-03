@@ -48,6 +48,7 @@ public final class TranslationPipeline {
     private final InFlightRegistry<String> inFlight = new InFlightRegistry<>();
     private final PipelineStats stats = new PipelineStats();
     private final AtomicReference<Consumer<TranslationResult>> resultSink = new AtomicReference<>();
+    private final AtomicReference<PipelineQualitySink> qualitySink = new AtomicReference<>();
 
     /**
      * Creates the pipeline.
@@ -123,6 +124,15 @@ public final class TranslationPipeline {
      */
     public void setResultSink(@Nullable Consumer<TranslationResult> sink) {
         resultSink.set(sink);
+    }
+
+    /**
+     * Sets a receiver for broken tokens and saved lines per language pair, for example the daily statistics.
+     *
+     * @param sink the receiver, or {@code null} to remove it
+     */
+    public void setQualitySink(@Nullable PipelineQualitySink sink) {
+        qualitySink.set(sink);
     }
 
     /**
@@ -215,6 +225,10 @@ public final class TranslationPipeline {
                         return CompletableFuture.completedFuture(restored);
                     }
                     stats.recordTokenLoss();
+                    PipelineQualitySink sink = qualitySink.get();
+                    if (sink != null) {
+                        sink.tokenLoss(pair);
+                    }
                     return recover(job);
                 })
                 .thenApply(restored -> restored.map(text -> stored(job, text)).orElseGet(() -> fallback(job)))
@@ -245,7 +259,13 @@ public final class TranslationPipeline {
         return CompletableFuture.allOf(pieces.toArray(CompletableFuture[]::new)).thenApply(ignored -> {
             String joined = pieces.stream().map(CompletableFuture::join).collect(Collectors.joining());
             Optional<String> restored = restore(joined, job);
-            restored.ifPresent(text -> stats.recordRecovery());
+            restored.ifPresent(text -> {
+                stats.recordRecovery();
+                PipelineQualitySink sink = qualitySink.get();
+                if (sink != null) {
+                    sink.recovery(job.pair());
+                }
+            });
             return restored;
         });
     }

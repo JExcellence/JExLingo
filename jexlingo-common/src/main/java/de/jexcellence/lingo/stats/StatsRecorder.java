@@ -5,6 +5,7 @@ import de.jexcellence.lingo.api.TranslationResult;
 import de.jexcellence.lingo.database.entity.DailyStatEntity;
 import de.jexcellence.lingo.database.repository.DailyStatRepository;
 import de.jexcellence.lingo.pipeline.LanguagePair;
+import de.jexcellence.lingo.pipeline.PipelineQualitySink;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Clock;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,7 +31,7 @@ import java.util.logging.Logger;
  * @author JExcellence
  * @since 0.3.0
  */
-public final class StatsRecorder implements Consumer<TranslationResult> {
+public final class StatsRecorder implements Consumer<TranslationResult>, PipelineQualitySink {
 
     private final DailyStatRepository repository;
     private final Clock clock;
@@ -47,6 +49,22 @@ public final class StatsRecorder implements Consumer<TranslationResult> {
         private final LongAdder translations = new LongAdder();
         private final LongAdder characters = new LongAdder();
         private final LongAdder latency = new LongAdder();
+        private final LongAdder tokenLosses = new LongAdder();
+        private final LongAdder recoveries = new LongAdder();
+        private final LongAdder corrections = new LongAdder();
+
+        private @NotNull QualityCounts quality() {
+            return new QualityCounts(tokenLosses.sum(), recoveries.sum(), corrections.sum());
+        }
+
+        private @NotNull QualityCounts takeQuality() {
+            return new QualityCounts(tokenLosses.sumThenReset(), recoveries.sumThenReset(),
+                    corrections.sumThenReset());
+        }
+
+        private boolean isEmpty() {
+            return translations.sum() == 0L && quality().isEmpty();
+        }
     }
 
     /**
@@ -81,20 +99,42 @@ public final class StatsRecorder implements Consumer<TranslationResult> {
         todayLive.increment();
     }
 
+    @Override
+    public void tokenLoss(@NotNull LanguagePair pair) {
+        qualityCounter(pair).ifPresent(counter -> counter.tokenLosses.increment());
+    }
+
+    @Override
+    public void recovery(@NotNull LanguagePair pair) {
+        qualityCounter(pair).ifPresent(counter -> counter.recoveries.increment());
+    }
+
+    /**
+     * Counts a correction a player suggested for this language pair.
+     *
+     * @param pair the language pair
+     */
+    public void correction(@NotNull LanguagePair pair) {
+        qualityCounter(pair).ifPresent(counter -> counter.corrections.increment());
+    }
+
     /**
      * Writes the counted totals to the database. Call on a worker thread; runs one batch at a time.
      */
     public synchronized void flush() {
         for (Map.Entry<Key, Counter> entry : counters.entrySet()) {
-            long translations = entry.getValue().translations.sumThenReset();
-            long characters = entry.getValue().characters.sumThenReset();
-            long latency = entry.getValue().latency.sumThenReset();
-            if (translations > 0L) {
-                store(entry.getKey(), translations, characters, latency);
+            Counter counter = entry.getValue();
+            long translations = counter.translations.sumThenReset();
+            long characters = counter.characters.sumThenReset();
+            long latency = counter.latency.sumThenReset();
+            QualityCounts quality = counter.takeQuality();
+            if (translations > 0L || !quality.isEmpty()) {
+                store(entry.getKey(), new StatRow(entry.getKey().day(), entry.getKey().pair(),
+                        entry.getKey().origin(), translations, characters, latency, quality));
             }
         }
         counters.entrySet().removeIf(entry -> !entry.getKey().day().equals(today.get())
-                && entry.getValue().translations.sum() == 0L);
+                && entry.getValue().isEmpty());
     }
 
     /**
@@ -105,13 +145,21 @@ public final class StatsRecorder implements Consumer<TranslationResult> {
     public @NotNull List<StatRow> pending() {
         List<StatRow> rows = new ArrayList<>();
         counters.forEach((key, counter) -> {
-            long translations = counter.translations.sum();
-            if (translations > 0L) {
-                rows.add(new StatRow(key.day(), key.pair(), key.origin(), translations, counter.characters.sum(),
-                        counter.latency.sum()));
+            if (!counter.isEmpty()) {
+                rows.add(new StatRow(key.day(), key.pair(), key.origin(), counter.translations.sum(),
+                        counter.characters.sum(), counter.latency.sum(), counter.quality()));
             }
         });
         return rows;
+    }
+
+    /** Quality signals are kept on the provider row of the pair; corrections and token losses concern it. */
+    private @NotNull Optional<Counter> qualityCounter(@NotNull LanguagePair pair) {
+        if (!enabled.get()) {
+            return Optional.empty();
+        }
+        return Optional.of(counters.computeIfAbsent(new Key(rollDay(), pair, TranslationOrigin.PROVIDER),
+                ignored -> new Counter()));
     }
 
     /**
@@ -179,11 +227,12 @@ public final class StatsRecorder implements Consumer<TranslationResult> {
         return now;
     }
 
-    private void store(@NotNull Key key, long translations, long characters, long latency) {
+    private void store(@NotNull Key key, @NotNull StatRow added) {
         try {
             DailyStatEntity row = repository.find(key.day(), key.pair(), key.origin())
                     .orElseGet(() -> new DailyStatEntity(key.day(), key.pair(), key.origin()));
-            row.add(translations, characters, latency);
+            row.add(added.translations(), added.characters(), added.latencyMs());
+            row.addQuality(added.quality());
             repository.save(row);
         } catch (RuntimeException ex) {
             logger.log(Level.WARNING, ex, () -> "Could not store statistics for " + key.day());

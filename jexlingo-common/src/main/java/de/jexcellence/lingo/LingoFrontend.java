@@ -15,6 +15,7 @@ import de.jexcellence.lingo.learning.RecentMessageBuffer;
 import de.jexcellence.lingo.learning.SuggestionService;
 import de.jexcellence.lingo.placeholder.LingoPlaceholderExpansion;
 import de.jexcellence.lingo.settings.PlayerSessionListener;
+import de.jexcellence.lingo.stats.CorrectionStatsListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
@@ -91,6 +92,7 @@ public final class LingoFrontend {
             suggestions = new SuggestionService(recent, core.memory(), core.phrases(), core.settings(),
                     core.resolver(),
                     config.get().learning());
+            pluginManager.registerEvents(new CorrectionStatsListener(operations.recorder()), plugin);
         }
         LingoBedrockForms forms = null;
         if (bedrock.isAvailable()) {

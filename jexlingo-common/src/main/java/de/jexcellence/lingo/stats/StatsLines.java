@@ -82,9 +82,11 @@ public final class StatsLines {
                 .row(LABEL + "average", summary.count(TranslationOrigin.PROVIDER) == 0L ? NONE
                         : summary.averageProviderLatency() + MILLIS)
                 .row(LABEL + "latency", latency(sources.gateway().latency()))
+                .row(LABEL + "tokens", numbers.format(summary.quality().tokenLosses()) + " / "
+                        + numbers.format(summary.quality().recoveries()))
                 .section(KEY + "origins.section")
                 .row(LABEL + "sources", origins(viewer, summary.byOrigin(), numbers))
-                .row(LABEL + "pairs", pairs(summary, numbers));
+                .row(LABEL + "pairs", pairs(viewer, summary, numbers));
         if (sources.toggle().isPaused()) {
             panel.row(LABEL + "paused", SafeText.msg(KEY + "value.paused").plain(viewer), LingoPanel.Tone.WARN);
         }
@@ -169,14 +171,32 @@ public final class StatsLines {
         return NumberFormat.getIntegerInstance(viewer == null ? Locale.ROOT : viewer.locale());
     }
 
-    private static @NotNull String pairs(@NotNull StatsSummary summary, @NotNull NumberFormat numbers) {
+    private static @NotNull String pairs(@Nullable Player viewer, @NotNull StatsSummary summary,
+                                         @NotNull NumberFormat numbers) {
         List<Map.Entry<String, Long>> top = summary.topPairs(TOP_PAIRS);
         if (top.isEmpty()) {
             return NONE;
         }
         return top.stream()
                 .map(entry -> entry.getKey().toUpperCase(Locale.ROOT).replace(">", " » ") + " "
-                        + numbers.format(entry.getValue()))
+                        + numbers.format(entry.getValue()) + correctionRate(viewer, summary, entry.getKey()))
                 .collect(Collectors.joining(", "));
+    }
+
+    /**
+     * The correction rate of a pair as a short suffix, or nothing when players corrected none of its lines.
+     *
+     * @param viewer  the viewer, or {@code null} for the console
+     * @param summary the totals
+     * @param pairKey the pair key ({@code de>en})
+     * @return for example {@code  (12 corrections per 1,000)}
+     */
+    public static @NotNull String correctionRate(@Nullable Player viewer, @NotNull StatsSummary summary,
+                                                @NotNull String pairKey) {
+        return summary.correctionsPerThousand(pairKey)
+                .stream()
+                .mapToObj(rate -> " (" + SafeText.msg(KEY + "value.corrections").with("rate", rate).plain(viewer) + ")")
+                .findFirst()
+                .orElse("");
     }
 }

@@ -15,6 +15,7 @@ import java.time.LocalDate;
  * @param translations number of results
  * @param characters   characters of the originals
  * @param latencyMs    summed latency of the results
+ * @param quality      broken tokens, saved lines and corrections; kept on the provider row of the pair
  * @author JExcellence
  * @since 0.3.0
  */
@@ -24,6 +25,22 @@ public record StatRow(
         @NotNull TranslationOrigin origin,
         long translations,
         long characters,
-        long latencyMs
+        long latencyMs,
+        @NotNull QualityCounts quality
 ) {
+
+    /**
+     * A row without quality signals.
+     *
+     * @param day          the day
+     * @param pair         the language pair
+     * @param origin       where the results came from
+     * @param translations number of results
+     * @param characters   characters of the originals
+     * @param latencyMs    summed latency of the results
+     */
+    public StatRow(@NotNull LocalDate day, @NotNull LanguagePair pair, @NotNull TranslationOrigin origin,
+                   long translations, long characters, long latencyMs) {
+        this(day, pair, origin, translations, characters, latencyMs, QualityCounts.EMPTY);
+    }
 }

@@ -197,7 +197,8 @@ public final class StatsView extends LingoBaseView {
         for (Map.Entry<String, Long> pair : summary.topPairs(TOP_PAIRS)) {
             rows.add(LingoCards.ic(LingoCards.msg(KEY + "pair.row")
                     .with("pair", pair.getKey().toUpperCase(Locale.ROOT).replace(">", " » "))
-                    .with("value", number(viewer, pair.getValue())), viewer));
+                    .with("value", number(viewer, pair.getValue())
+                            + StatsLines.correctionRate(viewer, summary, pair.getKey())), viewer));
         }
         if (rows.isEmpty()) {
             rows.add(LingoCards.ic(viewer, KEY + "pair.none"));
@@ -209,7 +210,11 @@ public final class StatsView extends LingoBaseView {
         List<Component> rows = List.of(
                 LingoCards.rowOf(viewer, LABEL + "calls", number(viewer, summary.count(TranslationOrigin.PROVIDER))),
                 LingoCards.rowOf(viewer, LABEL + "average", LingoCards.value(viewer,
-                        summary.averageProviderLatency() + " ms")),
+                        summary.count(TranslationOrigin.PROVIDER) == 0L ? "-"
+                                : summary.averageProviderLatency() + " ms")),
+                LingoCards.rowOf(viewer, LABEL + "tokens", LingoCards.value(viewer,
+                        number(viewer, summary.quality().tokenLosses()) + " / "
+                                + number(viewer, summary.quality().recoveries()))),
                 LingoCards.rowOf(viewer, LABEL + "failed-since-start", number(viewer,
                         sources.gateway().failureCount())),
                 LingoCards.rowOf(viewer, LABEL + "refused-since-start", number(viewer,

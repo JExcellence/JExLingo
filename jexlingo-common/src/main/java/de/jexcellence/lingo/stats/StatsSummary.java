@@ -10,6 +10,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalLong;
 import java.util.Set;
 
 /**
@@ -20,6 +21,8 @@ import java.util.Set;
  * @param byOrigin     results per source
  * @param byPair       results per language pair key ({@code de>en})
  * @param latencyMs    summed latency of provider results
+ * @param quality      broken tokens, saved lines and corrections of the period
+ * @param correctionsByPair corrections per language pair key
  * @author JExcellence
  * @since 0.3.0
  */
@@ -28,8 +31,12 @@ public record StatsSummary(
         long characters,
         @NotNull Map<TranslationOrigin, Long> byOrigin,
         @NotNull Map<String, Long> byPair,
-        long latencyMs
+        long latencyMs,
+        @NotNull QualityCounts quality,
+        @NotNull Map<String, Long> correctionsByPair
 ) {
+
+    private static final double PER_THOUSAND = 1000.0;
 
     /** Sources that answered without calling the provider. */
     private static final Set<TranslationOrigin> SAVED = EnumSet.of(TranslationOrigin.MEMORY, TranslationOrigin.PHRASE,
@@ -46,11 +53,30 @@ public record StatsSummary(
      * @param byOrigin     results per source
      * @param byPair       results per language pair
      * @param latencyMs    summed provider latency
+     * @param quality      broken tokens, saved lines and corrections of the period
+     * @param correctionsByPair corrections per language pair
      */
     public StatsSummary {
         byOrigin = Collections.unmodifiableMap(new EnumMap<>(byOrigin.isEmpty()
                 ? new EnumMap<>(TranslationOrigin.class) : byOrigin));
         byPair = Map.copyOf(byPair);
+        correctionsByPair = Map.copyOf(correctionsByPair);
+    }
+
+    /**
+     * Returns corrections per 1,000 translations of a pair, the main quality signal: a pair that players correct
+     * often needs glossary terms or a better model.
+     *
+     * @param pairKey the pair key ({@code de>en})
+     * @return the rate, or empty when the pair had no translations or no corrections
+     */
+    public @NotNull OptionalLong correctionsPerThousand(@NotNull String pairKey) {
+        long corrected = correctionsByPair.getOrDefault(pairKey, 0L);
+        long translated = byPair.getOrDefault(pairKey, 0L);
+        if (corrected == 0L || translated == 0L) {
+            return OptionalLong.empty();
+        }
+        return OptionalLong.of(Math.round(corrected * PER_THOUSAND / translated));
     }
 
     /**
@@ -65,6 +91,8 @@ public record StatsSummary(
         long latency = 0L;
         Map<TranslationOrigin, Long> byOrigin = new EnumMap<>(TranslationOrigin.class);
         Map<String, Long> byPair = new HashMap<>();
+        Map<String, Long> correctionsByPair = new HashMap<>();
+        QualityCounts quality = QualityCounts.EMPTY;
         for (StatRow row : rows) {
             translations += row.translations();
             characters += row.characters();
@@ -73,8 +101,12 @@ public record StatsSummary(
             if (row.origin() == TranslationOrigin.PROVIDER) {
                 latency += row.latencyMs();
             }
+            quality = quality.plus(row.quality());
+            if (row.quality().corrections() > 0L) {
+                correctionsByPair.merge(row.pair().key(), row.quality().corrections(), Long::sum);
+            }
         }
-        return new StatsSummary(translations, characters, byOrigin, byPair, latency);
+        return new StatsSummary(translations, characters, byOrigin, byPair, latency, quality, correctionsByPair);
     }
 
     /**

@@ -36,6 +36,7 @@ public final class JExLingo {
     private static final long PURGE_PERIOD_TICKS = 60L * 60L * TICKS_PER_SECOND;
     private static final Duration SHUTDOWN_FLUSH = Duration.ofSeconds(3);
     private static final int WORKER_THREADS = 2;
+    private static final String SLF4J_VERBOSITY = "slf4j.internal.verbosity";
 
     private final JavaPlugin plugin;
     private final LingoEdition edition;
@@ -68,6 +69,7 @@ public final class JExLingo {
     public void onLoad() {
         logger.log(Level.INFO, () -> "Loading JExLingo " + edition.name() + " Edition v"
                 + plugin.getPluginMeta().getVersion());
+        quietSlf4jNotice();
         files.prepareConfig();
         config.set(files.readConfig());
     }
@@ -139,6 +141,17 @@ public final class JExLingo {
         operations.apply(next.storage().statistics());
         frontend.apply(next);
         R18nManager.getInstance().reload();
+    }
+
+    /**
+     * The bundled connection pool logs through SLF4J, and without a provider SLF4J prints a three-line notice to
+     * stderr, which the server shows as ERROR on every start. Nothing is wrong, so the notice is kept quiet unless
+     * the server owner chose a level.
+     */
+    private static void quietSlf4jNotice() {
+        if (System.getProperty(SLF4J_VERBOSITY) == null) {
+            System.setProperty(SLF4J_VERBOSITY, "ERROR");
+        }
     }
 
     private void scheduleTasks(@NotNull PlatformScheduler scheduler) {

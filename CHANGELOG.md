@@ -51,6 +51,10 @@
   languages, port and memory from `.env`.
 - New database columns (`jexlingo_daily_stats`: token_losses, recoveries, corrections; `jexlingo_memory`:
   machine_text) are added on start.
+- Lines that differ only in apostrophes, commas or repeated `?` share corrections, pins and cache entries
+  (`wie geht's` and `wie gehts`); a single `?` still counts.
+- English translations write the pronoun `I` with a capital letter (`i sell [item]` becomes `I sell [item]`).
+- A shouted line gets its approved correction or pinned phrase in capitals too.
 - `config.yml` raised to config-version 6 with the new `learning` and `chat` options.
 
 ## 0.4.2 - 2026-10-04

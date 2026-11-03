@@ -125,7 +125,7 @@ public final class SuggestionService {
         if (phrases != null) {
             phrases.flag(pair, TextNormalizer.key(message.original()), submitter);
         }
-        return memory.submit(pair, message.original(), clean, submitter).thenCompose(entry -> {
+        return memory.submit(pair, message.original(), clean, submitter, shown).thenCompose(entry -> {
             Bukkit.getPluginManager().callEvent(new TranslationSuggestedEvent(!Bukkit.isPrimaryThread(), submitter,
                     entry.sourceText(), entry.targetText(), pair.source(), pair.target()));
             return memory.approveByVotes(entry, votesNeeded)

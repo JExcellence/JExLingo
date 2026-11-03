@@ -6,13 +6,16 @@ import de.jexcellence.lingo.learning.PinnedPhrase;
 import de.jexcellence.lingo.learning.TermProposals;
 import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,6 +33,7 @@ final class AdminLists {
     private static final String GLOSSARY = "lingo.glossary.list.";
     private static final String TERMS = "lingo.terms.";
     private static final String COUNT = "count";
+    private static final String TERM = "term";
 
     private AdminLists() {
     }
@@ -93,21 +97,39 @@ final class AdminLists {
      * @param proposals the proposals, most corrections first
      * @param limit     most rows to show
      */
-    static void terms(@NotNull CommandSender sender, @NotNull List<TermProposals.Proposal> proposals, int limit) {
+    static void terms(@NotNull CommandSender sender, @NotNull List<TermProposals.Proposal> proposals,
+                      @NotNull List<TermProposals.ForceProposal> forced, int limit) {
         LingoPanel panel = LingoPanel.of(sender);
         Player viewer = panel.viewer();
-        panel.header(SafeText.msg(TERMS + "header").with(COUNT, proposals.size()).component(viewer))
+        panel.header(SafeText.msg(TERMS + "header").with(COUNT, proposals.size() + forced.size()).component(viewer))
                 .context(SafeText.msg(TERMS + "context").component(viewer))
                 .gap();
-        if (proposals.isEmpty()) {
+        if (proposals.isEmpty() && forced.isEmpty()) {
             panel.line(SafeText.msg(TERMS + "empty").component(viewer));
         }
+        forced.stream().limit(limit).forEach(proposal -> panel.line(forceLine(viewer, proposal)));
         proposals.stream().limit(limit).forEach(proposal -> panel.line(SafeText.component(
                 SafeText.msg(TERMS + "entry").with(COUNT, proposal.corrections()), viewer,
-                Map.of("term", proposal.term()))
+                Map.of(TERM, proposal.term()))
                 .hoverEvent(HoverEvent.showText(SafeText.msg(TERMS + "hover").component(viewer)))
                 .clickEvent(ClickEvent.suggestCommand("/lingo glossary add keep " + proposal.term()))));
         panel.footer(TERMS + "footer").send(sender);
+    }
+
+    /**
+     * One force proposal. The click fills in the glossary command with the language pair, so the term only applies
+     * to the pair it was learned from.
+     */
+    private static @NotNull Component forceLine(@Nullable Player viewer,
+                                                @NotNull TermProposals.ForceProposal proposal) {
+        String pair = proposal.pair().source().code() + ">" + proposal.pair().target().code();
+        return SafeText.component(SafeText.msg(TERMS + "entry_force")
+                        .with(COUNT, proposal.corrections())
+                        .with("pair", pair.toUpperCase(Locale.ROOT).replace(">", " » ")), viewer,
+                        Map.of(TERM, proposal.term(), "replacement", proposal.replacement()))
+                .hoverEvent(HoverEvent.showText(SafeText.msg(TERMS + "hover_force").component(viewer)))
+                .clickEvent(ClickEvent.suggestCommand("/lingo glossary add force " + pair + ":" + proposal.term()
+                        + " " + proposal.replacement()));
     }
 
     private static @NotNull String modeKey(@NotNull GlossaryMode mode) {

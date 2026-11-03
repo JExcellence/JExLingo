@@ -39,6 +39,7 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 - **On-demand mode**: `/lingo incoming click` shows lines as written with a small `[T]` button that translates
   that one line, which also saves translator load.
 - **Glossary**: keep server words as written (`OneBlock`, `gg`) or force a fixed translation (`Insel` -> `Island`).
+  A `de>en:` prefix limits a term to one language pair: `/lingo glossary add force de>en:Truhe chest`.
 - **Player settings** (`/lingo`): reading language (`auto` follows the game language), translate incoming,
   translate my messages (off = the text never leaves the server), show the original as a second line.
 - **Bedrock**: every menu has a Cumulus form; Bedrock viewers get the original as a second line instead of hover.
@@ -46,9 +47,11 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
   answers that line from then on. When several different players suggest the same correction, it is approved
   without staff (`learning.auto-approve-votes`). Frequent short phrases get their translation pinned; a pin is
   dropped when the glossary changes, when two players suggest a change to it, when a correction for it is approved
-  and after 30 days, so a wrong machine translation does not stay forever. Words players keep as written in
-  several corrections (`Spawn` instead of `Laichen`) are proposed as glossary terms in `/lingo terms`, one click to
-  add. Approved pairs export as TSV for offline model training.
+  and after 30 days, so a wrong machine translation does not stay forever. `/lingo terms` turns repeated
+  corrections into glossary proposals, one click to add: words players keep as written (`Spawn` instead of
+  `Laichen`), and words they replace the same way in several lines (`box` -> `chest` wherever the line says
+  `Truhe`, proposed as a force term for that language pair only). Approved pairs export as TSV for offline model
+  training.
 - **Statistics**: daily totals per language pair and source (no texts, no players) in a menu with provider
   health, sources, busiest pairs and learning numbers; `/lingo stats` in chat for the console. Today in Free, the
   last 7 and 30 days in Premium.

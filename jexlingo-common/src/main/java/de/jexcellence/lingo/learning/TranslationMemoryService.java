@@ -135,14 +135,44 @@ public final class TranslationMemoryService implements TranslationLookup {
      * @param sourceText the original
      * @param suggestion the suggested translation
      * @param submitter  the player who suggested it
+     * @param shown      the machine translation the player saw, kept for term proposals
      * @return the stored entry
      */
     public @NotNull CompletableFuture<MemoryEntry> submit(@NotNull LanguagePair pair, @NotNull String sourceText,
-                                                          @NotNull String suggestion, @NotNull UUID submitter) {
+                                                          @NotNull String suggestion, @NotNull UUID submitter,
+                                                          @Nullable String shown) {
         String clean = TextNormalizer.clean(sourceText);
         return repository.createAsync(new TranslationMemoryEntity(pair, TextNormalizer.key(clean), clean,
-                        TextNormalizer.clean(suggestion), submitter))
+                        TextNormalizer.clean(suggestion), submitter)
+                        .withMachineText(shown == null ? null : TextNormalizer.clean(shown)))
                 .thenApply(TranslationMemoryEntity::toEntry);
+    }
+
+    /**
+     * Returns approved corrections that still know the machine translation they replaced.
+     *
+     * @return the corrections
+     */
+    public @NotNull CompletableFuture<List<Correction>> approvedCorrections() {
+        return repository.findByStatusAsync(MemoryStatus.APPROVED).thenApply(rows -> rows.stream()
+                .filter(row -> row.getMachineText() != null && !row.getMachineText().isBlank())
+                .map(row -> {
+                    MemoryEntry entry = row.toEntry();
+                    return new Correction(entry.pair(), entry.sourceText(), row.getMachineText(), entry.targetText());
+                })
+                .toList());
+    }
+
+    /**
+     * An approved correction next to the machine translation it replaced.
+     *
+     * @param pair       the language pair
+     * @param sourceText the original line
+     * @param machine    what the translator answered
+     * @param corrected  what players and staff settled on
+     */
+    public record Correction(@NotNull LanguagePair pair, @NotNull String sourceText, @NotNull String machine,
+                             @NotNull String corrected) {
     }
 
     /**

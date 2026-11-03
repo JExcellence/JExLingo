@@ -149,9 +149,11 @@ lingo:
     not_found: '<#F87171>[X]</#F87171> <#F1F5F9>Keine feste Phrase mit der ID</#F1F5F9> <#A78BFA>#{id}</#A78BFA><#F1F5F9>.</#F1F5F9>'
   terms:
     header: '<gradient:#5EEAD4:#A78BFA>Vorgeschlagene Glossar-Begriffe</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9>'
-    context: '<#94A3B8>Wörter, die Spieler in angenommenen Korrekturen unverändert gelassen haben</#94A3B8>'
+    context: '<#94A3B8>Aus angenommenen Korrekturen gelernt: gleich ersetzte Wörter und unverändert gelassene Wörter</#94A3B8>'
     entry: '<#F1F5F9>{term}</#F1F5F9> <dark_gray>|</dark_gray> <#94A3B8>in {count} Korrekturen behalten</#94A3B8>'
     hover: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Klicken, um den Befehl zum Behalten einzutragen</#F1F5F9>'
+    entry_force: '<#F1F5F9>{term}</#F1F5F9> <dark_gray>»</dark_gray> <#A78BFA>{replacement}</#A78BFA> <dark_gray>|</dark_gray> <#94A3B8>{pair}, {count} mal korrigiert</#94A3B8>'
+    hover_force: '<#A78BFA>▸</#A78BFA> <#F1F5F9>Klicken, um den Befehl einzutragen, der das Wort immer so übersetzt, nur für dieses Sprachpaar</#F1F5F9>'
     empty: '<#94A3B8>Noch keine Vorschläge. Sie erscheinen, sobald mehrere angenommene Korrekturen dasselbe Wort behalten.</#94A3B8>'
     footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Wort anklicken und den Befehl abschicken, um es aufzunehmen</#94A3B8>'
   origin:

@@ -43,6 +43,35 @@ class TermProposalsTest {
         assertTrue(TermProposals.find(entries, Set.of(), 2).isEmpty());
     }
 
+    @Test
+    void proposesAForceTermWhenTheSameWordIsReplacedInSeveralLines() {
+        LanguagePair deEn = new LanguagePair(LanguageCode.of("de"), LanguageCode.of("en"));
+        List<TranslationMemoryService.Correction> corrections = List.of(
+                new TranslationMemoryService.Correction(deEn, "meine Truhe ist voll", "my box is full",
+                        "my chest is full"),
+                new TranslationMemoryService.Correction(deEn, "wer hat meine Truhe geleert", "who emptied my box",
+                        "who emptied my chest"),
+                new TranslationMemoryService.Correction(deEn, "Truhe zu verkaufen", "Box for sale",
+                        "Chest for sale"),
+                new TranslationMemoryService.Correction(deEn, "hallo zusammen", "hello together",
+                        "hello everyone"));
+
+        List<TermProposals.ForceProposal> proposals = TermProposals.findForce(corrections, Set.of(), 3);
+
+        assertEquals(List.of(new TermProposals.ForceProposal(deEn, "Truhe", "chest", 3)), proposals);
+    }
+
+    @Test
+    void noForceTermWhenTheLinesShareNoSingleSourceWord() {
+        LanguagePair deEn = new LanguagePair(LanguageCode.of("de"), LanguageCode.of("en"));
+        List<TranslationMemoryService.Correction> corrections = List.of(
+                new TranslationMemoryService.Correction(deEn, "Truhe Kiste voll", "box full", "chest full"),
+                new TranslationMemoryService.Correction(deEn, "Truhe Kiste leer", "box empty", "chest empty"));
+
+        assertTrue(TermProposals.findForce(corrections, Set.of(), 2).isEmpty());
+        assertTrue(TermProposals.findForce(corrections.subList(0, 1), Set.of(), 2).isEmpty());
+    }
+
     private static MemoryEntry entry(long id, String source, String target) {
         return new MemoryEntry(id, EN_DE, source, target, MemoryStatus.APPROVED, null, null);
     }

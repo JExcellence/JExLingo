@@ -56,7 +56,30 @@ public class TranslationMemoryEntity extends LongIdEntity {
     @Column(name = "reviewed_at")
     private Instant reviewedAt;
 
+    @Column(name = "machine_text", length = 1024)
+    private String machineText;
+
     protected TranslationMemoryEntity() {
+    }
+
+    /**
+     * Stores the machine translation the player saw and corrected, so repeated word corrections can be found later.
+     *
+     * @param shown the translation shown in chat
+     * @return this row
+     */
+    public @NotNull TranslationMemoryEntity withMachineText(@Nullable String shown) {
+        this.machineText = shown;
+        return this;
+    }
+
+    /**
+     * Returns the machine translation the player corrected, or {@code null} for rows from before 0.5.0.
+     *
+     * @return the machine translation, or {@code null}
+     */
+    public @Nullable String getMachineText() {
+        return machineText;
     }
 
     /**

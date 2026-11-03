@@ -30,6 +30,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The staff part of {@code /lingo}: review queue, glossary, test translation, status, export and reload.
@@ -49,6 +51,8 @@ public final class LingoAdminHandler {
     private static final String NAME = "name";
     private static final String UNAVAILABLE = "lingo.learning.unavailable";
     private static final int PHRASE_LIST_LIMIT = 20;
+    /** {@code de>en:Truhe} scopes a glossary term to one language pair. */
+    private static final Pattern PAIR_PREFIX = Pattern.compile("^([A-Za-z]{2,3})>([A-Za-z]{2,3}):(.+)$");
 
     private final AdminServices services;
     private final StatusReport status;
@@ -226,8 +230,12 @@ public final class LingoAdminHandler {
             replies.send(ctx.sender(), UNAVAILABLE);
             return;
         }
-        proposals.proposals(services.glossary().terms()).thenAccept(found -> replies.run(ctx.sender(),
-                () -> AdminLists.terms(ctx.sender(), found, PHRASE_LIST_LIMIT)));
+        List<GlossaryTerm> glossary = services.glossary().terms();
+        proposals.proposals(glossary).thenCombine(proposals.forceProposals(glossary),
+                (keep, force) -> {
+                    replies.run(ctx.sender(), () -> AdminLists.terms(ctx.sender(), keep, force, PHRASE_LIST_LIMIT));
+                    return null;
+                });
     }
 
     private void onBlock(@NotNull CommandContext ctx, boolean blocked) {
@@ -259,12 +267,22 @@ public final class LingoAdminHandler {
 
     private void onGlossaryAdd(@NotNull CommandContext ctx) {
         GlossaryMode mode = ctx.require("mode", GlossaryMode.class);
-        String term = ctx.require(TERM, String.class).trim();
+        String raw = ctx.require(TERM, String.class).trim();
         String replacement = ctx.get("replacement", String.class).map(String::trim).orElse(null);
-        GlossaryTerm candidate = new GlossaryTerm(0L, term, replacement, mode, null, null);
+        Matcher scoped = PAIR_PREFIX.matcher(raw);
+        LanguageCode from = null;
+        LanguageCode to = null;
+        String term = raw;
+        if (scoped.matches()) {
+            from = LanguageCode.parse(scoped.group(1)).orElse(null);
+            to = LanguageCode.parse(scoped.group(2)).orElse(null);
+            term = from != null && to != null ? scoped.group(3).trim() : raw;
+        }
+        GlossaryTerm candidate = new GlossaryTerm(0L, term, replacement, mode, from, to);
+        final String shown = term;
         services.glossary().add(candidate).thenAccept(result -> replies.sendUser(ctx.sender(),
                 SafeText.msg(KEY + "glossary.add." + result.name().toLowerCase(Locale.ROOT)),
-                Map.of(TERM, term)));
+                Map.of(TERM, shown)));
     }
 
     private void onGlossaryRemove(@NotNull CommandContext ctx) {

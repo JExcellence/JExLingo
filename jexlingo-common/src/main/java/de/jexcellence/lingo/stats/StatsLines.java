@@ -1,7 +1,9 @@
 package de.jexcellence.lingo.stats;
 
 import de.jexcellence.lingo.api.TranslationOrigin;
+import de.jexcellence.lingo.pipeline.TranslationCache;
 import de.jexcellence.lingo.provider.CircuitBreaker;
+import de.jexcellence.lingo.provider.LatencyStats;
 import de.jexcellence.lingo.text.LingoPanel;
 import de.jexcellence.lingo.text.SafeText;
 import net.kyori.adventure.text.Component;
@@ -27,9 +29,30 @@ public final class StatsLines {
     private static final String KEY = "lingo_stats.";
     private static final String LABEL = KEY + "label.";
     private static final String NONE = "-";
+    private static final String MILLIS = " ms";
     private static final int TOP_PAIRS = 5;
 
     private StatsLines() {
+    }
+
+    /**
+     * Median and 95th percentile of the last provider calls, or {@code -} before the first call.
+     *
+     * @param latency the latency window
+     * @return for example {@code 84 / 210 ms}
+     */
+    public static @NotNull String latency(@NotNull LatencyStats latency) {
+        return latency.count() == 0 ? NONE : latency.p50() + " / " + latency.p95() + MILLIS;
+    }
+
+    /**
+     * Cache hit rate in percent, or {@code -} before the first lookup.
+     *
+     * @param cache the cache
+     * @return for example {@code 42%}
+     */
+    public static @NotNull String hitRate(@NotNull TranslationCache cache) {
+        return cache.lookups() == 0L ? NONE : Math.round(cache.hitRate() * 100.0) + "%";
     }
 
     /**
@@ -56,9 +79,9 @@ public final class StatsLines {
                 .row(LABEL + "fallback", summary.fallbackPercent() + "%")
                 .section(KEY + "provider.section")
                 .row(LABEL + "calls", numbers.format(summary.count(TranslationOrigin.PROVIDER)))
-                .row(LABEL + "average", summary.averageProviderLatency() + " ms")
-                .row(LABEL + "latency", sources.gateway().latency().p50() + " / "
-                        + sources.gateway().latency().p95() + " ms")
+                .row(LABEL + "average", summary.count(TranslationOrigin.PROVIDER) == 0L ? NONE
+                        : summary.averageProviderLatency() + MILLIS)
+                .row(LABEL + "latency", latency(sources.gateway().latency()))
                 .section(KEY + "origins.section")
                 .row(LABEL + "sources", origins(viewer, summary.byOrigin(), numbers))
                 .row(LABEL + "pairs", pairs(summary, numbers));

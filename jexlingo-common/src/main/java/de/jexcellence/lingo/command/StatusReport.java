@@ -94,7 +94,7 @@ public final class StatusReport {
             panel.row(LABEL + "missing", snapshot.missing().stream().map(LanguageCode::upper)
                     .collect(Collectors.joining(", ")), LingoPanel.Tone.WARN);
         }
-        panel.row(LABEL + "latency", gateway.latency().p50() + SEPARATOR + gateway.latency().p95() + " ms")
+        panel.row(LABEL + "latency", StatsLines.latency(gateway.latency()))
                 .row(LABEL + "requests", gateway.requestCount() + SEPARATOR + gateway.failureCount() + SEPARATOR
                         + gateway.refusedCount());
     }
@@ -103,7 +103,7 @@ public final class StatusReport {
         NumberFormat numbers = StatsLines.numbers(viewer);
         panel.section(KEY + "section.pipeline")
                 .row(LABEL + "cache", numbers.format(pipeline.cache().size()) + " ("
-                        + Math.round(pipeline.cache().hitRate() * 100.0) + "%)")
+                        + StatsLines.hitRate(pipeline.cache()) + ")")
                 .row(LABEL + "inflight", Integer.toString(pipeline.inFlight()))
                 .row(LABEL + "slang", Integer.toString(pipeline.preparer().slang().size()))
                 .row(LABEL + "origins", StatsLines.origins(viewer, pipeline.stats().snapshot(), numbers))

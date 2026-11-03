@@ -76,6 +76,15 @@ public final class TranslationCache {
         return entries.stats().hitRate();
     }
 
+    /**
+     * Returns the number of lookups since the start; the hit rate means nothing while this is zero.
+     *
+     * @return the number of lookups since the start
+     */
+    public long lookups() {
+        return entries.stats().requestCount();
+    }
+
     private static @NotNull String cacheKey(@NotNull LanguagePair pair, @NotNull String key) {
         return pair.key() + '\u0000' + key;
     }

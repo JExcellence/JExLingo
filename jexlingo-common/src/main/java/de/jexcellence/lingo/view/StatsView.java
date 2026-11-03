@@ -155,7 +155,7 @@ public final class StatsView extends LingoBaseView {
         rows.add(LingoCards.rowOf(viewer, LABEL + "breaker",
                 LingoCards.tone(viewer, breakerTone, StatsLines.breakerName(viewer, breaker))));
         rows.add(LingoCards.rowOf(viewer, LABEL + "latency", LingoCards.value(viewer,
-                sources.gateway().latency().p50() + " / " + sources.gateway().latency().p95() + " ms")));
+                StatsLines.latency(sources.gateway().latency()))));
         rows.add(LingoCards.rowOf(viewer, LABEL + "inflight", LingoCards.value(viewer,
                 Integer.toString(sources.pipeline().inFlight()))));
         if (sources.toggle().isPaused()) {
@@ -215,8 +215,8 @@ public final class StatsView extends LingoBaseView {
                 LingoCards.rowOf(viewer, LABEL + "refused-since-start", number(viewer,
                         sources.gateway().refusedCount())),
                 LingoCards.rowOf(viewer, LABEL + "cache", LingoCards.value(viewer,
-                        sources.pipeline().cache().size() + " / " + Math.round(sources.pipeline().cache().hitRate()
-                                * 100.0) + "%")));
+                        sources.pipeline().cache().size() + " / "
+                                + StatsLines.hitRate(sources.pipeline().cache()))));
         return card(viewer, Material.BEACON, "provider", rows, null);
     }
 

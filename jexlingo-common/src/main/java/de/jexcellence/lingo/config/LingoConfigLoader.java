@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Reads {@code config.yml} into a {@link LingoConfig}. The defaults live here, in code; a missing key falls back to
@@ -39,6 +40,9 @@ public final class LingoConfigLoader {
     private static final String BREAKER = PROVIDER + "circuit-breaker.";
     private static final String CHAT = "chat.";
     private static final String LEARNING = "learning.";
+    private static final Pattern IPV4 = Pattern.compile("\\d{1,3}(?:\\.\\d{1,3}){3}");
+    private static final List<String> LOCAL_SUFFIXES =
+            List.of(".local", ".lan", ".internal", ".home.arpa", ".localhost");
     private static final String DETECTION = "detection.";
     private static final String CACHE = "cache.";
 
@@ -89,6 +93,11 @@ public final class LingoConfigLoader {
             return URI.create(DEFAULT_URL);
         });
         String apiKey = firstNonBlank(env.get(ENV_API_KEY), root.getString(PROVIDER + "api-key"), null);
+        if (travelsInPlainText(url)) {
+            reader.warn("provider.url " + url + " is plain http to another machine: chat lines and the API key"
+                    + " travel unencrypted. Use https:// or a private network (WireGuard, Tailscale),"
+                    + " see docs/SELF_HOSTING.md");
+        }
         BreakerSettings breaker = new BreakerSettings(
                 reader.intIn(BREAKER + "failure-threshold", 5, 1, 100),
                 Duration.ofSeconds(reader.intIn(BREAKER + "open-duration-seconds", 30, 1, 3600)),
@@ -163,6 +172,40 @@ public final class LingoConfigLoader {
                 reader.intIn(LEARNING + "unpin-after-suggestions", 2, 0, 100),
                 Duration.ofDays(reader.intIn(LEARNING + "pin-lifetime-days", 30, 0, 3650)),
                 reader.intIn(LEARNING + "term-proposal-votes", 3, 2, 100));
+    }
+
+    /**
+     * Returns whether a provider URL sends chat over the network unencrypted: {@code http} to a public IP address
+     * or a public domain name. Loopback, private ranges, the Tailscale range and names that only resolve inside a
+     * network (Docker service names, {@code .local}, {@code .lan}, {@code .internal}) are fine.
+     *
+     * @param url the provider URL
+     * @return whether to warn
+     */
+    static boolean travelsInPlainText(@NotNull URI url) {
+        String host = url.getHost();
+        if (!"http".equalsIgnoreCase(url.getScheme()) || host == null) {
+            return false;
+        }
+        String lower = host.toLowerCase(Locale.ROOT).replace("[", "").replace("]", "");
+        if (IPV4.matcher(lower).matches()) {
+            return !isPrivateIpv4(lower);
+        }
+        if (lower.contains(":")) {
+            return !(lower.equals("::1") || lower.startsWith("fc") || lower.startsWith("fd")
+                    || lower.startsWith("fe80"));
+        }
+        return lower.contains(".") && LOCAL_SUFFIXES.stream().noneMatch(lower::endsWith);
+    }
+
+    private static boolean isPrivateIpv4(@NotNull String address) {
+        String[] parts = address.split("\\.");
+        int first = Integer.parseInt(parts[0]);
+        int second = Integer.parseInt(parts[1]);
+        return first == 127 || first == 10
+                || first == 172 && second >= 16 && second <= 31
+                || first == 192 && second == 168
+                || first == 100 && second >= 64 && second <= 127;
     }
 
     private static @NotNull Optional<URI> parseUrl(@NotNull String raw) {

@@ -6,6 +6,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,26 @@ class LingoConfigLoaderTest {
         assertEquals(NameProtection.SMART, unknown.config().chat().protectNames());
         assertTrue(unknown.warnings().stream().anyMatch(warning -> warning.contains("chat.protect-names")));
         assertEquals(NameProtection.SMART, LingoConfigLoader.load(yaml(""), Map.of()).config().chat().protectNames());
+    }
+
+    @Test
+    void plainHttpToAnotherMachineIsFlagged() {
+        assertTrue(LingoConfigLoader.travelsInPlainText(URI.create("http://203.0.113.7:5000")));
+        assertTrue(LingoConfigLoader.travelsInPlainText(URI.create("http://lt.example.com")));
+        assertFalse(LingoConfigLoader.travelsInPlainText(URI.create("https://lt.example.com")));
+        assertFalse(LingoConfigLoader.travelsInPlainText(URI.create("http://127.0.0.1:5000")));
+        assertFalse(LingoConfigLoader.travelsInPlainText(URI.create("http://192.168.1.20:5000")));
+        assertFalse(LingoConfigLoader.travelsInPlainText(URI.create("http://100.101.2.3:5000")));
+        assertFalse(LingoConfigLoader.travelsInPlainText(URI.create("http://libretranslate:5000")));
+        assertFalse(LingoConfigLoader.travelsInPlainText(URI.create("http://lt.home.arpa:5000")));
+    }
+
+    @Test
+    void aPublicHttpUrlGivesAWarning() throws InvalidConfigurationException {
+        LingoConfigLoader.LoadResult result = LingoConfigLoader.load(
+                yaml("provider:\n  url: http://203.0.113.7:5000\n"), Map.of());
+
+        assertTrue(result.warnings().stream().anyMatch(warning -> warning.contains("unencrypted")));
     }
 
     @Test

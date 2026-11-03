@@ -70,6 +70,7 @@ public final class LingoCore {
                 config.provider().maxConcurrentRequests(), config.provider().requestTimeout());
         providers.attach(gateway);
         this.health = new ProviderHealthMonitor(gateway, config.languages().enabled(), logger);
+        health.setLocation(config.provider().url().toString());
         this.settings = new PlayerSettingsService(repositories.get(LingoPlayerSettingsRepository.class), worker,
                 logger);
         this.resolver = new LanguageResolver(settings, config.languages());
@@ -103,6 +104,7 @@ public final class LingoCore {
         resolver.setLanguages(config.languages());
         detector.setSettings(config.detection());
         health.setEnabled(config.languages().enabled());
+        health.setLocation(config.provider().url().toString());
         pipeline.setSkipRules(SkipRules.from(config.chat()));
         pipeline.cache().clear();
         health.check();

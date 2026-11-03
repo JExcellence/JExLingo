@@ -1,0 +1,8 @@
+# JExLingo - language of the plugin's own messages and menus
+#
+# This only sets the language of JExLingo's texts (help, menus, replies). Chat translation follows each
+# player's settings in /lingo and languages.enabled in config.yml.
+
+# Show every player JExLingo's texts in this language, whatever their game language is.
+# Leave empty ('') to use each player's game language. Bundled: en_US, de_DE.
+force-locale: ''

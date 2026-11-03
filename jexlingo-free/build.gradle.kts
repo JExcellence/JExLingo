@@ -47,6 +47,15 @@ tasks.named<ShadowJar>("shadowJar") {
 
     configurations = listOf(project.configurations.getByName("runtimeClasspath"))
     mergeServiceFiles()
+
+    // Resources of bundled libraries that JExLingo never reads: their demo translations, an unused command file,
+    // a grammar file and a log4j config. Only JExLingo's own en_US and de_DE translations ship.
+    exclude(
+        "translations/da_DK.yml", "translations/es_ES.yml", "translations/ja_JP.yml", "translations/ko_KR.yml",
+        "translations/nl_NL.yml", "translations/no_NO.yml", "translations/pl_PL.yml", "translations/pt_BR.yml",
+        "translations/ru_RU.yml", "translations/sv_SE.yml", "translations/tr_TR.yml", "translations/zh_CN.yml",
+        "translations/zh_TW.yml", "commands/pr18n.yml", "grammar.ebnf", "log4j.properties"
+    )
 }
 
 tasks.named("build") {

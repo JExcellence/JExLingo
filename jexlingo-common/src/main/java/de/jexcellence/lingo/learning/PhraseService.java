@@ -7,6 +7,7 @@ import de.jexcellence.lingo.database.entity.PinnedPhraseEntity;
 import de.jexcellence.lingo.database.repository.PinnedPhraseRepository;
 import de.jexcellence.lingo.pipeline.LanguagePair;
 import de.jexcellence.lingo.pipeline.ProviderResultListener;
+import de.jexcellence.lingo.pipeline.TextNormalizer;
 import de.jexcellence.lingo.pipeline.TranslationLookup;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,7 +85,8 @@ public final class PhraseService implements TranslationLookup, ProviderResultLis
     public @NotNull CompletableFuture<Void> load() {
         return repository.findAllAsync()
                 .thenAccept(rows -> rows.stream().map(PinnedPhraseEntity::toPhrase)
-                        .forEach(phrase -> pinned.put(phraseKey(phrase.pair(), phrase.sourceKey()), phrase)))
+                        .forEach(phrase -> pinned.put(
+                                phraseKey(phrase.pair(), TextNormalizer.key(phrase.sourceKey())), phrase)))
                 .thenRun(this::purgeExpired)
                 .exceptionally(error -> {
                     logger.log(Level.WARNING, error, () -> "Could not load pinned phrases");

@@ -18,6 +18,9 @@ public final class TextNormalizer {
     private static final Pattern LETTER = Pattern.compile("\\p{L}");
     private static final Pattern REPEATS = Pattern.compile("(\\p{L})\\1{2,}");
     private static final Pattern TRAILING_MARKS = Pattern.compile("[.!\\s]+$");
+    /** Apostrophes and commas never change what a chat line means: {@code geht's} and {@code gehts}. */
+    private static final Pattern NEUTRAL_MARKS = Pattern.compile("['’`´,]");
+    private static final Pattern QUESTION_RUN = Pattern.compile("\\?{2,}");
 
     private TextNormalizer() {
     }
@@ -26,11 +29,13 @@ public final class TextNormalizer {
      * The lookup key of a text.
      *
      * @param text the text
-     * @return trimmed, whitespace collapsed, letter spam shortened, trailing {@code .} and {@code !} removed,
-     *         lower case; question marks stay because they change the meaning
+     * @return trimmed, apostrophes and commas removed, whitespace collapsed, letter spam shortened, repeated
+     *         {@code ?} collapsed, trailing {@code .} and {@code !} removed, lower case; a question mark stays
+     *         because it changes the meaning, and emoji and quotes stay because a cached answer must contain them
      */
     public static @NotNull String key(@NotNull String text) {
-        String collapsed = WHITESPACE.matcher(text.trim()).replaceAll(" ");
+        String neutral = QUESTION_RUN.matcher(NEUTRAL_MARKS.matcher(text).replaceAll("")).replaceAll("?");
+        String collapsed = WHITESPACE.matcher(neutral.trim()).replaceAll(" ");
         String shortened = REPEATS.matcher(collapsed).replaceAll("$1$1");
         String trimmed = TRAILING_MARKS.matcher(shortened).replaceAll("");
         return (trimmed.isEmpty() ? shortened : trimmed).toLowerCase(Locale.ROOT);

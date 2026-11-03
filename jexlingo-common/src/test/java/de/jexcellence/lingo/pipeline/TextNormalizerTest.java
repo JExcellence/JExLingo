@@ -14,6 +14,14 @@ class TextNormalizerTest {
     }
 
     @Test
+    void apostrophesCommasAndRepeatedQuestionMarksDoNotSplitALine() {
+        assertEquals(TextNormalizer.key("wie gehts"), TextNormalizer.key("wie geht's"));
+        assertEquals(TextNormalizer.key("ja klar"), TextNormalizer.key("Ja, klar!"));
+        assertEquals(TextNormalizer.key("kommst du?"), TextNormalizer.key("kommst du???"));
+        assertNotEquals(TextNormalizer.key("gg"), TextNormalizer.key("gg 😀"));
+    }
+
+    @Test
     void questionMarksStayBecauseTheyChangeTheMeaning() {
         assertNotEquals(TextNormalizer.key("ok"), TextNormalizer.key("ok?"));
     }

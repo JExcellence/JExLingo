@@ -1,23 +1,21 @@
-# LibreTranslate for JExLingo (Debian)
-
-> **Status:** running on the owner host, measured. **Last verified:** 2026-10-04.
+# LibreTranslate for JExLingo
 
 JExLingo talks to a LibreTranslate instance over HTTP. LibreTranslate runs Argos Translate models locally; after
 the first model download it needs no internet connection and sends chat text nowhere else.
 
-## Owner host (measured 2026-10-03)
+The full walkthrough, from an empty server to translated chat, is in [docs/SELF_HOSTING.md](../../docs/SELF_HOSTING.md).
 
-| Item | Value |
+## Files
+
+| File | Purpose |
 |---|---|
-| OS | Debian 13 (trixie), kernel 6.12 cloud |
-| CPU | Intel Xeon (Skylake), 16 vCPU, AVX2 yes |
-| RAM | 30 GiB total, about 11 GiB available |
-| GPU | none |
-| Docker | 29.8.0, Compose v5.1.4 |
-| Java | OpenJDK 25.0.3 |
-| Minecraft | same host, port 25565; port 5000 free |
+| `docker-compose.yml` | LibreTranslate bound to `127.0.0.1`, models in a volume, API keys required |
+| `.env.example` | Languages, port, memory and limits; copy to `.env` |
+| `bench.sh` | Measures latency with typical chat lines |
 
-Measured 2026-10-04 (LibreTranslate 1.9.6, en+de, 4 workers, 50 chat lines):
+## Reference measurement
+
+LibreTranslate 1.9.6, English and German, 4 workers, 50 chat lines, on a 16 vCPU x86 server with AVX2:
 
 | Value | Result |
 |---|---|
@@ -26,35 +24,9 @@ Measured 2026-10-04 (LibreTranslate 1.9.6, en+de, 4 workers, 50 chat lines):
 | max | 947 ms (first request, models loading) |
 | memory | 2.98 GiB |
 
-The memory hit the old 3 GB cap, so the container now gets 5 GB. `chat.inline-wait-ms: 400` covers p95 with room
-to spare; no config change needed.
+`chat.inline-wait-ms: 400` in the plugin covers p95 with room to spare.
 
-## Start
-
-```bash
-mkdir -p ~/jexlingo-lt && cd ~/jexlingo-lt
-# copy docker-compose.yml and bench.sh from this folder
-docker compose up -d
-docker compose logs -f   # first start downloads the en/de models, wait for "Running on"
-```
-
-## API key
-
-`--api-keys` makes LibreTranslate check keys. Create one for the plugin (600 requests per minute):
-
-```bash
-docker exec jexlingo-libretranslate ltmanage keys add 600
-```
-
-Give it to the plugin through the environment of the Minecraft server process (preferred):
-
-```bash
-export JEXLINGO_API_KEY=<the key>
-```
-
-or in `plugins/JExLingo/config.yml` as `provider.api-key`. The key never appears in logs.
-
-## Measure
+## Measure your own host
 
 ```bash
 chmod +x bench.sh
@@ -62,17 +34,11 @@ chmod +x bench.sh
 ```
 
 Set `chat.inline-wait-ms` to about the reported p95 + 50 ms. If p95 is above 800 ms, use `chat.mode: FOLLOW_UP`.
-Record the numbers in the table above.
 
 ## More languages
 
-Add the code to `--load-only` (for example `en,de,fr`), `docker compose up -d`, then add it to
+Add the code to `LT_LANGUAGES` in `.env` (for example `en,de,fr`), run `docker compose up -d`, then add it to
 `languages.enabled` and run `/lingo reload`. `/lingo status` lists models that are still missing.
-
-## Other hosts
-
-If the Minecraft server runs on another machine, do not open port 5000. Use WireGuard/Tailscale, or Caddy with TLS
-in front of LibreTranslate plus an API key, and allow only that port in `ufw`.
 
 ## License note
 

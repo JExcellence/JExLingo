@@ -1,23 +1,30 @@
 # LibreTranslate for JExLingo - self-hosted, offline after the first model download.
-# Start:   docker compose up -d
+# Setup:   cp .env.example .env, set LT_LANGUAGES, then docker compose up -d
 # Logs:    docker compose logs -f
 # API key: docker exec jexlingo-libretranslate ltmanage keys add 600
 services:
   libretranslate:
-    image: libretranslate/libretranslate:latest
+    image: libretranslate/libretranslate:${LT_VERSION:-latest}
     container_name: jexlingo-libretranslate
     restart: unless-stopped
     # --load-only is passed as an argument on purpose: LT_LOAD_ONLY as an environment variable is not split on
-    # commas by LibreTranslate. Add a language here and in the plugin's languages.enabled, then restart.
-    command: ["--load-only", "en,de", "--char-limit", "500", "--req-limit", "600", "--api-keys"]
+    # commas by LibreTranslate. LT_LANGUAGES must match languages.enabled in the plugin's config.yml.
+    command:
+      - "--load-only"
+      - "${LT_LANGUAGES:-en,de}"
+      - "--char-limit"
+      - "${LT_CHAR_LIMIT:-500}"
+      - "--req-limit"
+      - "${LT_REQ_LIMIT:-600}"
+      - "--api-keys"
     ports:
       # Same machine as the Minecraft server: reachable only locally. Never expose port 5000 to the internet.
-      - "127.0.0.1:5000:5000"
+      - "127.0.0.1:${LT_PORT:-5000}:5000"
     volumes:
       - lt-models:/home/libretranslate/.local
       - lt-db:/app/db
-    # 4 worker processes each hold the models: en+de measured 2.98 GiB, so 3g is too tight.
-    mem_limit: 5g
+    # Each worker process holds every loaded model: en+de measured 2.98 GiB with 4 workers.
+    mem_limit: ${LT_MEMORY:-5g}
     healthcheck:
       test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/languages')\" || exit 1"]
       interval: 30s

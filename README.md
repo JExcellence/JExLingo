@@ -3,7 +3,7 @@
 > **Status:** 0.4.2 plus the unreleased fixes in [CHANGELOG.md](CHANGELOG.md) built and unit tested, not yet
 > tested in game. **Last verified:** 2026-11-02.
 > **License:** proprietary, all rights reserved. See [LICENSE](LICENSE).
-> **Related:** [docs/PLAN.md](docs/PLAN.md), [docs/CONFIG.md](docs/CONFIG.md), [docs/PRIVACY.md](docs/PRIVACY.md),
+> **Related:** [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md), [docs/CONFIG.md](docs/CONFIG.md), [docs/PRIVACY.md](docs/PRIVACY.md),
 > [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md), [deploy/libretranslate](deploy/libretranslate/README.md).
 
 Live chat translation for Paper servers. Players write in their language; every viewer reads the line in theirs.
@@ -74,10 +74,14 @@ Translation runs on your own LibreTranslate instance, offline, with no third-par
 
 ## Quick start
 
-1. Run LibreTranslate on the same machine: [deploy/libretranslate](deploy/libretranslate/README.md).
-2. Put `JExLingo-0.4.2-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25).
-3. Optional: `export JEXLINGO_API_KEY=<key>` for the server process.
+1. Run LibreTranslate on the same machine: copy [deploy/libretranslate](deploy/libretranslate/README.md), set your
+   languages in `.env`, `docker compose up -d`.
+2. Put `JExLingo-0.4.2-Free.jar` or `-Premium.jar` into `plugins/` (Paper 26.x, Java 25). No other plugin and no
+   database setup needed.
+3. `export JEXLINGO_API_KEY=<key>` for the server process (key from `ltmanage keys add 600`).
 4. Start the server, then `/lingo status` shows whether the provider is reachable.
+
+Step by step with checks and fixes for every log message: [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md).
 
 ## Commands
 

@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -45,7 +44,7 @@ public final class ChatTranslationCoordinator {
     private final AtomicReference<ChatSettings> chat;
     private final WritingLanguageLearner learner;
     private final TranslationSwitch toggle;
-    private final Map<UUID, Long> lastProviderUse = new ConcurrentHashMap<>();
+    private final ProviderBudget budget = new ProviderBudget();
 
     /**
      * Creates the coordinator.
@@ -113,8 +112,8 @@ public final class ChatTranslationCoordinator {
                     message.setSource(language);
                     return language;
                 });
-        TranslateOptions options = new TranslateOptions(providerAllowed(sender.getUniqueId(), settings),
-                onlineNames());
+        TranslateOptions options = new TranslateOptions(true, onlineNames(),
+                budget.gateFor(sender.getUniqueId(), settings.burst(), settings.playerCooldown()));
         Map<LanguageCode, CompletableFuture<TranslationResult>> results = new HashMap<>();
         for (LanguageCode target : new LinkedHashSet<>(viewerLanguages.values())) {
             results.put(target, translate(text, target, source, options, message));
@@ -144,7 +143,7 @@ public final class ChatTranslationCoordinator {
      * @param player the player's UUID
      */
     public void forget(@NotNull UUID player) {
-        lastProviderUse.remove(player);
+        budget.forget(player);
         learner.forget(player);
     }
 
@@ -189,17 +188,6 @@ public final class ChatTranslationCoordinator {
                     }
                     return result;
                 });
-    }
-
-    private boolean providerAllowed(@NotNull UUID sender, @NotNull ChatSettings settings) {
-        long now = System.currentTimeMillis();
-        long cooldown = settings.playerCooldown().toMillis();
-        Long last = lastProviderUse.get(sender);
-        if (last != null && now - last < cooldown) {
-            return false;
-        }
-        lastProviderUse.put(sender, now);
-        return true;
     }
 
     private static @NotNull List<String> onlineNames() {

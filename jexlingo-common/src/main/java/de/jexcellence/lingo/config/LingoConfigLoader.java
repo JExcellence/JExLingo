@@ -136,6 +136,7 @@ public final class LingoConfigLoader {
                 Duration.ofMillis(reader.intIn(CHAT + "inline-wait-ms", 400, 0, 5000)),
                 new SkipRules(minLength, maxLength, root.getString(CHAT + "skip-prefix", "!")),
                 Duration.ofMillis(reader.intIn(CHAT + "player-cooldown-ms", 500, 0, 60_000)),
+                reader.intIn(CHAT + "burst", 3, 1, 50),
                 root.getBoolean(CHAT + "onboarding", true),
                 reader.nameProtection());
     }

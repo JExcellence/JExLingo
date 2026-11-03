@@ -1,7 +1,7 @@
 # JExLingo configuration
 # Defaults live in the plugin. A missing key uses its default, an out-of-range number is clamped and a warning
 # is logged. This file is never overwritten by an update; new options are documented in docs/CONFIG.md.
-config-version: 5
+config-version: 6
 
 provider:
   # Translation backend. Built in: libretranslate. Premium can select providers other plugins register.
@@ -50,8 +50,10 @@ chat:
   # Online player names kept out of the translator. SMART: every name, but names that are ordinary words
   # (Max, Help) only when written capitalised or in capitals. ALWAYS: every name in any case. MENTIONS: only @name.
   protect-names: SMART
-  # Minimum time between two provider calls for the same player (spam protection).
+  # Spam protection: a player can send burst lines in a row that reach the translator, then one more line per
+  # player-cooldown-ms. Lines answered from the cache or memory do not count. 0 turns the limit off.
   player-cooldown-ms: 500
+  burst: 3
   # One-time hint for players on their first join.
   onboarding: true
 

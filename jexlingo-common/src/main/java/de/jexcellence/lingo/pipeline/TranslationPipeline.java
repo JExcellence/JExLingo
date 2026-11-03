@@ -110,7 +110,7 @@ public final class TranslationPipeline {
             remember(pair, key, cached.get(), prepared);
             return done(result(cached.get(), text, pair, TranslationOrigin.CACHE, started));
         }
-        if (!options.providerAllowed()) {
+        if (!options.mayCallProvider()) {
             return done(TranslationResult.unchanged(text, source, request.target(), TranslationOrigin.FALLBACK));
         }
         return fromProvider(new Job(text, pair, key, cacheKey, masked, prepared, started));

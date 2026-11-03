@@ -111,7 +111,7 @@ The original line is shown whenever a translation is not safe to show. `/lingo s
 | Refused requests rising | More lines at once than `provider.max-concurrent-requests`, or a rejected pair | Raise the limit; install the missing model shown under "Missing models" |
 | Broken tokens higher than saved | The translator damaged names or links and the piece-by-piece retry failed too | Add frequent words to the glossary; report the line |
 | Results by source: many "Already in the language" | The line was read as the reader's language | The writer sets `/lingo write <code>`, or turn on `detection.enabled` |
-| Nothing, but one player's lines never change | That player turned off `/lingo outgoing`, or writes faster than `chat.player-cooldown-ms` | `/lingo inspect <player>` |
+| Nothing, but one player's lines never change | That player turned off `/lingo outgoing`, or sends more than `chat.burst` lines faster than `chat.player-cooldown-ms` allows | `/lingo inspect <player>` |
 
 ## Placeholders
 

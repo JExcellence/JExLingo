@@ -119,7 +119,7 @@ public final class ChatTextPreparer {
         return slang.get();
     }
 
-    private static boolean isShouting(@NotNull String text) {
+    static boolean isShouting(@NotNull String text) {
         long letters = LETTER.matcher(text).results().count();
         return letters >= SHOUT_MIN_LETTERS && text.equals(text.toUpperCase(Locale.ROOT))
                 && !text.equals(text.toLowerCase(Locale.ROOT));

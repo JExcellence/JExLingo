@@ -154,6 +154,21 @@ class TranslationPipelineTest {
     }
 
     @Test
+    void aShoutedLineGetsItsCorrectionInCapitals() {
+        TranslationLookup memory = (pair, key) -> "wie geht es".equals(key)
+                ? Optional.of("How are you") : Optional.empty();
+        TranslationPipeline pipeline = pipeline(new PipelineLayers(memory, TranslationLookup.NONE,
+                pair -> MaskRules.EMPTY, ProviderResultListener.NONE, ChatTextPreparer.withoutSlang()));
+
+        TranslationResult loud = pipeline.translate(chat("WIE GEHT ES", EN), DE, TranslateOptions.DEFAULT).join();
+        TranslationResult quiet = pipeline.translate(chat("wie geht es", EN), DE, TranslateOptions.DEFAULT).join();
+
+        assertEquals("HOW ARE YOU", loud.text());
+        assertEquals("How are you", quiet.text());
+        assertEquals(TranslationOrigin.MEMORY, loud.origin());
+    }
+
+    @Test
     void shoutedLinesDoNotTeachPhrases() {
         List<String> learned = new ArrayList<>();
         TranslationPipeline pipeline = pipeline(new PipelineLayers(TranslationLookup.NONE, TranslationLookup.NONE,

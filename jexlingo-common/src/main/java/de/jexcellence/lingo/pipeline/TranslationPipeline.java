@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -191,12 +192,18 @@ public final class TranslationPipeline {
 
     private @NotNull Optional<TranslationResult> storedResult(@NotNull String text, @NotNull LanguagePair pair,
                                                               @NotNull String key, long started) {
-        Optional<String> memory = layers.memory().find(pair, key);
+        boolean shouting = ChatTextPreparer.isShouting(TokenMasker.withoutTokens(text));
+        Optional<String> memory = layers.memory().find(pair, key).map(found -> styled(found, shouting));
         if (memory.isPresent()) {
             return Optional.of(result(memory.get(), text, pair, TranslationOrigin.MEMORY, started));
         }
-        Optional<String> phrase = layers.phrases().find(pair, key);
+        Optional<String> phrase = layers.phrases().find(pair, key).map(found -> styled(found, shouting));
         return phrase.map(found -> result(found, text, pair, TranslationOrigin.PHRASE, started));
+    }
+
+    /** Corrections and pins are stored in normal case; a shouted line gets them in capitals like a fresh answer. */
+    private static @NotNull String styled(@NotNull String stored, boolean shouting) {
+        return shouting ? stored.toUpperCase(Locale.ROOT) : stored;
     }
 
     /** Only lines in normal case teach phrases, so a shouted answer is never pinned in capitals. */

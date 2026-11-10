@@ -80,7 +80,7 @@ public final class JExLingo {
             files.prepareRest();
             platform = JExPlatform.builder(plugin)
                     .withLogLevel(LogLevel.INFO)
-                    .enableTranslations(LingoFiles.DEFAULT_LOCALE, LingoFiles.EXTRA_LOCALES)
+                    .enableTranslations(LingoFiles.DEFAULT_LOCALE, files.extraLocales())
                     .build();
             platform.initialize();
             hibernate = JEHibernate.builder()

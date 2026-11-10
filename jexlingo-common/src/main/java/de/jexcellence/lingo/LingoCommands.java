@@ -18,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -84,7 +83,7 @@ public final class LingoCommands {
                 .handlers(worker, reload, forms, bedrock));
         ArgumentTypeRegistry registry = LingoArgumentTypes.register(ArgumentTypeRegistry.defaults(), core.resolver());
         CommandFactory factory = new CommandFactory(plugin, this);
-        factory.registerTree(new File(plugin.getDataFolder(), COMMAND_FILE), handlers, new R18nCommandMessages(),
+        factory.registerTree(COMMAND_FILE, handlers, new R18nCommandMessages(),
                 registry);
         factory.registerAllCommandsAndListeners();
     }

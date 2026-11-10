@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -26,10 +27,28 @@ import java.util.regex.Pattern;
 public final class TranslationFileMerger {
 
     private static final String DIRECTORY = "translations";
+    private static final String FALLBACK_LOCALE = "en_US";
+    private static final String YML = ".yml";
+    private static final Pattern LOCALE_FILE = Pattern.compile("[a-z]{2,3}_[A-Z]{2}\\.yml");
     private static final Pattern BOOLEAN_KEY = Pattern.compile(
             "(?m)^([ \\t]*)(on|off|yes|no|y|n|true|false|On|Off|Yes|No|True|False|ON|OFF|YES|NO|TRUE|FALSE)(:(?:[ \\t]|$))");
 
     private TranslationFileMerger() {
+    }
+
+    /**
+     * Finds the language files in a translations folder: every {@code xx_YY.yml}, so a server owner can add a
+     * language by dropping in a file. {@code config.yml} and backups are skipped.
+     *
+     * @param directory the translations folder
+     * @return the locales, sorted, for example {@code [de_DE, en_US, fr_FR]}
+     */
+    public static @NotNull List<String> discoverLocales(@NotNull File directory) {
+        String[] names = directory.list((dir, name) -> LOCALE_FILE.matcher(name).matches());
+        if (names == null) {
+            return List.of();
+        }
+        return Arrays.stream(names).map(name -> name.substring(0, name.length() - YML.length())).sorted().toList();
     }
 
     /** Adds the missing bundled keys to each existing {@code translations/<locale>.yml}. */
@@ -46,7 +65,10 @@ public final class TranslationFileMerger {
             return;
         }
         quoteBooleanKeys(plugin, live);
-        try (InputStream in = plugin.getResource(resourcePath)) {
+        InputStream own = plugin.getResource(resourcePath);
+        // A language the jar does not ship (an owner's fr_FR.yml) is completed from the English file, so every
+        // text exists and the English lines show what is still to translate.
+        try (InputStream in = own != null ? own : plugin.getResource(DIRECTORY + "/" + FALLBACK_LOCALE + ".yml")) {
             if (in == null) {
                 return;
             }

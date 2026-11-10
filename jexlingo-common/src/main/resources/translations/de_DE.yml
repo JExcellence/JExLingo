@@ -1,5 +1,5 @@
 # JExLingo - Deutsche Übersetzungen
-# file-version: 3
+# file-version: 4
 #
 # Farbsprache (wie im Rest der Suite):
 #   Namen #F1F5F9 | Abschnittstitel #C4B5FD | gedämpfter Text #94A3B8 | Akzent #A78BFA
@@ -208,7 +208,7 @@ lingo:
       done: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{provider}</#A78BFA> <#F1F5F9>hat in</#F1F5F9> <#A78BFA>{millis} ms</#A78BFA> <#F1F5F9>geantwortet.</#F1F5F9>'
       failed: '<#F87171>[X]</#F87171> <#F1F5F9>Der Anbieter hat nicht geantwortet:</#F1F5F9> <#94A3B8>{value}</#94A3B8>'
       one_language: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Ein Ping braucht mindestens zwei aktive Sprachen.</#F1F5F9>'
-    cache_cleared: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{count}</#A78BFA> <#F1F5F9>gespeicherte Übersetzungen entfernt.</#F1F5F9>'
+    cache_cleared: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Entfernt:</#F1F5F9> <#A78BFA>{count}</#A78BFA> <#F1F5F9>gespeicherte Übersetzungen.</#F1F5F9>'
   learning:
     unavailable: '<#FBBF24>[!]</#FBBF24> <#F1F5F9>Korrekturen und das Übersetzungsgedächtnis gehören zu JExLingo Premium.</#F1F5F9>'
   review:
@@ -229,7 +229,7 @@ lingo:
     removed_one: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Glossarbegriff entfernt.</#F1F5F9>'
     not_found: '<#F87171>[X]</#F87171> <#A78BFA>{term}</#A78BFA> <#F1F5F9>steht nicht im Glossar.</#F1F5F9>'
     import:
-      done: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{added}</#A78BFA> <#F1F5F9>Begriffe aus glossary.yml übernommen.</#F1F5F9> <#94A3B8>{duplicates} gab es schon, {limit} passten nicht mehr ins Limit.</#94A3B8>'
+      done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Übernommen:</#F1F5F9> <#A78BFA>{added}</#A78BFA> <#F1F5F9>Begriffe aus glossary.yml.</#F1F5F9> <#94A3B8>{duplicates} gab es schon, {limit} passten nicht mehr ins Limit.</#94A3B8>'
     list:
       header: '<gradient:#5EEAD4:#A78BFA>Glossar</gradient> <dark_gray>|</dark_gray> <#F1F5F9>{count}</#F1F5F9> <#94A3B8>Begriffe</#94A3B8>'
       context: '<#94A3B8>Wörter, die der Übersetzer behält oder immer gleich übersetzt</#94A3B8>'
@@ -238,7 +238,7 @@ lingo:
       empty: '<#94A3B8>Noch keine Begriffe.</#94A3B8>'
       footer: '<#A78BFA>▸</#A78BFA> <#94A3B8>Neuer Begriff mit</#94A3B8> <#F1F5F9>/lingo glossary add keep OneBlock</#F1F5F9>'
   export:
-    done: '<#4ADE80>[OK]</#4ADE80> <#A78BFA>{count}</#A78BFA> <#F1F5F9>angenommene Übersetzungen exportiert nach</#F1F5F9> <#A78BFA>exports/{file}</#A78BFA><#F1F5F9>.</#F1F5F9>'
+    done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Exportiert:</#F1F5F9> <#A78BFA>{count}</#A78BFA> <#F1F5F9>angenommene Übersetzungen nach</#F1F5F9> <#A78BFA>exports/{file}</#A78BFA><#F1F5F9>.</#F1F5F9>'
     failed: '<#F87171>[X]</#F87171> <#F1F5F9>Der Export ist fehlgeschlagen. Details stehen im Server-Log.</#F1F5F9>'
   reload:
     done: '<#4ADE80>[OK]</#4ADE80> <#F1F5F9>Config, Glossarregeln und Übersetzungen neu geladen.</#F1F5F9>'

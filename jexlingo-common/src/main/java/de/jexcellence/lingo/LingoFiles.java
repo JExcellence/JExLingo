@@ -1,7 +1,6 @@
 package de.jexcellence.lingo;
 
 import de.jexcellence.lingo.api.LanguageCode;
-import de.jexcellence.lingo.command.CommandTreeMerger;
 import de.jexcellence.lingo.config.BundledFileVersion;
 import de.jexcellence.lingo.config.ConfigFileMerger;
 import de.jexcellence.lingo.config.LanguageSettings;
@@ -33,17 +32,19 @@ public final class LingoFiles {
     /** Locale every text exists in. */
     public static final String DEFAULT_LOCALE = "en_US";
 
-    /** Further maintained locales. */
+    /** Further locales shipped in the jar. */
     public static final String[] EXTRA_LOCALES = {"de_DE"};
 
     private static final String CONFIG_FILE = "config.yml";
     private static final String GLOSSARY_FILE = "glossary.yml";
     private static final String SLANG_FILE = "slang.yml";
     private static final String DATABASE_FILE = "database/hibernate.properties";
+    private static final String TRANSLATIONS = "translations";
 
     private final JavaPlugin plugin;
     private final LingoEdition edition;
     private final Logger logger;
+    private List<String> extraLocales = List.of(EXTRA_LOCALES);
 
     /**
      * Creates the file helper.
@@ -64,19 +65,36 @@ public final class LingoFiles {
         ConfigFileMerger.addMissingKeys(plugin, CONFIG_FILE);
     }
 
-    /** Copies the other default files once and merges new command and translation keys. */
+    /** Copies the other default files once and merges new translation keys; JExCommand keeps the command tree. */
     public void prepareRest() {
         saveDefault(DATABASE_FILE);
         saveDefault(GLOSSARY_FILE);
         saveDefault(SLANG_FILE);
-        saveDefault(LingoCommands.COMMAND_FILE);
-        if (!BundledFileVersion.replaceIfOutdated(plugin, LingoCommands.COMMAND_FILE)) {
-            CommandTreeMerger.addMissingSubcommands(plugin, LingoCommands.COMMAND_FILE);
+        List<String> bundled = new ArrayList<>(List.of(EXTRA_LOCALES));
+        bundled.addFirst(DEFAULT_LOCALE);
+        bundled.forEach(locale -> BundledFileVersion.replaceIfOutdated(plugin, TRANSLATIONS + "/" + locale + ".yml"));
+        List<String> added = TranslationFileMerger.discoverLocales(new File(plugin.getDataFolder(), TRANSLATIONS))
+                .stream()
+                .filter(locale -> !bundled.contains(locale))
+                .toList();
+        if (!added.isEmpty()) {
+            logger.log(Level.INFO, () -> "Using your own language files too: " + added
+                    + ". Missing texts are added in English; translate them in the file.");
         }
-        List<String> locales = new ArrayList<>(List.of(EXTRA_LOCALES));
-        locales.addFirst(DEFAULT_LOCALE);
-        locales.forEach(locale -> BundledFileVersion.replaceIfOutdated(plugin, "translations/" + locale + ".yml"));
-        TranslationFileMerger.addMissingKeys(plugin, locales);
+        List<String> all = new ArrayList<>(bundled);
+        all.addAll(added);
+        TranslationFileMerger.addMissingKeys(plugin, all);
+        extraLocales = all.stream().filter(locale -> !locale.equals(DEFAULT_LOCALE)).toList();
+    }
+
+    /**
+     * Returns every language of JExLingo's own texts except English: the bundled ones and every {@code xx_YY.yml}
+     * the server owner put into {@code translations/}. Filled by {@link #prepareRest()}.
+     *
+     * @return the locales
+     */
+    public @NotNull String[] extraLocales() {
+        return extraLocales.toArray(String[]::new);
     }
 
     /**
